@@ -14,6 +14,8 @@ class MYPROJECT_API UBTService_FindPlayerInSight : public UBTService_BlackboardB
 {
 	GENERATED_BODY()
 
+	UBTService_FindPlayerInSight();
+
 protected:
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;	
 };

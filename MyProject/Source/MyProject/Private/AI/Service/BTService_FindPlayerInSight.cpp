@@ -6,6 +6,11 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 
+UBTService_FindPlayerInSight::UBTService_FindPlayerInSight()
+{
+	NodeName = "Find Player In Sight";
+}
+
 void UBTService_FindPlayerInSight::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
