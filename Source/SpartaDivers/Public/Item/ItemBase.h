@@ -17,9 +17,6 @@ enum class EItemType : uint8
 	Consumable
 };
 
-/**
- * 
- */
 UCLASS()
 class SPARTADIVERS_API UItemBase : public UObject
 {
@@ -27,6 +24,12 @@ class SPARTADIVERS_API UItemBase : public UObject
 
 public:
 	UItemBase();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	FName ItemName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	FText ItemDescription;
 
 	FORCEINLINE const UTexture2D* GetIconImage() const { return IconImage; }
 	FORCEINLINE const EItemType GetItemType() const { return ItemType; }
