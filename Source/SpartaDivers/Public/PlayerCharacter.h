@@ -38,15 +38,22 @@ public:
 
 	UFUNCTION()
 	void Move(const FInputActionValue& value);
+	
 	UFUNCTION()
 	void StartJump(const FInputActionValue& value);
+	
 	UFUNCTION()
 	void StopJump(const FInputActionValue& value);
+	
 	UFUNCTION()
 	void Look(const FInputActionValue& value);
+	
 	UFUNCTION()
 	void StartSprint(const FInputActionValue& value);
+	
 	UFUNCTION()
 	void StopSprint(const FInputActionValue& value);
 
+	UFUNCTION()
+	void Fire(const FInputActionValue& value);
 };
