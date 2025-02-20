@@ -6,6 +6,8 @@
 #include "Item/ItemBase.h"
 #include "AttachmentBase.generated.h"
 
+class UGunBase;
+
 /**
  * 
  */
@@ -14,4 +16,8 @@ class SPARTADIVERS_API UAttachmentBase : public UItemBase
 {
 	GENERATED_BODY()
 	
+public:
+	UAttachmentBase();
+
+	virtual void ApplyAttachmentEffect(UGunBase* InGun);
 };

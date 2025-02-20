@@ -3,3 +3,11 @@
 
 #include "Item/ConsumableBase.h"
 
+UConsumableBase::UConsumableBase()
+{
+	ItemType = EItemType::Consumable;
+}
+
+void UConsumableBase::ApplyConsumableEffect(APlayerCharacter* InPlayerCharacter)
+{
+}
