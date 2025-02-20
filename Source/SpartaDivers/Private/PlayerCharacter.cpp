@@ -70,6 +70,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					this,
 					&APlayerCharacter::StartJump
 				);
+				EnhancedInput->BindAction(
+					PlayerController->JumpAction,
+					ETriggerEvent::Completed,
+					this,
+					&APlayerCharacter::StopJump
+				);
 			}
 			if (PlayerController->LookAction)
 			{
@@ -88,13 +94,23 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					this,
 					&APlayerCharacter::StartSprint
 				);
+				EnhancedInput->BindAction(
+					PlayerController->SprintAction,
+					ETriggerEvent::Completed,
+					this,
+					&APlayerCharacter::StopSprint
+				);
 			}
-			EnhancedInput->BindAction(
-				PlayerController->SprintAction,
-				ETriggerEvent::Completed,
-				this,
-				&APlayerCharacter::StopSprint
-			);
+			if (PlayerController->FireAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->FireAction,
+					ETriggerEvent::Triggered,
+					this,
+					&APlayerCharacter::Fire
+					);
+			}
+
 		}
 
 	}
@@ -153,5 +169,10 @@ void APlayerCharacter::StopSprint(const FInputActionValue& value)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 	}
+}
+
+void APlayerCharacter::Fire(const FInputActionValue& value)
+{
+	UE_LOG(LogTemp,Log,TEXT("Log Messafe"));
 }
 
