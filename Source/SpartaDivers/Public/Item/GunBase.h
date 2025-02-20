@@ -6,10 +6,16 @@
 #include "Item/ItemBase.h"
 #include "GunBase.generated.h"
 
+class APlayerCharacter;
 UCLASS()
 class SPARTADIVERS_API UGunBase : public UItemBase
 {
 	GENERATED_BODY()
+
+private:
+	APlayerCharacter* PlayerCharacter;
+	bool bCanFire;
+	FTimerHandle FireCooldownTimer;
 
 public:
 	UGunBase();
@@ -27,8 +33,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float ReloadTime;
 
+
 	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
 	void Fire();
+	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
+	void PerformHitScan();
+	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
+	void ResetFireCooldown();
 	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
 	void Reload();
 };
