@@ -2,3 +2,6 @@
 
 #include "Item/ItemBase.h"
 
+UItemBase::UItemBase()
+{
+}

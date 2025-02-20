@@ -6,15 +6,35 @@
 #include "UObject/NoExportTypes.h"
 #include "ItemBase.generated.h"
 
+
+class UTexture2D;
+
+UENUM()
+enum class EItemType : uint8
+{
+	Gun,
+	Attachment,
+	Consumable
+};
+
+/**
+ * 
+ */
 UCLASS()
 class SPARTADIVERS_API UItemBase : public UObject
 {
 	GENERATED_BODY()
+
+public:
+	UItemBase();
+
+	FORCEINLINE const UTexture2D* GetIconImage() const { return IconImage; }
+	FORCEINLINE const EItemType GetItemType() const { return ItemType; }
 	
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	FName ItemName;
+	UPROPERTY(EditDefaultsOnly)
+	UTexture2D* IconImage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	FText ItemDescription;
+	UPROPERTY(VisibleAnywhere)
+	EItemType ItemType;
 };

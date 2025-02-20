@@ -6,6 +6,8 @@
 #include "Item/ItemBase.h"
 #include "ConsumableBase.generated.h"
 
+class APlayerCharacter;
+
 /**
  * 
  */
@@ -14,4 +16,8 @@ class SPARTADIVERS_API UConsumableBase : public UItemBase
 {
 	GENERATED_BODY()
 	
+public:
+	UConsumableBase();
+
+	virtual void ApplyConsumableEffect(APlayerCharacter* InPlayerCharacter);
 };
