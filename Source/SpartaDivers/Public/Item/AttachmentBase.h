@@ -8,6 +8,16 @@
 
 class UGunBase;
 
+UENUM()
+enum class EAttachmentType : uint8
+{
+	Scope,
+	Muzzle,
+	Magazine,
+	Stock,
+	Grip
+};
+
 /**
  * 
  */
@@ -20,4 +30,10 @@ public:
 	UAttachmentBase();
 
 	virtual void ApplyAttachmentEffect(UGunBase* InGun);
+
+	FORCEINLINE const EAttachmentType GetAttachmentType() const { return AttachmentType; }
+
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	EAttachmentType AttachmentType;
 };
