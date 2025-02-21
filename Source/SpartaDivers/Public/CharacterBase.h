@@ -33,6 +33,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 	UStatusContainerComponent* StatusContainerComponent;
 
+public:
 	// IStatusContainerInterface을(를) 통해 상속됨
 	virtual UStatusContainerComponent* GetStatusContainerComponent() const override;
 
