@@ -4,10 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/StatusContainerInterface.h"
+
 #include "CharacterBase.generated.h"
 
+class UStatusContainerComponent;
+
 UCLASS()
-class SPARTADIVERS_API ACharacterBase : public ACharacter
+class SPARTADIVERS_API ACharacterBase : public ACharacter, public IStatusContainerInterface
 {
 	GENERATED_BODY()
 
@@ -25,5 +29,11 @@ protected:
 	float MaxHP;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
 	float CurrentHP;
+
+	UPROPERTY(VisibleAnywhere, Category = "Status")
+	UStatusContainerComponent* StatusContainerComponent;
+
+	// IStatusContainerInterface을(를) 통해 상속됨
+	virtual UStatusContainerComponent* GetStatusContainerComponent() const override;
 
 };
