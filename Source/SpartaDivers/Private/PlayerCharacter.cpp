@@ -39,7 +39,7 @@ void APlayerCharacter::BeginPlay()
 	EquippedGun = NewObject<UGunBase>(this, UGunBase::StaticClass());
 	if (EquippedGun)
 	{
-		// �ѱ� �ʱ�ȭ
+		// ÃÑ±â ÃÊ±âÈ­
 		EquippedGun->ItemName = FName(TEXT("PlayerGun"));
 		EquippedGun->ItemDescription = FText::FromString(TEXT("A powerful gun"));
 		EquippedGun->Damage = 50.0f;
@@ -195,7 +195,7 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 {
 	if (EquippedGun)
 	{
-		EquippedGun->Fire();  // UGunBase�� Fire �Լ� ȣ��
+		EquippedGun->Fire();  // UGunBaseÀÇ Fire ÇÔ¼ö È£Ãâ
 	}
 }
 
