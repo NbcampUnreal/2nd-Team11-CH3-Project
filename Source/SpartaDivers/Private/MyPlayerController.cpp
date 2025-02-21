@@ -10,7 +10,8 @@ MoveAction(nullptr),
 JumpAction(nullptr),
 LookAction(nullptr),
 SprintAction(nullptr),
-FireAction(nullptr)
+FireAction(nullptr),
+ReloadAction(nullptr)
 {
 }
 
