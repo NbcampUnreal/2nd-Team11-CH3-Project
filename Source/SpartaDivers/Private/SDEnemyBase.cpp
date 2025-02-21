@@ -57,6 +57,10 @@ float ASDEnemyBase::TakeDamage(
 	return ActualDamage;
 }
 
+void ASDEnemyBase::Attack()
+{
+}
+
 void ASDEnemyBase::OnDeath()
 {
 	// Get the mesh component (Skeletal Mesh)
