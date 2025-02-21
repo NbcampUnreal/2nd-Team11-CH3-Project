@@ -196,12 +196,16 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 	if (EquippedGun)
 	{
 		EquippedGun->Fire();  // UGunBaseÀÇ Fire ÇÔ¼ö È£Ãâ
+		AnimInstance = GetMesh()->GetAnimInstance();
+		AnimInstance->Montage_Play(FireMontage);
 	}
 }
 
 void APlayerCharacter::Reload(const FInputActionValue& value)
 {
 	UE_LOG(LogTemp, Log, TEXT("Reload"));
+	AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->Montage_Play(ReloadMontage);
 }
 
 
