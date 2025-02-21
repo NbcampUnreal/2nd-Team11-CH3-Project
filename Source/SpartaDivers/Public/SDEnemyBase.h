@@ -36,6 +36,9 @@ protected:
 		AActor* DamageCauser);
 
 	UFUNCTION(BlueprintCallable)
+	virtual void Attack();
+
+	UFUNCTION(BlueprintCallable)
 	virtual void OnDeath();
 
 protected:
