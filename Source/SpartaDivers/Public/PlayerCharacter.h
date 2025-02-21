@@ -32,6 +32,12 @@ protected:
 	USpringArmComponent* SpringArmComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* CameraComp;
+	UAnimInstance* AnimInstance;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* FireMontage;
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* ReloadMontage;
 
 public:	
 	// Called every frame
