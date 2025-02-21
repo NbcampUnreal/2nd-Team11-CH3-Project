@@ -2,7 +2,7 @@
 
 #include "MissionManager.h"
 #include "MyGameState.h"
-//#include "TestCharacterimkskku.h"
+#include "PlayerCharacter.h"
 #include "Components/BoxComponent.h"
 
 AMissionManager::AMissionManager()
@@ -185,10 +185,10 @@ void AMissionManager::OnObjectOverlap(
 	{
 		if (OtherActor && OtherActor->ActorHasTag("Player") && !bIsPlayerInCaptureZone)
 		{
-			/*if (ATestCharacterimkskku* PlayerCharacter = Cast<ATestCharacterimkskku>(OtherActor))
+			if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor))
 			{
 				bIsPlayerInCaptureZone = true;
-			}*/
+			}
 		}
 	}
 }

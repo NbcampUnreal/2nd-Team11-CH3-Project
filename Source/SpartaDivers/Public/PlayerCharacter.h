@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -11,6 +11,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 struct FInputActionValue;
+class UGunBase;
 
 UCLASS()
 class SPARTADIVERS_API APlayerCharacter : public ACharacterBase
@@ -22,6 +23,9 @@ public:
 	APlayerCharacter();
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	UGunBase* EquippedGun;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -56,4 +60,7 @@ public:
 
 	UFUNCTION()
 	void Fire(const FInputActionValue& value);
+	
+	UFUNCTION()
+	void Reload(const FInputActionValue& value);
 };

@@ -7,7 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "Item/GunBase.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -36,6 +36,17 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	EquippedGun = NewObject<UGunBase>(this, UGunBase::StaticClass());
+	if (EquippedGun)
+	{
+		// ÃÑ±â ÃÊ±âÈ­
+		EquippedGun->ItemName = FName(TEXT("PlayerGun"));
+		EquippedGun->ItemDescription = FText::FromString(TEXT("A powerful gun"));
+		EquippedGun->Damage = 50.0f;
+		EquippedGun->FireRate = 1.5f;
+		EquippedGun->MaxAmmo = 30;
+		EquippedGun->Ammo = 30;
+	}
 }
 
 // Called every frame
@@ -110,6 +121,15 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					&APlayerCharacter::Fire
 					);
 			}
+			if (PlayerController->ReloadAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ReloadAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::Reload
+				);
+			}
 
 		}
 
@@ -173,6 +193,15 @@ void APlayerCharacter::StopSprint(const FInputActionValue& value)
 
 void APlayerCharacter::Fire(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp,Log,TEXT("Log Messafe"));
+	if (EquippedGun)
+	{
+		EquippedGun->Fire();  // UGunBaseÀÇ Fire ÇÔ¼ö È£Ãâ
+	}
 }
+
+void APlayerCharacter::Reload(const FInputActionValue& value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Reload"));
+}
+
 
