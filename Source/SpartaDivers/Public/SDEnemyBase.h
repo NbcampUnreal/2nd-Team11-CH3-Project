@@ -35,6 +35,7 @@ protected:
 		AController* EventInstigator,
 		AActor* DamageCauser);
 
+	UFUNCTION(BlueprintCallable)
 	virtual void Attack();
 
 	UFUNCTION(BlueprintCallable)
