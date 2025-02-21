@@ -3,6 +3,7 @@
 #include "SDCheatManager.h"
 #include "PlayerCharacter.h"
 #include "SDEnemyBase.h"
+#include "MissionManager.h"
 #include "Kismet/GameplayStatics.h"
 
 void USDCheatManager::GodMode()
@@ -14,15 +15,40 @@ void USDCheatManager::GodMode()
     }
 }
 
-void USDCheatManager::KillAllEnemies()
+void USDCheatManager::SDKillAE()
 {
-    TArray<AActor*> Enemies;
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASDEnemyBase::StaticClass(), Enemies);
+    AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
 
-    for (AActor* Enemy : Enemies)
+    if (MissionManager)
     {
-        Enemy->Destroy();
+        MissionManager->DestroyAllEnemies();
+        UE_LOG(LogTemp, Warning, TEXT("Cheat activated: Alle Enemies Destoyed!"));
     }
+}
 
-    UE_LOG(LogTemp, Warning, TEXT("All enemies eliminated!"));
+void USDCheatManager::SDStart()
+{
+    AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
+
+    if (MissionManager)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Cheat activated: Mission started!"));
+        MissionManager->StartMission();
+    }
+}
+
+void USDCheatManager::SDComple()
+{
+    // 현재 월드에서 AMissionManager 찾기
+    AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
+
+    if (MissionManager)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Cheat activated: Mission completed!"));
+        MissionManager->CompleteMission();
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("MissionManager not found!"));
+    }
 }

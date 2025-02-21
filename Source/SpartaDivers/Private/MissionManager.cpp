@@ -4,6 +4,9 @@
 #include "MyGameState.h"
 #include "PlayerCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "SDEnemyBase.h"
+#include "SD_SpawnVolume.h"
 
 AMissionManager::AMissionManager()
 {
@@ -11,12 +14,12 @@ AMissionManager::AMissionManager()
 
 	CaptureZone = CreateDefaultSubobject<UBoxComponent>(TEXT("CaptureZone"));
 	CaptureZone->SetupAttachment(RootComponent);
-
 	CaptureZone->OnComponentBeginOverlap.AddDynamic(this, &AMissionManager::OnObjectOverlap);
 	CaptureZone->OnComponentEndOverlap.AddDynamic(this, &AMissionManager::OnObjectEndOverlap);
 
 	CurrentMissionIndex = 0;
 	MaxMissionCount = 4;
+	RestTime = 5.0f;
 	CaptureProgress = 0.0f;
 	bIsPlayerInCaptureZone = false;
 }
@@ -24,13 +27,13 @@ AMissionManager::AMissionManager()
 void AMissionManager::BeginPlay()
 {
 	Super::BeginPlay();
-	StartMission();
 }
 
 void AMissionManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Measure Capture progress
 	if (CurrentMissionData.MissionType == EMissionType::Capture)
 	{
 		if (bIsPlayerInCaptureZone)
@@ -40,8 +43,7 @@ void AMissionManager::Tick(float DeltaTime)
 
 			if (CaptureProgress >= CurrentMissionData.CaptureTime)
 			{
-				CompleteMission(true);
-				bIsPlayerInCaptureZone = false;
+				CheckMissionCompletion();
 			}
 		}
 		else
@@ -71,65 +73,30 @@ void AMissionManager::StartMission()
 		{
 			SpawnedEnemyCount = 0;
 			KilledEnemyCount = 0;
-			// Spawn enemies based on chance
-			for (const auto& EnemySpawnChance : CurrentMissionData.EnemySpawnChances)
-			{
-				if (FMath::FRand() <= EnemySpawnChance.Value)
-				{
-					FVector SpawnLocation = GetActorLocation() + FVector(FMath::RandRange(-500, 500), FMath::RandRange(-500, 500), 0);
-					FRotator SpawnRotation = FRotator::ZeroRotator;
-
-					AActor* SpawnedEnemy = GetWorld()->SpawnActor<AActor>(EnemySpawnChance.Key, SpawnLocation, SpawnRotation);
-					if (SpawnedEnemy)
-					{
-						SpawnedEnemyCount++;
-						UE_LOG(LogTemp, Warning, TEXT("Spawned Enemy: %s at %s"), *SpawnedEnemy->GetName(), *SpawnLocation.ToString());
-					}
-				}
-			}
-			// if all enemies are dead
-				// CompleteMission
+			SpawnEnemy();
+			// Check When Enemy Dead
 			break;
 		}
 		case EMissionType::Survive:
 		{
-			// Spawn enemies based on chance
-			for (const auto& EnemySpawnChance : CurrentMissionData.EnemySpawnChances)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Enemy %s spawned: %f"), *EnemySpawnChance.Key->GetName(), EnemySpawnChance.Value);
-			}
-			GetWorld()->GetTimerManager().SetTimer(
+			SpawnEnemy();
+			/*GetWorld()->GetTimerManager().SetTimer(
 				SurvivalTimerHandle,
 				this,
 				&AMissionManager::CheckMissionCompletion,
 				CurrentMissionData.SurviveTime,
-				false);
+				false);*/
 			break;
 		}
 		case EMissionType::Capture:
 		{
-			// Spawn enemies based on chance
-			for (const auto& EnemySpawnChance : CurrentMissionData.EnemySpawnChances)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Enemy %s spawned: %f"), *EnemySpawnChance.Key->GetName(), EnemySpawnChance.Value);
-			}
-			// Check in  Tick() 
+			SpawnEnemy();
 			break;
 		}
-		case EMissionType::Escape:
+		case EMissionType::BossCombat:
 		{
-			// Spawn enemies based on chance
-			for (const auto& EnemySpawnChance : CurrentMissionData.EnemySpawnChances)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Enemy %s spawned: %f"), *EnemySpawnChance.Key->GetName(), EnemySpawnChance.Value);
-			}
-			// if Player Escape
-			GetWorld()->GetTimerManager().SetTimer(
-				EscapeTimerHandle,
-				this,
-				&AMissionManager::CheckMissionCompletion,
-				CurrentMissionData.EscapeTimeLimit,
-				false);
+			SpawnEnemy();
+			// Check When Boss Dead
 			break;
 		}
 		default:
@@ -142,32 +109,27 @@ void AMissionManager::StartMission()
 	}
 }
 
-void AMissionManager::CompleteMission(bool bMissionSuccess)
+void AMissionManager::CompleteMission()
 {
-	if (bMissionSuccess)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Mission %d Success!"), CurrentMissionIndex);
+	UE_LOG(LogTemp, Warning, TEXT("Mission %d Success!"), CurrentMissionIndex);
 
-		if (AMyGameState* MyGameState = GetWorld()->GetGameState<AMyGameState>())
+	if (AMyGameState* MyGameState = GetWorld()->GetGameState<AMyGameState>())
+	{
+		if (MyGameState)
 		{
-			if (MyGameState)
-			{
-				MyGameState->AddScore(CurrentMissionData.ScoreReward);
-			}
+			MyGameState->AddScore(CurrentMissionData.ScoreReward);
 		}
-
-		CurrentMissionIndex++;
-		// 정비시간을 주고 StartMission
-
-		StartMission();
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Mission %d Failed!"), CurrentMissionIndex);
-		CurrentMissionIndex++;
-		// 정비시간을 주고 StartMission
-		StartMission();
-	}
+
+	DestroyAllEnemies();
+
+	CurrentMissionIndex++;
+	//GetWorld()->GetTimerManager().SetTimer(
+	//	NextMissionTimerHandle,
+	//	this,
+	//	&AMissionManager::StartMission,
+	//	RestTime, 
+	//	false);
 }
 
 void AMissionManager::OnObjectOverlap(
@@ -210,15 +172,20 @@ void AMissionManager::CheckMissionCompletion()
 	{
 		if (KilledEnemyCount >= SpawnedEnemyCount)
 		{
-			CompleteMission(true);
+			CompleteMission();
 		}
 		break;
 	}
 	case EMissionType::Survive:
 	{
-		if (1/*플레이어의 체력이 0보다 크면*/)
+		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+		if (PlayerController)
 		{
-			CompleteMission(true);
+			APlayerCharacter* Player = Cast<APlayerCharacter>(PlayerController->GetPawn());
+			if (1/*플레이어의 체력이 0보다 크면*/)
+			{
+				CompleteMission();
+			}
 		}
 		break;
 	}
@@ -226,30 +193,83 @@ void AMissionManager::CheckMissionCompletion()
 	{
 		if (CaptureProgress >= CurrentMissionData.CaptureTime)
 		{
-			CompleteMission(true);
+			CompleteMission();
+			bIsPlayerInCaptureZone = false;
 		}
 		break;
 	}
-	case EMissionType::Escape:
+	case EMissionType::BossCombat:
 	{
 		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 		if (PlayerController)
 		{
-			APawn* PlayerPawn = PlayerController->GetPawn();
-			FVector CurrentLocation = PlayerPawn->GetActorLocation();
-			UE_LOG(LogTemp, Warning, TEXT("Current Location : %s"), *CurrentLocation.ToString());
-			if (PlayerPawn && FVector::Dist(PlayerPawn->GetActorLocation(), CurrentMissionData.TargetLocation) <= 500.0f)
+			APlayerCharacter* Player = Cast<APlayerCharacter>(PlayerController->GetPawn());
+			if (1/*플레이어의 체력이 0보다 크면*/)
 			{
-				CompleteMission(true);
-			}
-			else if (PlayerPawn && FVector::Dist(PlayerPawn->GetActorLocation(), CurrentMissionData.TargetLocation) > 500.0f)
-			{
-				CompleteMission(false);
+				CompleteMission();
 			}
 		}
 		break;
 	}
 	default:
 		break;
+	}
+}
+
+void AMissionManager::SpawnEnemy()
+{
+	// 게임 내의 모든 SpawnVolume을 찾음
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASD_SpawnVolume::StaticClass(), FoundVolumes);
+
+	if (FoundVolumes.Num() > 0 && SpawnDataTables.IsValidIndex(CurrentMissionIndex))
+	{
+		const int32 EnemiesToSpawn = CurrentMissionData.EnemyCount;
+		TArray<ASD_SpawnVolume*> MatchingVolumes;
+
+		// Filter only SpawnVolumes that match the current mission type
+		for (AActor* VolumeActor : FoundVolumes)
+		{
+			if (ASD_SpawnVolume* SpawnVolume = Cast<ASD_SpawnVolume>(VolumeActor))
+			{
+				if (SpawnVolume->GetMissionType() == CurrentMissionData.MissionType)
+				{
+					MatchingVolumes.Add(SpawnVolume);
+				}
+			}
+		}
+
+		// 적절한 SpawnVolume이 있는 경우 적 소환
+		if (MatchingVolumes.Num() > 0)
+		{
+			for (int32 i = 0; i < EnemiesToSpawn; i++)
+			{
+				ASD_SpawnVolume* SelectedVolume = MatchingVolumes[FMath::RandRange(0, MatchingVolumes.Num() - 1)];
+				if (SelectedVolume)
+				{
+					SelectedVolume->SetCurrentSpawnDataTable(SpawnDataTables[CurrentMissionIndex]);
+					SelectedVolume->SpawnRandomEnemy(CurrentMissionIndex);
+
+					UE_LOG(LogTemp, Warning, TEXT("Enemy Spawned from Selected Volume"));
+				}
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No Matching SpawnVolume found for Mission Type"));
+		}
+	}
+}
+
+void AMissionManager::DestroyAllEnemies()
+{
+	TArray<AActor*> FoundEnemies;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASDEnemyBase::StaticClass(), FoundEnemies);
+
+	for (AActor* Enemy : FoundEnemies)
+	{
+		if (Enemy)
+		{
+			Enemy->Destroy();
+		}
 	}
 }
