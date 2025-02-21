@@ -3,6 +3,7 @@
 
 #include "MyPlayerController.h"
 #include "EnhancedInputSubsystems.h"
+#include "SDCheatManager.h"
 
 AMyPlayerController::AMyPlayerController() : InputMappingContext(nullptr),
 MoveAction(nullptr),
@@ -16,7 +17,6 @@ FireAction(nullptr)
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
 
 	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
 	{
