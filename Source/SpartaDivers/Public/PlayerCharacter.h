@@ -56,4 +56,7 @@ public:
 
 	UFUNCTION()
 	void Fire(const FInputActionValue& value);
+	
+	UFUNCTION()
+	void Reload(const FInputActionValue& value);
 };

@@ -110,6 +110,15 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					&APlayerCharacter::Fire
 					);
 			}
+			if (PlayerController->ReloadAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ReloadAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::Reload
+				);
+			}
 
 		}
 
@@ -173,6 +182,12 @@ void APlayerCharacter::StopSprint(const FInputActionValue& value)
 
 void APlayerCharacter::Fire(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp,Log,TEXT("Log Messafe"));
+	UE_LOG(LogTemp,Log,TEXT("Fire"));
 }
+
+void APlayerCharacter::Reload(const FInputActionValue& value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Reload"));
+}
+
 
