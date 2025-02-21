@@ -24,8 +24,8 @@ void UGunBase::Fire()
 {
     if (bCanFire && Ammo > 0)
     {
-        Ammo--;
-        bCanFire = false;  // 발사 제한
+        //Ammo--;
+        //bCanFire = false;  // 발사 제한
         UE_LOG(LogTemp, Warning, TEXT("%s fired! Ammo: %d/%d"), *ItemName.ToString(), Ammo, MaxAmmo);
 
         PerformHitScan();
@@ -53,14 +53,19 @@ void UGunBase::PerformHitScan()
     FCollisionQueryParams QueryParams;
     QueryParams.AddIgnoredActor(PlayerCharacter);
 
-    bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, QueryParams);
+    bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Pawn, QueryParams);
 
     if (bHit)
     {
         AActor* HitActor = HitResult.GetActor();
         if (HitActor && HitActor->ActorHasTag("Enemy"))
         {
-            UGameplayStatics::ApplyDamage(HitActor, Damage, PlayerCharacter->GetController(), PlayerCharacter, UDamageType::StaticClass());
+            UGameplayStatics::ApplyDamage(
+                HitActor, 
+                Damage, 
+                PlayerCharacter->GetController(), 
+                PlayerCharacter, 
+                UDamageType::StaticClass());
         }
 
         DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 10.0f, FColor::Red, false, 2.0f);
