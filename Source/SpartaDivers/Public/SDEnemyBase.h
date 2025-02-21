@@ -35,6 +35,8 @@ protected:
 		AController* EventInstigator,
 		AActor* DamageCauser);
 
+	virtual void Attack();
+
 	UFUNCTION(BlueprintCallable)
 	virtual void OnDeath();
 
