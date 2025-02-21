@@ -26,5 +26,6 @@ void UBTService_FindPlayerInSight::TickNode(UBehaviorTreeComponent& OwnerComp, u
 		}
 	}
 
-	OwnerComp.GetBlackboardComponent()->SetValueAsFloat(GetSelectedBlackboardKey(), 0.f);
+	OwnerComp.GetBlackboardComponent()->SetValueAsFloat(GetSelectedBlackboardKey(), -1.f);
+	return;
 }
