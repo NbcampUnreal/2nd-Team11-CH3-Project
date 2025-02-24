@@ -7,39 +7,43 @@
 #include "GunBase.generated.h"
 
 class APlayerCharacter;
+
 UCLASS()
 class SPARTADIVERS_API UGunBase : public UItemBase
 {
 	GENERATED_BODY()
 
-private:
-	APlayerCharacter* PlayerCharacter;
-	bool bCanFire;
-	FTimerHandle FireCooldownTimer;
+//private:
 
 public:
 	UGunBase();
 	
+	APlayerCharacter* PlayerCharacter;
+	FTimerHandle FireCooldownTimer;
+	bool bCanFire;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float Damage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float FireRate;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
+	//int32 Penetration;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
-	int32 Penetration;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
-	int32 Ammo;
+	int32 CurAmmo;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	int32 MaxAmmo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
+	float CurRecoil;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
+	float MaxRecoil;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float ReloadTime;
 
 
 	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
-	void Fire();
+	virtual void Fire();
 	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
-	void PerformHitScan();
+	virtual void ResetFireCooldown();
 	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
-	void ResetFireCooldown();
-	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
-	void Reload();
+	virtual void Reload();
 };
