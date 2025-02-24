@@ -32,6 +32,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* ReloadAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Crosshair")
+	TSubclassOf<UUserWidget> CrosshairWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Crosshair")
+	UUserWidget* CrosshairWidgetInstance;
+
+	UFUNCTION(BlueprintCallable, Category = "Crosshair")
+	void ShowCrosshair();
+
 	virtual void BeginPlay() override;
 	
 };

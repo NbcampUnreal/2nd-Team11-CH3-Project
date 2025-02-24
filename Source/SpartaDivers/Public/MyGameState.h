@@ -21,7 +21,15 @@ public:
 	int32 GetScore() const;
 	UFUNCTION(BlueprintCallable, Category = "Score")
 	void AddScore(int32 Amount);
+
+	TArray<AActor*> FoundMissionManagers;
+	
+	UFUNCTION(BlueprintCallable, Category = "Level")
+	void StartGame();
+	
 	UFUNCTION(BlueprintCallable, Category = "Level")
 	void OnGameOver();
 
+protected:
+	virtual void BeginPlay() override;
 };

@@ -52,3 +52,8 @@ void USDCheatManager::SDComple()
         UE_LOG(LogTemp, Warning, TEXT("MissionManager not found!"));
     }
 }
+
+void USDCheatManager::SDInfi()
+{
+    // ÃÑ¾Ë¹«ÇÑ
+}
