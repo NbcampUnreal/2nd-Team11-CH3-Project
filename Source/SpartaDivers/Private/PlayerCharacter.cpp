@@ -7,7 +7,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
 #include "Item/GunBase.h"
+#include "Item/Weapons/AssaultRifle.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -36,17 +38,19 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	EquippedGun = NewObject<UGunBase>(this, UGunBase::StaticClass());
-	if (EquippedGun)
-	{
-		// ÃÑ±â ÃÊ±âÈ­
-		EquippedGun->ItemName = FName(TEXT("PlayerGun"));
-		EquippedGun->ItemDescription = FText::FromString(TEXT("A powerful gun"));
-		EquippedGun->Damage = 50.0f;
-		EquippedGun->FireRate = 1.5f;
-		EquippedGun->MaxAmmo = 30;
-		EquippedGun->Ammo = 30;
-	}
+	//EquippedGun = NewObject<UGunBase>(this, UGunBase::StaticClass());
+	//if (EquippedGun)
+	//{
+	//	// ÃÑ±â ÃÊ±âÈ­
+	//	EquippedGun->ItemName = FName(TEXT("PlayerGun"));
+	//	EquippedGun->ItemDescription = FText::FromString(TEXT("A powerful gun"));
+	//	EquippedGun->Damage = 50.0f;
+	//	EquippedGun->FireRate = 1.5f;
+	//	EquippedGun->MaxAmmo = 30;
+	//	EquippedGun->Ammo = 30;
+	//}
+
+	EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
 }
 
 // Called every frame
@@ -195,7 +199,7 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 {
 	if (EquippedGun)
 	{
-		EquippedGun->Fire();  // UGunBaseÀÇ Fire ÇÔ¼ö È£Ãâ
+		EquippedGun->Fire();
 		AnimInstance = GetMesh()->GetAnimInstance();
 		AnimInstance->Montage_Play(FireMontage);
 	}
@@ -203,9 +207,12 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 
 void APlayerCharacter::Reload(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Reload"));
-	AnimInstance = GetMesh()->GetAnimInstance();
-	AnimInstance->Montage_Play(ReloadMontage);
+	if (EquippedGun)
+	{
+		EquippedGun->Reload();
+		AnimInstance = GetMesh()->GetAnimInstance();
+		AnimInstance->Montage_Play(ReloadMontage);
+	}
 }
 
 
