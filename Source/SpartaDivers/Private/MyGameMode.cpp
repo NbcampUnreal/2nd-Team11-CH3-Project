@@ -2,7 +2,6 @@
 
 #include "MyGameMode.h"
 #include "MyGameState.h"
-#include "SDCheatManager.h"
 #include "PlayerCharacter.h"
 #include "MyPlayerController.h"
 
