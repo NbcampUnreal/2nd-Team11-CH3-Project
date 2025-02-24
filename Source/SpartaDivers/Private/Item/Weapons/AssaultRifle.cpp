@@ -25,7 +25,7 @@ void UAssaultRifle::Fire()
     if (bCanFire && CurAmmo > 0)
     {
         CurAmmo--;
-        bCanFire = false;  // 발사 제한
+        bCanFire = false;
 
         UE_LOG(LogTemp, Warning, TEXT("AssaultRifle fired! Ammo: %d/%d"), CurAmmo, MaxAmmo);
 
@@ -58,15 +58,19 @@ void UAssaultRifle::Reload()
 
 void UAssaultRifle::PerformHitScan()
 {
+    FVector CameraLocation = PlayerCharacter->GetActorLocation();  // Player's Location (Camera Location)
+    FRotator CameraRotation = PlayerCharacter->GetController()->GetControlRotation();  // Camera rotation info
+    FVector CameraForward = CameraRotation.Vector();  // The direction the camera is looking at
+
+    FVector Start = CameraLocation + FVector(0, 0, 60.0f); // Set slightly up in camera position
+
+    FVector End = Start + CameraForward * 10000.0f;
+
     FHitResult HitResult;
-    FVector Start = PlayerCharacter->GetActorLocation();
-    Start += FVector::UpVector * 60.0f;
-    FVector End = Start + PlayerCharacter->GetActorForwardVector() * 10000.0f;
-
     FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(PlayerCharacter);
+    QueryParams.AddIgnoredActor(PlayerCharacter); // Player characters ignore conflict
 
-    bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Pawn, QueryParams);
+    bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, QueryParams);
 
     if (bHit)
     {
@@ -74,18 +78,20 @@ void UAssaultRifle::PerformHitScan()
         if (HitActor && HitActor->ActorHasTag("Enemy"))
         {
             UGameplayStatics::ApplyDamage(
-                HitActor, 
-                Damage, 
-                PlayerCharacter->GetController(), 
-                PlayerCharacter, 
+                HitActor,
+                Damage,
+                PlayerCharacter->GetController(),
+                PlayerCharacter,
                 UDamageType::StaticClass());
         }
 
+        // Show debug at crash point
         DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 10.0f, FColor::Red, false, 2.0f);
         DrawDebugLine(GetWorld(), Start, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 2.0f);
     }
     else
     {
+        // If there is no collision, draw the debug line blue
         DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 0, 2.0f);
     }
 }
