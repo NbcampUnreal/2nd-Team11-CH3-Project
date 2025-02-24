@@ -197,7 +197,7 @@ void APlayerCharacter::StopSprint(const FInputActionValue& value)
 
 void APlayerCharacter::Fire(const FInputActionValue& value)
 {
-	if (EquippedGun)
+	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0 && GetCharacterMovement()->MaxWalkSpeed == MoveSpeed)
 	{
 		EquippedGun->Fire();
 		AnimInstance = GetMesh()->GetAnimInstance();
@@ -207,12 +207,19 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 
 void APlayerCharacter::Reload(const FInputActionValue& value)
 {
-	if (EquippedGun)
+	if (EquippedGun && bIsReloading == false)
 	{
-		EquippedGun->Reload();
+		bIsReloading = true;
+		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &APlayerCharacter::FinishReload, EquippedGun->ReloadTime, false);
+
 		AnimInstance = GetMesh()->GetAnimInstance();
 		AnimInstance->Montage_Play(ReloadMontage);
 	}
 }
 
+void APlayerCharacter::FinishReload()
+{
+	EquippedGun->Reload();
 
+	bIsReloading = false;
+}

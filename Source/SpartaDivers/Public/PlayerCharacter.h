@@ -39,6 +39,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* ReloadMontage;
 
+	bool bIsReloading = false;
+	FTimerHandle ReloadTimerHandle;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -69,4 +72,7 @@ public:
 	
 	UFUNCTION()
 	void Reload(const FInputActionValue& value);
+
+	UFUNCTION()
+	void FinishReload();
 };
