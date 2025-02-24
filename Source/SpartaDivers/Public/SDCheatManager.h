@@ -27,4 +27,10 @@ public:
     // Complete Current Mission
     UFUNCTION(exec)
     void SDComple();
+    
+    // Make Bullet Infinite
+    UFUNCTION(exec)
+    void SDInfi();
+
+
 };

@@ -88,6 +88,7 @@ void UAssaultRifle::PerformHitScan()
         // Show debug at crash point
         DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 10.0f, FColor::Red, false, 2.0f);
         DrawDebugLine(GetWorld(), Start, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 2.0f);
+        //Damge
     }
     else
     {

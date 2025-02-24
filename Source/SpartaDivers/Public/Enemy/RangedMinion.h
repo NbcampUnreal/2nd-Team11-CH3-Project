@@ -32,6 +32,8 @@ protected:
 	FName FireSocketName;
 
 public:
+	virtual void ApplyAttackEffect(int32 EffectIndex) override;
+
 	UFUNCTION(BlueprintCallable)
 	void Fire();
 };

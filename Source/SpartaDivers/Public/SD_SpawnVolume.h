@@ -20,7 +20,7 @@ public:
     USceneComponent* Scene;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
     UBoxComponent* SpawningBox;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
     UDataTable* CurrentSpawnDataTable;
     UFUNCTION(BlueprintCallable, Category = "Spawning")
     void SetCurrentSpawnDataTable(UDataTable* SetSpawnDataTable);

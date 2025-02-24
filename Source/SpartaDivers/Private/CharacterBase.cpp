@@ -15,3 +15,18 @@ UStatusContainerComponent* ACharacterBase::GetStatusContainerComponent() const
 	return StatusContainerComponent;
 }
 
+float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamgeEvent, class AController* EnventInstigator, AActor* DamageCauser)
+{
+	const float Damage = Super::TakeDamage(DamageAmount, DamgeEvent, EnventInstigator, DamageCauser);
+	if (Damage > 0)
+	{
+		CurrentHP -= Damage;
+		if (CurrentHP <= 0)
+		{
+			//Death;
+		}
+	}
+
+	return Damage;
+}
+
