@@ -12,9 +12,19 @@ class SPARTADIVERS_API USDCheatManager : public UCheatManager
 	GENERATED_BODY()
 	
 public:
+    // Make a character cannot Damaged
     UFUNCTION(Exec)
     void GodMode();
 
+    // Kill All Enemies
     UFUNCTION(Exec)
-    void KillAllEnemies();
+    void SDKillAE();
+
+    // Start Current Mission
+    UFUNCTION(exec)
+    void SDStart();
+
+    // Complete Current Mission
+    UFUNCTION(exec)
+    void SDComple();
 };
