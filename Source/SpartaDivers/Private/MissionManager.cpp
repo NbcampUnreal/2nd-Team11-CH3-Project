@@ -124,12 +124,12 @@ void AMissionManager::CompleteMission()
 	DestroyAllEnemies();
 
 	CurrentMissionIndex++;
-	//GetWorld()->GetTimerManager().SetTimer(
-	//	NextMissionTimerHandle,
-	//	this,
-	//	&AMissionManager::StartMission,
-	//	RestTime, 
-	//	false);
+	GetWorld()->GetTimerManager().SetTimer(
+		NextMissionTimerHandle,
+		this,
+		&AMissionManager::StartMission,
+		RestTime, 
+		false);
 }
 
 void AMissionManager::OnObjectOverlap(
