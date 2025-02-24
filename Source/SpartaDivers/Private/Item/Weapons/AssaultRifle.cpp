@@ -14,7 +14,7 @@ UAssaultRifle::UAssaultRifle()
     FireRate = 0.1f;
     MaxAmmo = 30;
     CurAmmo = MaxAmmo;
-    ReloadTime = 2.0f;
+    ReloadTime = 1.5f;
 
     CurRecoil = 0.1f;
     MaxRecoil = 1.1f;
