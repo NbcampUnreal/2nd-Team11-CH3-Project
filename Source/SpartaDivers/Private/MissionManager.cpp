@@ -61,7 +61,11 @@ void AMissionManager::StartMission()
 	static const FString ContextString(TEXT("MissionDataContext"));
 	MissionDataTable->GetAllRows(ContextString, AllMissions);
 
-	UE_LOG(LogTemp, Warning, TEXT("Loaded MissionDataTable Rows: %d"), AllMissions.Num());
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		MyGameState->UpdateHUD();
+	}
 
 	if (AllMissions.IsValidIndex(CurrentMissionIndex))
 	{
@@ -128,7 +132,7 @@ void AMissionManager::CompleteMission()
 		NextMissionTimerHandle,
 		this,
 		&AMissionManager::StartMission,
-		RestTime, 
+		RestTime,
 		false);
 }
 

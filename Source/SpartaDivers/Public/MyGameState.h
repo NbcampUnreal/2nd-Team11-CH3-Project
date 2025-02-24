@@ -30,6 +30,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Level")
 	void OnGameOver();
 
+	UFUNCTION(BlueprintCallable)
+	void UpdateHUD();
+
 protected:
 	virtual void BeginPlay() override;
 };

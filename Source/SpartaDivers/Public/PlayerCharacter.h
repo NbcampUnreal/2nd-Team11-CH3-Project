@@ -75,4 +75,7 @@ public:
 
 	UFUNCTION()
 	void FinishReload();
+
+	UFUNCTION()
+	UGunBase* GetEquippedGun();
 };
