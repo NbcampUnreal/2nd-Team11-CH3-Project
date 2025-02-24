@@ -1,7 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "MyPlayerController.h"
-#include "MyPlayerController.generated.h"
 #include "EnhancedInputSubsystems.h"
 #include "SDCheatManager.h"
 
