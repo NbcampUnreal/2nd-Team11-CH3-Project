@@ -11,7 +11,7 @@ void ARangedMinion::Attack()
 	PlayAnimMontage(AttackMontage);
 }
 
-void ARangedMinion::Fire()
+void ARangedMinion::ApplyAttackEffect(int32 EffectIndex)
 {
 	if (AttackMontage == nullptr || GetMesh() == nullptr) return;
 
@@ -23,4 +23,8 @@ void ARangedMinion::Fire()
 	{
 		ProjectileInstance->InitProjectile(VelocityOfProjectile);
 	}
+}
+
+void ARangedMinion::Fire()
+{
 }
