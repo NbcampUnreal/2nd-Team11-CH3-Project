@@ -21,4 +21,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UAnimMontage*> AttackMontages;
+
+	virtual void ApplyAttackEffect(int32 EffectIndex) override;
+
+	UPROPERTY(EditDefaultsOnly)
+	float AttackRange = 200.f;
 };
