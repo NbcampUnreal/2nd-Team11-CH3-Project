@@ -12,6 +12,7 @@ class USpringArmComponent;
 class UCameraComponent;
 struct FInputActionValue;
 class UGunBase;
+class UInventoryComponent;
 
 UCLASS()
 class SPARTADIVERS_API APlayerCharacter : public ACharacterBase
@@ -78,4 +79,7 @@ public:
 
 	UFUNCTION()
 	UGunBase* GetEquippedGun();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UInventoryComponent* InventoryComponent;
 };

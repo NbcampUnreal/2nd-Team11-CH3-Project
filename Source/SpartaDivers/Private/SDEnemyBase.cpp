@@ -4,6 +4,7 @@
 #include "SDAIController.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Item/DropItem.h"
 
 ASDEnemyBase::ASDEnemyBase()
 {
