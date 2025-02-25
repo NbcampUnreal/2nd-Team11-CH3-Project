@@ -40,5 +40,5 @@ public:
 
 	//TakeDamge
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-	void OnDeath();
+	virtual void OnDeath();
 };

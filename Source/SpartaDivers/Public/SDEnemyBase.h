@@ -31,8 +31,12 @@ protected:
 
 	FName GetEnemyType() const;
 
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 	UFUNCTION(BlueprintCallable)
 	virtual void Attack();
+
+	void OnDeath() override;
 
 	UFUNCTION(BlueprintCallable)
 	virtual void ApplyAttackEffect(int32 EffectIndex);
