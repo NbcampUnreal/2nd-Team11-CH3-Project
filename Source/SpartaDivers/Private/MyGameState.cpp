@@ -15,6 +15,8 @@
 
 AMyGameState::AMyGameState()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	Score = 0;
 }
 
@@ -65,9 +67,9 @@ void AMyGameState::UpdateHUD()
 		{
 			if (UUserWidget* HUDWidget = MyPlayerController->GetHUDWidget())
 			{
+				// Health Bar & Ammo
 				if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn()))
 				{
-					// Health Bar 
 					if (UProgressBar* HealthBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("HealthBar"))))
 					{
 						float HealthPercent =
@@ -75,7 +77,6 @@ void AMyGameState::UpdateHUD()
 							/ PlayerCharacter->GetStatusContainerComponent()->GetMaxHealth();
 						HealthBar->SetPercent(HealthPercent);
 					}
-					// Ammo
 					if (UTextBlock* AmmoText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("AmmoText"))))
 					{
 						if (!PlayerCharacter->GetEquippedGun()) return;
@@ -84,10 +85,32 @@ void AMyGameState::UpdateHUD()
 						AmmoText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"), CurAmmo , MaxAmmo)));
 					}
 				}
-				
+				if (AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass())))
+				{
+					if (UTextBlock* MissionText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("MissionText"))))
+					{
+						MissionText->SetText((MissionManager->GetCurrentMissionText()));
+					}
+					if (MissionManager->CurrentMissionData.MissionType == EMissionType::Capture)
+					{
+						if (UProgressBar* CaptureProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("CaptureProgressBar"))))
+						{
+							CaptureProgressBar->SetVisibility(ESlateVisibility::Visible);
+							float CaptureProgress = MissionManager->CaptureProgress / MissionManager->CurrentMissionData.CaptureTime;
+							CaptureProgressBar->SetPercent(CaptureProgress);
+						}
+					}
+					else
+					{
+						if (UProgressBar* CaptureProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("CaptureProgressBar"))))
+						{
+							CaptureProgressBar->SetVisibility(ESlateVisibility::Hidden);
+						}
+					}
+				}
 			}
 
-			if (UUserWidget* CrosshairWidget = MyPlayerController->GetHUDWidget())
+			if (UUserWidget* CrosshairWidget = MyPlayerController->GetCrosshairWidget())
 			{
 				UFunction* PlayAnimCrosshair = CrosshairWidget->FindFunction(FName("CrossHairsAnimation"));
 				if (PlayAnimCrosshair)
@@ -98,6 +121,12 @@ void AMyGameState::UpdateHUD()
 			}
 		}
 	}
+}
+
+void AMyGameState::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	UpdateHUD();
 }
 
 void AMyGameState::BeginPlay()

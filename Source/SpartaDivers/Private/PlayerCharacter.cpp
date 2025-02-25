@@ -197,12 +197,6 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 		AnimInstance = GetMesh()->GetAnimInstance();
 		AnimInstance->Montage_Play(FireMontage);
 	}
-
-	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-	if (MyGameState)
-	{
-		MyGameState->UpdateHUD();
-	}
 }
 
 void APlayerCharacter::Reload(const FInputActionValue& value)
@@ -222,12 +216,6 @@ void APlayerCharacter::FinishReload()
 	EquippedGun->Reload();
 
 	bIsReloading = false;
-
-	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-	if (MyGameState)
-	{
-		MyGameState->UpdateHUD();
-	}
 }
 
 UGunBase* APlayerCharacter::GetEquippedGun()

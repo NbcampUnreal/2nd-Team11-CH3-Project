@@ -50,6 +50,8 @@ public:
 	void StartMission();
 	UFUNCTION(BlueprintCallable, Category = "Mission")
 	void CompleteMission();
+	UFUNCTION(BlueprintPure, Category = "Mission")
+	FText GetCurrentMissionText();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
 	float RestTime;

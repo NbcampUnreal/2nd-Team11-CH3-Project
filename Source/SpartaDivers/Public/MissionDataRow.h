@@ -21,6 +21,9 @@ struct FMissionDataRow : public FTableRowBase
 	GENERATED_BODY()
 
 public:
+    // Text for UI
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FText MissionText;
     // Type of Mission
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     EMissionType MissionType;

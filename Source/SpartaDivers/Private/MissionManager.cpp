@@ -61,12 +61,6 @@ void AMissionManager::StartMission()
 	static const FString ContextString(TEXT("MissionDataContext"));
 	MissionDataTable->GetAllRows(ContextString, AllMissions);
 
-	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-	if (MyGameState)
-	{
-		MyGameState->UpdateHUD();
-	}
-
 	if (AllMissions.IsValidIndex(CurrentMissionIndex))
 	{
 		CurrentMissionData = *AllMissions[CurrentMissionIndex];
@@ -134,6 +128,12 @@ void AMissionManager::CompleteMission()
 		&AMissionManager::StartMission,
 		RestTime,
 		false);
+}
+
+FText AMissionManager::GetCurrentMissionText()
+{
+	FText CurrentMissionText = CurrentMissionData.MissionText;
+	return CurrentMissionText;
 }
 
 void AMissionManager::OnObjectOverlap(

@@ -51,12 +51,6 @@ void AMyPlayerController::ShowGameHUD()
 		}
 	}
 
-	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-	if (MyGameState)
-	{
-		MyGameState->UpdateHUD();
-	}
-
 	ShowCrosshair();
 }
 
