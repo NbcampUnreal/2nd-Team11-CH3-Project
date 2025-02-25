@@ -16,6 +16,15 @@ void USDCheatManager::GodMode()
     }
 }
 
+void USDCheatManager::SDPlayerDead()
+{
+    if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetOuterAPlayerController()->GetPawn()))
+    {
+        Player->OnDeath();
+        UE_LOG(LogTemp, Warning, TEXT("Player Dead!"));
+    }
+}
+
 void USDCheatManager::SDKillAE()
 {
     AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
