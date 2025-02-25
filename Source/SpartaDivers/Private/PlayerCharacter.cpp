@@ -1,22 +1,19 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "PlayerCharacter.h"
+#include "MyGameState.h"
 #include "MyPlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/InventoryComponent.h"
-
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
 
-// Sets default values
 APlayerCharacter::APlayerCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComp->SetupAttachment(RootComponent);
@@ -36,11 +33,10 @@ APlayerCharacter::APlayerCharacter()
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 }
 
-// Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	//EquippedGun = NewObject<UGunBase>(this, UGunBase::StaticClass());
 	//if (EquippedGun)
 	//{
@@ -56,14 +52,12 @@ void APlayerCharacter::BeginPlay()
 	EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
 }
 
-// Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-// Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -126,7 +120,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					ETriggerEvent::Triggered,
 					this,
 					&APlayerCharacter::Fire
-					);
+				);
 			}
 			if (PlayerController->ReloadAction)
 			{
@@ -137,12 +131,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					&APlayerCharacter::Reload
 				);
 			}
-
 		}
-
 	}
-
 }
+
 void APlayerCharacter::Move(const FInputActionValue& value)
 {
 	if (!Controller) return;
@@ -157,7 +149,6 @@ void APlayerCharacter::Move(const FInputActionValue& value)
 	{
 		AddMovementInput(GetActorRightVector(), MoveInput.Y);
 	}
-
 }
 void APlayerCharacter::StartJump(const FInputActionValue& value)
 {
@@ -207,6 +198,12 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 		AnimInstance = GetMesh()->GetAnimInstance();
 		AnimInstance->Montage_Play(FireMontage);
 	}
+
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		MyGameState->UpdateHUD();
+	}
 }
 
 void APlayerCharacter::Reload(const FInputActionValue& value)
@@ -226,4 +223,19 @@ void APlayerCharacter::FinishReload()
 	EquippedGun->Reload();
 
 	bIsReloading = false;
+
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		MyGameState->UpdateHUD();
+	}
+}
+
+UGunBase* APlayerCharacter::GetEquippedGun()
+{
+	if (EquippedGun)
+	{
+		return EquippedGun;
+	}
+	return nullptr;
 }

@@ -40,11 +40,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 	UStatusContainerComponent* StatusContainerComponent;
 
-	// IStatusContainerInterfaceÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+public:
+	// IStatusContainerInterfaceï¿½ï¿½(ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Óµï¿½
 	virtual UStatusContainerComponent* GetStatusContainerComponent() const override;
 
 	//TakeDamge
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamgeEvent, class AController* EnventInstigator, AActor* DamageCauser) override;
-
 	virtual void OnDeath();
 };

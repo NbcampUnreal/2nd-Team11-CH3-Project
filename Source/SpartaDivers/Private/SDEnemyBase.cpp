@@ -39,30 +39,25 @@ FName ASDEnemyBase::GetEnemyType() const
 	return EnemyType;
 }
 
+float ASDEnemyBase::TakeDamage(
+	float DamageAmount,
+	FDamageEvent const& DamageEvent,
+	AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	return ActualDamage;
+}
+
 void ASDEnemyBase::Attack()
 {
 }
 
-//void ASDEnemyBase::OnDeath()
-//{
-//	// Get the mesh component (Skeletal Mesh)
-//	USkeletalMeshComponent* MeshComp = GetMesh();
-//
-//	if (MeshComp)
-//	{
-//		// Enable physics simulation to apply ragdoll physics
-//		MeshComp->SetSimulatePhysics(true);
-//
-//		// Set the mesh collision to physics-based (ragdoll)
-//		MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-//		MeshComp->SetCollisionProfileName("Ragdoll");  // Custom collision profile for ragdoll
-//	}
-//
-//	// Log death for debugging
-//	UE_LOG(LogTemp, Warning, TEXT("Enemy DEAD"));
-//
-//	GetWorld()->SpawnActor<AActor>(DropItem, GetActorLocation(), GetActorRotation());
-//}
+void ASDEnemyBase::OnDeath()
+{
+	Super::OnDeath();
+}
 
 void ASDEnemyBase::ApplyAttackEffect(int32 EffectIndex)
 {

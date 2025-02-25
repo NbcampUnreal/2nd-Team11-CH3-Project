@@ -32,14 +32,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* ReloadAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Crosshair")
+	UFUNCTION(BlueprintPure, Category = "UI|HUD")
+	UUserWidget* GetHUDWidget() const;
+	UUserWidget* GetCrosshairWidget() const;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|HUD")
+	TSubclassOf<UUserWidget> HUDWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UI|HUD")
+	UUserWidget* HUDWidgetInstance;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|Crosshair")
 	TSubclassOf<UUserWidget> CrosshairWidgetClass;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Crosshair")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UI|Crosshair")
 	UUserWidget* CrosshairWidgetInstance;
 
-	UFUNCTION(BlueprintCallable, Category = "Crosshair")
+	UFUNCTION(BlueprintCallable, Category = "UI|HUD")
+	void ShowGameHUD();
+	UFUNCTION(BlueprintCallable, Category = "UI|Crosshair")
 	void ShowCrosshair();
 
 	virtual void BeginPlay() override;
-	
 };
