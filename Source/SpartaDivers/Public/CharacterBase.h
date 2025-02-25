@@ -26,10 +26,6 @@ protected:
 	float SprintSpeed;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
 	float SprintSpeedMultiplier;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
-	float MaxHP;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
-	float CurrentHP;
 
 	UAnimInstance* AnimInstance;
 	UPROPERTY(EditAnywhere)
