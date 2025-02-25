@@ -21,12 +21,20 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	if (Damage > 0)
 	{
 		CurrentHP -= Damage;
+		AnimInstance = GetMesh()->GetAnimInstance();
+		AnimInstance->Montage_Play(HitMontage);
 		if (CurrentHP <= 0)
 		{
-			//Death;
+			OnDeath();
 		}
 	}
 
 	return Damage;
+}
+
+void ACharacterBase::OnDeath()
+{
+	AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->Montage_Play(DeathMontage);
 }
 

@@ -31,6 +31,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
 	float CurrentHP;
 
+	UAnimInstance* AnimInstance;
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* DeathMontage;
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* HitMontage;
+
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 	UStatusContainerComponent* StatusContainerComponent;
 
@@ -39,4 +45,6 @@ protected:
 
 	//TakeDamge
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamgeEvent, class AController* EnventInstigator, AActor* DamageCauser) override;
+
+	virtual void OnDeath();
 };

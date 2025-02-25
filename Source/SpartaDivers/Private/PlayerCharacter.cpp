@@ -181,7 +181,7 @@ void APlayerCharacter::Look(const FInputActionValue& value)
 
 void APlayerCharacter::StartSprint(const FInputActionValue& value)
 {
-	if (GetCharacterMovement())
+	if (GetCharacterMovement() && bIsReloading == false)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 	}
@@ -199,6 +199,7 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 {
 	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0)
 	{
+		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 		EquippedGun->Fire();
 		AnimInstance = GetMesh()->GetAnimInstance();
 		AnimInstance->Montage_Play(FireMontage);

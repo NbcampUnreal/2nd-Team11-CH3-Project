@@ -32,7 +32,6 @@ protected:
 	USpringArmComponent* SpringArmComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* CameraComp;
-	UAnimInstance* AnimInstance;
 
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* FireMontage;

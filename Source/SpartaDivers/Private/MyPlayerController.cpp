@@ -1,8 +1,10 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "MyPlayerController.h"
+#include "MyGameState.h"
 #include "EnhancedInputSubsystems.h"
 #include "SDCheatManager.h"
+#include "Blueprint/UserWidget.h"
 
 AMyPlayerController::AMyPlayerController() : InputMappingContext(nullptr),
 MoveAction(nullptr),
