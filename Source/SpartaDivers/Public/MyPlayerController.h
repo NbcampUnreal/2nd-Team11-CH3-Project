@@ -31,6 +31,8 @@ public:
 	UInputAction* FireAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* ReloadAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* InteractAction;
 
 	UFUNCTION(BlueprintPure, Category = "UI|HUD")
 	UUserWidget* GetHUDWidget() const;

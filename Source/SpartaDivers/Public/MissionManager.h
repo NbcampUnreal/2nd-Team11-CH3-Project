@@ -9,6 +9,7 @@
 #include "MissionManager.generated.h"
 
 class UBoxComponent;
+class AMissionStartTrigger;
 UCLASS()
 class SPARTADIVERS_API AMissionManager : public AActor
 {
@@ -28,6 +29,11 @@ public:
 	// Enemy Spawn DataTable
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	TArray<UDataTable*> SpawnDataTables;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MissionTrigger")
+	TArray<AActor*> FoundMissionStartTriggers;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MissionTrigger")
+	AMissionStartTrigger* MissionStartTrigger;
 
 	// Mission DataTable
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
@@ -52,7 +58,7 @@ public:
 	void CompleteMission();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
-	float RestTime;
+	bool bIsPlayerOnMission;
 
 	// Spawn enemies based on chance in SpawnDataTables
 	UFUNCTION(BlueprintCallable, Category = "Spawning")
@@ -93,7 +99,7 @@ private:
 	/* ============== Capture ============== */
 	bool bIsPlayerInCaptureZone;
 	/* ======================================== */
-
+	
 	void CheckMissionCompletion();
 
 };
