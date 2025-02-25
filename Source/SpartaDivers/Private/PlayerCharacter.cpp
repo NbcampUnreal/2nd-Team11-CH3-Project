@@ -10,6 +10,7 @@
 #include "Components/InventoryComponent.h"
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
+#include "MissionStartTrigger.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -131,6 +132,15 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					&APlayerCharacter::Reload
 				);
 			}
+			if (PlayerController->InteractAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->InteractAction,
+					ETriggerEvent::Triggered,
+					this,
+					&APlayerCharacter::Interact
+				);
+			}
 		}
 	}
 }
@@ -216,6 +226,14 @@ void APlayerCharacter::FinishReload()
 	EquippedGun->Reload();
 
 	bIsReloading = false;
+}
+
+void APlayerCharacter::Interact(const FInputActionValue& value)
+{
+	if (CurrentMissionTrigger)
+	{
+		CurrentMissionTrigger->OnInteracted();
+	}
 }
 
 UGunBase* APlayerCharacter::GetEquippedGun()

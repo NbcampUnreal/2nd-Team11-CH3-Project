@@ -5,6 +5,7 @@
 #include "PlayerCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "MissionStartTrigger.h"
 #include "SDEnemyBase.h"
 #include "SD_SpawnVolume.h"
 
@@ -19,9 +20,9 @@ AMissionManager::AMissionManager()
 
 	CurrentMissionIndex = 0;
 	MaxMissionCount = 4;
-	RestTime = 5.0f;
 	CaptureProgress = 0.0f;
 	bIsPlayerInCaptureZone = false;
+	bIsPlayerOnMission = false;
 }
 
 void AMissionManager::BeginPlay()
@@ -36,7 +37,7 @@ void AMissionManager::Tick(float DeltaTime)
 	// Measure Capture progress
 	if (CurrentMissionData.MissionType == EMissionType::Capture)
 	{
-		if (bIsPlayerInCaptureZone)
+		if (bIsPlayerInCaptureZone && bIsPlayerOnMission)
 		{
 			CaptureProgress += DeltaTime;
 			UE_LOG(LogTemp, Log, TEXT("Capture Progress: %f / %f"), CaptureProgress, CurrentMissionData.CaptureTime);
@@ -56,13 +57,27 @@ void AMissionManager::Tick(float DeltaTime)
 void AMissionManager::StartMission()
 {
 	if (!MissionDataTable) return;
+	if (bIsPlayerOnMission) return;
 
 	TArray<FMissionDataRow*> AllMissions;
 	static const FString ContextString(TEXT("MissionDataContext"));
 	MissionDataTable->GetAllRows(ContextString, AllMissions);
 
+
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		MyGameState->UpdateHUD();
+	}
+
+	if (MissionStartTrigger)
+	{
+		MissionStartTrigger->DeactivateTrigger();
+	}
+
 	if (AllMissions.IsValidIndex(CurrentMissionIndex))
 	{
+		bIsPlayerOnMission = true;
 		CurrentMissionData = *AllMissions[CurrentMissionIndex];
 		UE_LOG(LogTemp, Warning, TEXT("Mission %d started: %s"), CurrentMissionIndex, *UEnum::GetValueAsString(CurrentMissionData.MissionType));
 		switch (CurrentMissionData.MissionType)
@@ -110,6 +125,7 @@ void AMissionManager::StartMission()
 void AMissionManager::CompleteMission()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Mission %d Success!"), CurrentMissionIndex);
+	bIsPlayerOnMission = false;
 
 	if (AMyGameState* MyGameState = GetWorld()->GetGameState<AMyGameState>())
 	{
@@ -118,16 +134,21 @@ void AMissionManager::CompleteMission()
 			MyGameState->AddScore(CurrentMissionData.ScoreReward);
 		}
 	}
+	
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMissionStartTrigger::StaticClass(), FoundMissionStartTriggers);
+	for (AActor* FoundMissionStartTrigger : FoundMissionStartTriggers)
+	{
+		MissionStartTrigger = Cast<AMissionStartTrigger>(FoundMissionStartTrigger);
+
+		if (MissionStartTrigger)
+		{
+			MissionStartTrigger->ActivateTrigger();
+		}
+	}
 
 	DestroyAllEnemies();
 
 	CurrentMissionIndex++;
-	GetWorld()->GetTimerManager().SetTimer(
-		NextMissionTimerHandle,
-		this,
-		&AMissionManager::StartMission,
-		RestTime,
-		false);
 }
 
 FText AMissionManager::GetCurrentMissionText()
