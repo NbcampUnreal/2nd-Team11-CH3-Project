@@ -44,15 +44,7 @@ float ASDEnemyBase::TakeDamage(
 	AController* EventInstigator,
 	AActor* DamageCauser)
 {
-	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	CurrentHP = FMath::Clamp(CurrentHP - DamageAmount, 0.0f, MaxHP);
-	UE_LOG(LogTemp, Warning, TEXT("Enemy Damaged : %f, Current HP : %f"), ActualDamage, CurrentHP);
-
-	if (CurrentHP <= 0.0f)
-	{
-		OnDeath();
-	}
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	return ActualDamage;
 }
@@ -63,21 +55,7 @@ void ASDEnemyBase::Attack()
 
 void ASDEnemyBase::OnDeath()
 {
-	// Get the mesh component (Skeletal Mesh)
-	USkeletalMeshComponent* MeshComp = GetMesh();
-
-	if (MeshComp)
-	{
-		// Enable physics simulation to apply ragdoll physics
-		MeshComp->SetSimulatePhysics(true);
-
-		// Set the mesh collision to physics-based (ragdoll)
-		MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		MeshComp->SetCollisionProfileName("Ragdoll");  // Custom collision profile for ragdoll
-	}
-
-	// Log death for debugging
-	UE_LOG(LogTemp, Warning, TEXT("Enemy DEAD"));
+	Super::OnDeath();
 }
 
 void ASDEnemyBase::ApplyAttackEffect(int32 EffectIndex)
