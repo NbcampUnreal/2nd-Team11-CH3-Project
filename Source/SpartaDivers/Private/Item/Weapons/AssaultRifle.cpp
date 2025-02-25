@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PlayerCharacter.h"
 #include "DrawDebugHelpers.h"
+#include "GameFramework/SpringArmComponent.h"
 
 UAssaultRifle::UAssaultRifle()
 {
@@ -58,13 +59,27 @@ void UAssaultRifle::Reload()
 
 void UAssaultRifle::PerformHitScan()
 {
-    FVector CameraLocation = PlayerCharacter->GetActorLocation();  // Player's Location (Camera Location)
-    FRotator CameraRotation = PlayerCharacter->GetController()->GetControlRotation();  // Camera rotation info
-    FVector CameraForward = CameraRotation.Vector();  // The direction the camera is looking at
+    FVector CameraLocation;
+    FRotator CameraRotation;
 
-    FVector Start = CameraLocation + FVector(0, 0, 60.0f); // Set slightly up in camera position
+    PlayerCharacter->GetController()->GetPlayerViewPoint(CameraLocation, CameraRotation);
 
-    FVector End = Start + CameraForward * 10000.0f;
+    float SpringArmLength = 300.0f; // Default Value
+
+    USpringArmComponent* SpringArm = PlayerCharacter->FindComponentByClass<USpringArmComponent>();
+    if (SpringArm)
+    {
+        // Adjust the starting position of the muzzle by the length of the spring arm
+        SpringArmLength = SpringArm->TargetArmLength;
+    }
+
+    FVector ForwardVector = CameraRotation.Vector();
+    FVector MuzzleOffset = ForwardVector * SpringArmLength;
+    FVector MuzzleLocation = CameraLocation + MuzzleOffset;
+
+    FVector Start = MuzzleLocation;
+
+    FVector End = Start + CameraRotation.Vector() * 10000.0f;
 
     FHitResult HitResult;
     FCollisionQueryParams QueryParams;
@@ -86,12 +101,12 @@ void UAssaultRifle::PerformHitScan()
         }
 
         // Show debug at crash point
-        DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 10.0f, FColor::Red, false, 2.0f);
-        DrawDebugLine(GetWorld(), Start, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 2.0f);
+        DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 5.0f, FColor::Red, false, 2.0f);
+        DrawDebugLine(GetWorld(), Start, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 1.5f);
     }
     else
     {
         // If there is no collision, draw the debug line blue
-        DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 0, 2.0f);
+        DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 0, 1.5f);
     }
 }

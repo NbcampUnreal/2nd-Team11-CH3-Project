@@ -188,7 +188,7 @@ void APlayerCharacter::StopSprint(const FInputActionValue& value)
 
 void APlayerCharacter::Fire(const FInputActionValue& value)
 {
-	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0 && GetCharacterMovement()->MaxWalkSpeed == MoveSpeed)
+	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0)
 	{
 		EquippedGun->Fire();
 		AnimInstance = GetMesh()->GetAnimInstance();

@@ -41,6 +41,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void OnDeath();
 
+	UFUNCTION(BlueprintCallable)
+	virtual void ApplyAttackEffect(int32 EffectIndex);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;

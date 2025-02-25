@@ -80,6 +80,10 @@ void ASDEnemyBase::OnDeath()
 	UE_LOG(LogTemp, Warning, TEXT("Enemy DEAD"));
 }
 
+void ASDEnemyBase::ApplyAttackEffect(int32 EffectIndex)
+{
+}
+
 void ASDEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
