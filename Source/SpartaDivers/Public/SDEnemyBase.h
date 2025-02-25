@@ -6,6 +6,8 @@
 #include "CharacterBase.h"
 #include "SDEnemyBase.generated.h"
 
+class ADropItem;
+
 UCLASS()
 class SPARTADIVERS_API ASDEnemyBase : public ACharacterBase
 {
@@ -29,20 +31,14 @@ protected:
 
 	FName GetEnemyType() const;
 
-	virtual float TakeDamage(
-		float DamageAmount,
-		FDamageEvent const& DamageEvent,
-		AController* EventInstigator,
-		AActor* DamageCauser);
-
 	UFUNCTION(BlueprintCallable)
 	virtual void Attack();
 
 	UFUNCTION(BlueprintCallable)
-	virtual void OnDeath();
-
-	UFUNCTION(BlueprintCallable)
 	virtual void ApplyAttackEffect(int32 EffectIndex);
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ADropItem> DropItem;
 
 protected:
 	virtual void BeginPlay() override;

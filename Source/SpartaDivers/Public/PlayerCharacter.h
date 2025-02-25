@@ -12,6 +12,7 @@ class USpringArmComponent;
 class UCameraComponent;
 struct FInputActionValue;
 class UGunBase;
+class UInventoryComponent;
 
 UCLASS()
 class SPARTADIVERS_API APlayerCharacter : public ACharacterBase
@@ -75,4 +76,7 @@ public:
 
 	UFUNCTION()
 	void FinishReload();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UInventoryComponent* InventoryComponent;
 };
