@@ -4,6 +4,7 @@
 #include "SDAIController.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Item/DropItem.h"
 
 ASDEnemyBase::ASDEnemyBase()
 {
@@ -38,47 +39,30 @@ FName ASDEnemyBase::GetEnemyType() const
 	return EnemyType;
 }
 
-float ASDEnemyBase::TakeDamage(
-	float DamageAmount,
-	FDamageEvent const& DamageEvent,
-	AController* EventInstigator,
-	AActor* DamageCauser)
-{
-	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	CurrentHP = FMath::Clamp(CurrentHP - DamageAmount, 0.0f, MaxHP);
-	UE_LOG(LogTemp, Warning, TEXT("Enemy Damaged : %f, Current HP : %f"), ActualDamage, CurrentHP);
-
-	if (CurrentHP <= 0.0f)
-	{
-		OnDeath();
-	}
-
-	return ActualDamage;
-}
-
 void ASDEnemyBase::Attack()
 {
 }
 
-void ASDEnemyBase::OnDeath()
-{
-	// Get the mesh component (Skeletal Mesh)
-	USkeletalMeshComponent* MeshComp = GetMesh();
-
-	if (MeshComp)
-	{
-		// Enable physics simulation to apply ragdoll physics
-		MeshComp->SetSimulatePhysics(true);
-
-		// Set the mesh collision to physics-based (ragdoll)
-		MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		MeshComp->SetCollisionProfileName("Ragdoll");  // Custom collision profile for ragdoll
-	}
-
-	// Log death for debugging
-	UE_LOG(LogTemp, Warning, TEXT("Enemy DEAD"));
-}
+//void ASDEnemyBase::OnDeath()
+//{
+//	// Get the mesh component (Skeletal Mesh)
+//	USkeletalMeshComponent* MeshComp = GetMesh();
+//
+//	if (MeshComp)
+//	{
+//		// Enable physics simulation to apply ragdoll physics
+//		MeshComp->SetSimulatePhysics(true);
+//
+//		// Set the mesh collision to physics-based (ragdoll)
+//		MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+//		MeshComp->SetCollisionProfileName("Ragdoll");  // Custom collision profile for ragdoll
+//	}
+//
+//	// Log death for debugging
+//	UE_LOG(LogTemp, Warning, TEXT("Enemy DEAD"));
+//
+//	GetWorld()->SpawnActor<AActor>(DropItem, GetActorLocation(), GetActorRotation());
+//}
 
 void ASDEnemyBase::ApplyAttackEffect(int32 EffectIndex)
 {

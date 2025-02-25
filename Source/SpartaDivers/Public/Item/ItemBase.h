@@ -17,7 +17,7 @@ enum class EItemType : uint8
 	Consumable
 };
 
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class SPARTADIVERS_API UItemBase : public UObject
 {
 	GENERATED_BODY()

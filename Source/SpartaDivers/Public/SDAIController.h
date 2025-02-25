@@ -11,8 +11,13 @@ class SPARTADIVERS_API ASDAIController : public AAIController
 {
 	GENERATED_BODY()
 
+	ASDAIController(const FObjectInitializer& ObjectInitializer);
+
 protected:
 	void BeginPlay();
+
+	UPROPERTY(EditDefaultsOnly);
+	float CollisionQueryRange = 600.f;
 
 private:
 	UPROPERTY(EditDefaultsOnly);
