@@ -34,9 +34,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 	UStatusContainerComponent* StatusContainerComponent;
 
+public:
 	// IStatusContainerInterface을(를) 통해 상속됨
 	virtual UStatusContainerComponent* GetStatusContainerComponent() const override;
 
 	//TakeDamge
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamgeEvent, class AController* EnventInstigator, AActor* DamageCauser) override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void OnDeath();
 };

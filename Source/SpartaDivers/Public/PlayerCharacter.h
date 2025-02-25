@@ -77,6 +77,9 @@ public:
 	UFUNCTION()
 	void FinishReload();
 
+	UFUNCTION()
+	UGunBase* GetEquippedGun();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UInventoryComponent* InventoryComponent;
 };

@@ -20,13 +20,17 @@ public:
     UFUNCTION(Exec)
     void SDKillAE();
 
+    // Start Game
+    UFUNCTION(Exec)
+    void SDGStart();
+
     // Start Current Mission
     UFUNCTION(exec)
-    void SDStart();
+    void SDMStart();
 
     // Complete Current Mission
     UFUNCTION(exec)
-    void SDComple();
+    void SDMComple();
     
     // Make Bullet Infinite
     UFUNCTION(exec)
