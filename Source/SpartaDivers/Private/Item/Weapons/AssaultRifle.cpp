@@ -85,7 +85,7 @@ void UAssaultRifle::PerformHitScan()
     FCollisionQueryParams QueryParams;
     QueryParams.AddIgnoredActor(PlayerCharacter); // Player characters ignore conflict
 
-    bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, QueryParams);
+    bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_PhysicsBody, QueryParams);
 
     if (bHit)
     {
