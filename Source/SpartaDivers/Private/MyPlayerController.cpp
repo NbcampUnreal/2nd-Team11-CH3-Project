@@ -13,26 +13,59 @@ LookAction(nullptr),
 SprintAction(nullptr),
 FireAction(nullptr),
 ReloadAction(nullptr),
+HUDWidgetClass(nullptr),
+HUDWidgetInstance(nullptr),
 CrosshairWidgetClass(nullptr),
 CrosshairWidgetInstance(nullptr)
 {
 	CheatClass = USDCheatManager::StaticClass();
 }
 
+UUserWidget* AMyPlayerController::GetHUDWidget() const
+{
+	return HUDWidgetInstance;
+}
+
+UUserWidget* AMyPlayerController::GetCrosshairWidget() const
+{
+	return CrosshairWidgetInstance;
+}
+
+void AMyPlayerController::ShowGameHUD()
+{
+	if (HUDWidgetInstance)
+	{
+		HUDWidgetInstance->RemoveFromParent();
+		HUDWidgetInstance = nullptr;
+	}
+
+	if (HUDWidgetClass)
+	{
+		HUDWidgetInstance = CreateWidget<UUserWidget>(this, HUDWidgetClass);
+		if (HUDWidgetInstance)
+		{
+			HUDWidgetInstance->AddToViewport();
+
+			bShowMouseCursor = false;
+			SetInputMode(FInputModeGameOnly());
+		}
+	}
+
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		MyGameState->UpdateHUD();
+	}
+
+	ShowCrosshair();
+}
+
 void AMyPlayerController::ShowCrosshair()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ShowCrosshair Function Called"));
-
 	if (CrosshairWidgetInstance)
 	{
 		CrosshairWidgetInstance->RemoveFromParent();
 		CrosshairWidgetInstance = nullptr;
-	}
-
-	if (!CrosshairWidgetClass)
-	{
-		UE_LOG(LogTemp, Error, TEXT("CrosshairWidgetClass is NULL!"));
-		return;
 	}
 
 	if (CrosshairWidgetClass)
@@ -41,10 +74,6 @@ void AMyPlayerController::ShowCrosshair()
 		if (CrosshairWidgetInstance)
 		{
 			CrosshairWidgetInstance->AddToViewport();
-
-			bShowMouseCursor = false;
-			SetInputMode(FInputModeGameOnly());
-			UE_LOG(LogTemp, Warning, TEXT("Show Crosshair"));
 		}
 	}
 }

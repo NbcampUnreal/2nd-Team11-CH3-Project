@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "SDCheatManager.h"
+#include "MyGameState.h"
 #include "PlayerCharacter.h"
 #include "SDEnemyBase.h"
 #include "MissionManager.h"
@@ -26,7 +27,17 @@ void USDCheatManager::SDKillAE()
     }
 }
 
-void USDCheatManager::SDStart()
+void USDCheatManager::SDGStart()
+{
+    AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+
+    if (MyGameState)
+    {
+        MyGameState->StartGame();
+    }
+}
+
+void USDCheatManager::SDMStart()
 {
     AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
 
@@ -37,7 +48,7 @@ void USDCheatManager::SDStart()
     }
 }
 
-void USDCheatManager::SDComple()
+void USDCheatManager::SDMComple()
 {
     // 현재 월드에서 AMissionManager 찾기
     AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));

@@ -15,18 +15,22 @@ UStatusContainerComponent* ACharacterBase::GetStatusContainerComponent() const
 	return StatusContainerComponent;
 }
 
-float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamgeEvent, class AController* EnventInstigator, AActor* DamageCauser)
+float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	const float Damage = Super::TakeDamage(DamageAmount, DamgeEvent, EnventInstigator, DamageCauser);
-	if (Damage > 0)
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	CurrentHP = FMath::Clamp(CurrentHP - DamageAmount, 0.0f, MaxHP);
+	UE_LOG(LogTemp, Warning, TEXT("Enemy Damaged : %f, Current HP : %f"), ActualDamage, CurrentHP);
+
+	if (CurrentHP <= 0.0f)
 	{
-		CurrentHP -= Damage;
-		if (CurrentHP <= 0)
-		{
-			//Death;
-		}
+		OnDeath();
 	}
 
-	return Damage;
+	return ActualDamage;
 }
 
+void ACharacterBase::OnDeath()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Character Base DEAD"));
+}
