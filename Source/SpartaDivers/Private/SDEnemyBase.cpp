@@ -2,6 +2,7 @@
 
 #include "SDEnemyBase.h"
 #include "SDAIController.h"
+#include "MissionManager.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Item/DropItem.h"
@@ -60,6 +61,15 @@ void ASDEnemyBase::OnDeath()
 	OnDropItem();
 
 	Super::OnDeath();
+	AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
+	if (MissionManager && MissionManager->CurrentMissionData.MissionType == EMissionType::Eliminate)
+	{
+		MissionManager->KilledEnemyCount++;
+		UE_LOG(LogTemp, Warning, TEXT("KilledEnemyCount : %d"), MissionManager->KilledEnemyCount);
+		MissionManager->CheckMissionCompletion();
+	}
+
+	Destroy();
 }
 
 void ASDEnemyBase::OnDropItem()
