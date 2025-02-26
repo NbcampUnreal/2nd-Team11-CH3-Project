@@ -16,6 +16,8 @@ public:
     UFUNCTION(Exec)
     void GodMode();
 
+    void SDKillMe();
+
     // Kill All Enemies
     UFUNCTION(Exec)
     void SDKillAE();
@@ -35,6 +37,10 @@ public:
     // Make Bullet Infinite
     UFUNCTION(exec)
     void SDInfi();
+
+    // Change Damage of AssaultRifle
+    UFUNCTION(exec)
+    void SDADamage(float NewDamage);
 
 
 };

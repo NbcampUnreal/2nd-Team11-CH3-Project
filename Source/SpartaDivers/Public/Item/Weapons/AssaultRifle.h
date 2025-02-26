@@ -23,4 +23,6 @@ public:
 
 	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
 	void PerformHitScan();
+
+	bool bOnInfiniteBullet;
 };

@@ -27,6 +27,9 @@ public:
     // Type of Mission
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     EMissionType MissionType;
+    // FName of MissionType
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName MissionName;
     // Score
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 ScoreReward;

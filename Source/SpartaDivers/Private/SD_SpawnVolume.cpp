@@ -2,7 +2,8 @@
 
 #include "SD_SpawnVolume.h"
 #include "Components/BoxComponent.h"
-
+#include "MissionManager.h"
+#include "Kismet/GameplayStatics.h"
 
 ASD_SpawnVolume::ASD_SpawnVolume()
 {
@@ -33,7 +34,7 @@ FRotator ASD_SpawnVolume::GetRandomRotation() const
 	return RandomRotation;
 }
 
-FEnemySpawnRow* ASD_SpawnVolume::GetRandomObject() const
+FEnemySpawnRow* ASD_SpawnVolume::GetRandomEnemy() const
 {
 	if (!CurrentSpawnDataTable) return nullptr;
 
@@ -74,13 +75,12 @@ EMissionType ASD_SpawnVolume::GetMissionType() const
 
 void ASD_SpawnVolume::SetCurrentSpawnDataTable(UDataTable* SetSpawnDataTable)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SpawnDataTable Changed"));
 	CurrentSpawnDataTable = SetSpawnDataTable;
 }
 
 AActor* ASD_SpawnVolume::SpawnRandomEnemy(int32 MissionIndex)
 {
-	if (FEnemySpawnRow* SelectedRow = GetRandomObject())
+	if (FEnemySpawnRow* SelectedRow = GetRandomEnemy())
 	{
 		if (UClass* ActualClass = SelectedRow->EnemyClass.Get())
 		{
@@ -100,6 +100,18 @@ AActor* ASD_SpawnVolume::SpawnEnemy(TSubclassOf<AActor> EnemyClass, int32 Missio
 		GetRandomPointInVolume(MissionIndex),
 		GetRandomRotation()
 	);
+	// Add MissionName Tag
+	if (SpawnedActor)
+	{
+		AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
+		if (MissionManager)
+		{
+			if (!SpawnedActor->Tags.Contains(MissionManager->CurrentMissionData.MissionName))
+			{
+				SpawnedActor->Tags.Add(MissionManager->CurrentMissionData.MissionName);
+			}
+		}
+	}
 
 	return SpawnedActor;
 }

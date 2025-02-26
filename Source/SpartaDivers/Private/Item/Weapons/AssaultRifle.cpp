@@ -8,17 +8,17 @@
 
 UAssaultRifle::UAssaultRifle()
 {
-    ItemName = FName(TEXT("AssaultRifle"));
-    ItemDescription = FText::FromString(TEXT("AssaultRifleDescription"));
+    //ItemName = FName(TEXT("AssaultRifle"));
+    //ItemDescription = FText::FromString(TEXT("AssaultRifleDescription"));
 
     Damage = 5.0f;
     FireRate = 0.1f;
     MaxAmmo = 30;
     CurAmmo = MaxAmmo;
     ReloadTime = 1.5f;
-
-    CurRecoil = 0.1f;
-    MaxRecoil = 1.1f;
+    CurRecoil = 0.3f;
+    MaxRecoil = 0.3f;
+    bOnInfiniteBullet = false;
 }
 
 void UAssaultRifle::Fire()
@@ -27,6 +27,11 @@ void UAssaultRifle::Fire()
     {
         CurAmmo--;
         bCanFire = false;
+        // for CheatManager::InfiniteBullet
+        if (bOnInfiniteBullet)
+        {
+            CurAmmo++;
+        }
 
         UE_LOG(LogTemp, Warning, TEXT("AssaultRifle fired! Ammo: %d/%d"), CurAmmo, MaxAmmo);
 
@@ -109,4 +114,8 @@ void UAssaultRifle::PerformHitScan()
         // If there is no collision, draw the debug line blue
         DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 0, 1.5f);
     }
+
+    // application of gun recoil
+    FRotator GunRecoil = FRotator(-CurRecoil, 0.f, 0.f);
+    PlayerCharacter->AddControllerPitchInput(GunRecoil.Pitch);
 }

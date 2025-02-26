@@ -51,6 +51,8 @@ void APlayerCharacter::BeginPlay()
 	//}
 
 	EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
+
+	this->Tags.Add(TEXT("Player"));
 }
 
 void APlayerCharacter::Tick(float DeltaTime)

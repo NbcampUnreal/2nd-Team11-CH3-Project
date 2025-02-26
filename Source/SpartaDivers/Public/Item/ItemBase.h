@@ -4,18 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "ItemDataRow.h"
 #include "ItemBase.generated.h"
 
-
-class UTexture2D;
-
-UENUM()
+UENUM(BlueprintType)
 enum class EItemType : uint8
 {
-	Gun,
-	Attachment,
-	Consumable
+	Gun             UMETA(DisplayName = "Gun"),
+	Attachment      UMETA(DisplayName = "Attachment"),
+	Consumable      UMETA(DisplayName = "Consumable"),
 };
+
+class UTexture2D;
+class UDataTable;
 
 UCLASS(Blueprintable, BlueprintType)
 class SPARTADIVERS_API UItemBase : public UObject
@@ -26,18 +27,30 @@ public:
 	UItemBase();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	FName ItemName;
+	UDataTable* ItemDataTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	FText ItemDescription;
+	FName ItemID;
 
-	FORCEINLINE const UTexture2D* GetIconImage() const { return IconImage; }
-	FORCEINLINE const EItemType GetItemType() const { return ItemType; }
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE EItemType GetItemType() { return ItemType; }
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE UTexture2D* GetIconImage() { return IconImage;	}
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE FName GetItemName() { return ItemName; }
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE FText GetItemDescription() { return ItemDescription; }
+
+	virtual void InitializeItem(UItemBase* DefaultItem);
 	
 protected:
-	UPROPERTY(EditDefaultsOnly)
-	UTexture2D* IconImage;
-
 	UPROPERTY(VisibleAnywhere)
 	EItemType ItemType;
+
+private:
+	UTexture2D* IconImage;
+
+	FName ItemName;
+
+	FText ItemDescription;
 };

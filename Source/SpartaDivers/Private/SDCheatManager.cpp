@@ -3,6 +3,8 @@
 #include "SDCheatManager.h"
 #include "MyGameState.h"
 #include "PlayerCharacter.h"
+#include "Item/GunBase.h"
+#include "Item/Weapons/AssaultRifle.h"
 #include "SDEnemyBase.h"
 #include "MissionManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -16,13 +18,22 @@ void USDCheatManager::GodMode()
     }
 }
 
+void USDCheatManager::SDKillMe()
+{
+    if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetOuterAPlayerController()->GetPawn()))
+    {
+        Player->OnDeath();
+        UE_LOG(LogTemp, Warning, TEXT("Player Dead By CheatManager!"));
+    }
+}
+
 void USDCheatManager::SDKillAE()
 {
     AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
 
     if (MissionManager)
     {
-        MissionManager->DestroyAllEnemies();
+        MissionManager->DestroyEnemiesInCurrentMission(MissionManager->CurrentMissionIndex);
         UE_LOG(LogTemp, Warning, TEXT("Cheat activated: Alle Enemies Destoyed!"));
     }
 }
@@ -50,7 +61,7 @@ void USDCheatManager::SDMStart()
 
 void USDCheatManager::SDMComple()
 {
-    // 현재 월드에서 AMissionManager 찾기
+    // Find the AMissionManager in the current world
     AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
 
     if (MissionManager)
@@ -66,5 +77,25 @@ void USDCheatManager::SDMComple()
 
 void USDCheatManager::SDInfi()
 {
-    // 총알무한
+    // Infinite Bullet
+    if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetOuterAPlayerController()->GetPawn()))
+    {
+        if (Player)
+        {
+            UAssaultRifle* AssaultRifle = Cast<UAssaultRifle>(Player->GetEquippedGun());
+            AssaultRifle->bOnInfiniteBullet = true;
+        }
+    }
+}
+
+void USDCheatManager::SDADamage(float NewDamage)
+{
+    if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetOuterAPlayerController()->GetPawn()))
+    {
+        if (Player)
+        {
+            UAssaultRifle* AssaultRifle = Cast<UAssaultRifle>(Player->GetEquippedGun());
+            AssaultRifle->Damage = NewDamage;
+        }
+    }
 }

@@ -29,7 +29,9 @@ void ADropItem::OnOverlapDropItem(UPrimitiveComponent* OverlappedComp, AActor* O
 	{
 		if (OwningItemClass)
 		{
-			playerCharacter->InventoryComponent->AddItem(NewObject<UItemBase>(this, OwningItemClass));
+			UItemBase* NewItem = NewObject<UItemBase>(this, OwningItemClass);
+			NewItem->InitializeItem(OwningItemClass->GetDefaultObject<UItemBase>());
+			playerCharacter->InventoryComponent->AddItem(NewItem);
 		}
 
 		Destroy();

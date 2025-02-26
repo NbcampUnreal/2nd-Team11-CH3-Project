@@ -47,6 +47,7 @@ void AMissionStartTrigger::DeactivateTrigger()
 
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
+	Destroy();
 }
 
 void AMissionStartTrigger::OnInteracted()
