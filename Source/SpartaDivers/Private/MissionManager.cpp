@@ -64,12 +64,6 @@ void AMissionManager::StartMission()
 	static const FString ContextString(TEXT("MissionDataContext"));
 	MissionDataTable->GetAllRows(ContextString, AllMissions);
 
-	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-	if (MyGameState)
-	{
-		MyGameState->UpdateHUD();
-	}
-
 	if (AllMissions.IsValidIndex(CurrentMissionIndex))
 	{
 		bIsPlayerOnMission = true;

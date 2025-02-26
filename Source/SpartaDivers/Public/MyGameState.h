@@ -34,5 +34,6 @@ public:
 	void UpdateHUD();
 
 protected:
+	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 };
