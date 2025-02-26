@@ -7,6 +7,20 @@
 #include "SDEnemyBase.generated.h"
 
 class ADropItem;
+class UItemBase;
+
+USTRUCT(BlueprintType)
+struct FDropItemInfo
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UItemBase> dropItemClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float dropWeight;
+};
 
 UCLASS()
 class SPARTADIVERS_API ASDEnemyBase : public ACharacterBase
@@ -38,11 +52,16 @@ protected:
 
 	void OnDeath() override;
 
+	void OnDropItem();
+
 	UFUNCTION(BlueprintCallable)
 	virtual void ApplyAttackEffect(int32 EffectIndex);
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ADropItem> DropItem;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FDropItemInfo> DropItemInfos;
 
 protected:
 	virtual void BeginPlay() override;

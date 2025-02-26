@@ -11,6 +11,7 @@
 #include "Components/InventoryComponent.h"
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
+#include "MissionStartTrigger.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -51,6 +52,8 @@ void APlayerCharacter::BeginPlay()
 	//}
 
 	EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
+
+	this->Tags.Add(TEXT("Player"));
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -184,6 +187,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					ETriggerEvent::Started,
 					this,
 					&APlayerCharacter::UseFour
+			if (PlayerController->InteractAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->InteractAction,
+					ETriggerEvent::Triggered,
+					this,
+					&APlayerCharacter::Interact
 				);
 			}
 		}
@@ -326,6 +336,14 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
 	}
 
 	return DamageAmount;
+}
+
+void APlayerCharacter::Interact(const FInputActionValue& value)
+{
+	if (CurrentMissionTrigger)
+	{
+		CurrentMissionTrigger->OnInteracted();
+	}
 }
 
 UGunBase* APlayerCharacter::GetEquippedGun()

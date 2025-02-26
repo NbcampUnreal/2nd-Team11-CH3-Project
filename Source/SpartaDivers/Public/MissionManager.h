@@ -9,6 +9,7 @@
 #include "MissionManager.generated.h"
 
 class UBoxComponent;
+class AMissionStartTrigger;
 UCLASS()
 class SPARTADIVERS_API AMissionManager : public AActor
 {
@@ -17,17 +18,24 @@ class SPARTADIVERS_API AMissionManager : public AActor
 public:
 	AMissionManager();
 
+	// Spawn TimerHandle
+	FTimerHandle SpawnTimerHandle;
 	// Survive TimerHandle
 	FTimerHandle SurvivalTimerHandle;
 	// RestTime before next Mission
 	FTimerHandle NextMissionTimerHandle;
 
 	// Enemy SpawnVolumes
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
 	TArray<AActor*> FoundVolumes;
 	// Enemy Spawn DataTable
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	TArray<UDataTable*> SpawnDataTables;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MissionTrigger")
+	TArray<AActor*> FoundMissionStartTriggers;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MissionTrigger")
+	AMissionStartTrigger* MissionStartTrigger;
 
 	// Mission DataTable
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
@@ -50,16 +58,19 @@ public:
 	void StartMission();
 	UFUNCTION(BlueprintCallable, Category = "Mission")
 	void CompleteMission();
+	UFUNCTION(BlueprintCallable, Category = "Mission")
+	void CheckMissionCompletion();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
-	float RestTime;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mission")
+	bool bIsPlayerOnMission;
 
 	// Spawn enemies based on chance in SpawnDataTables
 	UFUNCTION(BlueprintCallable, Category = "Spawning")
 	void SpawnEnemy();
 	// Destoy all enemies when Complete Mission
 	UFUNCTION(BlueprintCallable, Category = "Spawning")
-	void DestroyAllEnemies();
+	void DestroyEnemiesInCurrentMission(int MissionIndex);
 
 	// ============== Eliminate ==============
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Eliminate")
@@ -71,7 +82,7 @@ public:
 	// ============== Capture ============== 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Capture")
 	float CaptureProgress;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Capture")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Capture")
 	UBoxComponent* CaptureZone;
 	UFUNCTION()
 	virtual void OnObjectOverlap(
@@ -93,7 +104,6 @@ private:
 	/* ============== Capture ============== */
 	bool bIsPlayerInCaptureZone;
 	/* ======================================== */
-
-	void CheckMissionCompletion();
+	
 
 };

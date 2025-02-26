@@ -23,13 +23,13 @@ public:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UItemBase> OwningItemClass;
+
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	USphereComponent* SphereComponent;
 
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* MeshComponent;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UItemBase> OwningItemClass;
 };

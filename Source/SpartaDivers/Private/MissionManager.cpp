@@ -4,7 +4,9 @@
 #include "MyGameState.h"
 #include "PlayerCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Components/StatusContainerComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "MissionStartTrigger.h"
 #include "SDEnemyBase.h"
 #include "SD_SpawnVolume.h"
 
@@ -19,9 +21,9 @@ AMissionManager::AMissionManager()
 
 	CurrentMissionIndex = 0;
 	MaxMissionCount = 4;
-	RestTime = 5.0f;
 	CaptureProgress = 0.0f;
 	bIsPlayerInCaptureZone = false;
+	bIsPlayerOnMission = false;
 }
 
 void AMissionManager::BeginPlay()
@@ -36,7 +38,7 @@ void AMissionManager::Tick(float DeltaTime)
 	// Measure Capture progress
 	if (CurrentMissionData.MissionType == EMissionType::Capture)
 	{
-		if (bIsPlayerInCaptureZone)
+		if (bIsPlayerInCaptureZone && bIsPlayerOnMission)
 		{
 			CaptureProgress += DeltaTime;
 			UE_LOG(LogTemp, Log, TEXT("Capture Progress: %f / %f"), CaptureProgress, CurrentMissionData.CaptureTime);
@@ -56,40 +58,63 @@ void AMissionManager::Tick(float DeltaTime)
 void AMissionManager::StartMission()
 {
 	if (!MissionDataTable) return;
+	if (bIsPlayerOnMission) return;
 
 	TArray<FMissionDataRow*> AllMissions;
 	static const FString ContextString(TEXT("MissionDataContext"));
 	MissionDataTable->GetAllRows(ContextString, AllMissions);
 
-	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-	if (MyGameState)
-	{
-		MyGameState->UpdateHUD();
-	}
-
 	if (AllMissions.IsValidIndex(CurrentMissionIndex))
 	{
+		bIsPlayerOnMission = true;
 		CurrentMissionData = *AllMissions[CurrentMissionIndex];
 		UE_LOG(LogTemp, Warning, TEXT("Mission %d started: %s"), CurrentMissionIndex, *UEnum::GetValueAsString(CurrentMissionData.MissionType));
+
 		switch (CurrentMissionData.MissionType)
 		{
 		case EMissionType::Eliminate:
 		{
 			SpawnedEnemyCount = 0;
 			KilledEnemyCount = 0;
+
+			TArray<AActor*> FoundAlreadySpawnedEnemies;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASDEnemyBase::StaticClass(), FoundAlreadySpawnedEnemies);
+			for (AActor* Enemy : FoundAlreadySpawnedEnemies)
+			{
+				if (Enemy->ActorHasTag(CurrentMissionData.MissionName))
+				{
+					SpawnedEnemyCount++;
+				}
+			}
+			UE_LOG(LogTemp, Warning, TEXT("Already SpawnedEnemyCount : %d"), SpawnedEnemyCount);
+
 			SpawnEnemy();
-			// Check When Enemy Dead
+			TArray<AActor*> FoundNewlySpawnedEnemies;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASDEnemyBase::StaticClass(), FoundNewlySpawnedEnemies);
+			for (AActor* Enemy : FoundNewlySpawnedEnemies)
+			{
+				if (Enemy->ActorHasTag(CurrentMissionData.MissionName))
+				{
+					SpawnedEnemyCount++;
+					UE_LOG(LogTemp, Warning, TEXT("Newly SpawnedEnemyCount : %d"), SpawnedEnemyCount);
+				}
+			}
 			break;
 		}
 		case EMissionType::Survive:
 		{
-			SpawnEnemy();
-			/*GetWorld()->GetTimerManager().SetTimer(
+			GetWorld()->GetTimerManager().SetTimer(
+				SpawnTimerHandle,
+				this,
+				&AMissionManager::SpawnEnemy,
+				1.0f,
+				true);
+			GetWorld()->GetTimerManager().SetTimer(
 				SurvivalTimerHandle,
 				this,
 				&AMissionManager::CheckMissionCompletion,
 				CurrentMissionData.SurviveTime,
-				false);*/
+				false);
 			break;
 		}
 		case EMissionType::Capture:
@@ -115,6 +140,10 @@ void AMissionManager::StartMission()
 
 void AMissionManager::CompleteMission()
 {
+	// Stop spawning
+	GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
+
+	bIsPlayerOnMission = false;
 	UE_LOG(LogTemp, Warning, TEXT("Mission %d Success!"), CurrentMissionIndex);
 
 	if (AMyGameState* MyGameState = GetWorld()->GetGameState<AMyGameState>())
@@ -125,15 +154,20 @@ void AMissionManager::CompleteMission()
 		}
 	}
 
-	DestroyAllEnemies();
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMissionStartTrigger::StaticClass(), FoundMissionStartTriggers);
+	for (AActor* FoundMissionStartTrigger : FoundMissionStartTriggers)
+	{
+		MissionStartTrigger = Cast<AMissionStartTrigger>(FoundMissionStartTrigger);
+
+		if (MissionStartTrigger)
+		{
+			MissionStartTrigger->ActivateTrigger();
+		}
+	}
+
+	DestroyEnemiesInCurrentMission(CurrentMissionIndex);
 
 	CurrentMissionIndex++;
-	GetWorld()->GetTimerManager().SetTimer(
-		NextMissionTimerHandle,
-		this,
-		&AMissionManager::StartMission,
-		RestTime,
-		false);
 }
 
 void AMissionManager::OnObjectOverlap(
@@ -186,7 +220,7 @@ void AMissionManager::CheckMissionCompletion()
 		if (PlayerController)
 		{
 			APlayerCharacter* Player = Cast<APlayerCharacter>(PlayerController->GetPawn());
-			if (1/*플레이어의 체력이 0보다 크면*/)
+			if (Player->GetStatusContainerComponent()->GetCurHealth() >= 0)
 			{
 				CompleteMission();
 			}
@@ -208,7 +242,7 @@ void AMissionManager::CheckMissionCompletion()
 		if (PlayerController)
 		{
 			APlayerCharacter* Player = Cast<APlayerCharacter>(PlayerController->GetPawn());
-			if (1/*플레이어의 체력이 0보다 크면*/)
+			if (Player->GetStatusContainerComponent()->GetCurHealth() >= 0)
 			{
 				CompleteMission();
 			}
@@ -222,7 +256,7 @@ void AMissionManager::CheckMissionCompletion()
 
 void AMissionManager::SpawnEnemy()
 {
-	// 게임 내의 모든 SpawnVolume을 찾음
+	// Finds all SpawnVolumes in the game
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASD_SpawnVolume::StaticClass(), FoundVolumes);
 
 	if (FoundVolumes.Num() > 0 && SpawnDataTables.IsValidIndex(CurrentMissionIndex))
@@ -242,18 +276,17 @@ void AMissionManager::SpawnEnemy()
 			}
 		}
 
-		// 적절한 SpawnVolume이 있는 경우 적 소환
+		// Spawn enemies if the appropriate SpawnVolume exists
 		if (MatchingVolumes.Num() > 0)
 		{
+			ASD_SpawnVolume* SelectedVolume = MatchingVolumes[FMath::RandRange(0, MatchingVolumes.Num() - 1)];
+			SelectedVolume->SetCurrentSpawnDataTable(SpawnDataTables[CurrentMissionIndex]);
 			for (int32 i = 0; i < EnemiesToSpawn; i++)
 			{
-				ASD_SpawnVolume* SelectedVolume = MatchingVolumes[FMath::RandRange(0, MatchingVolumes.Num() - 1)];
+				SelectedVolume = MatchingVolumes[FMath::RandRange(0, MatchingVolumes.Num() - 1)];
 				if (SelectedVolume)
 				{
-					SelectedVolume->SetCurrentSpawnDataTable(SpawnDataTables[CurrentMissionIndex]);
 					SelectedVolume->SpawnRandomEnemy(CurrentMissionIndex);
-
-					UE_LOG(LogTemp, Warning, TEXT("Enemy Spawned from Selected Volume"));
 				}
 			}
 		}
@@ -264,14 +297,14 @@ void AMissionManager::SpawnEnemy()
 	}
 }
 
-void AMissionManager::DestroyAllEnemies()
+void AMissionManager::DestroyEnemiesInCurrentMission(int MissionIndex)
 {
 	TArray<AActor*> FoundEnemies;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASDEnemyBase::StaticClass(), FoundEnemies);
 
 	for (AActor* Enemy : FoundEnemies)
 	{
-		if (Enemy)
+		if (Enemy->ActorHasTag(CurrentMissionData.MissionName))
 		{
 			Enemy->Destroy();
 		}

@@ -32,7 +32,7 @@ public:
     FRotator GetRandomRotation() const;
     UFUNCTION(BlueprintCallable, Category = "Spawning")
     AActor* SpawnEnemy(TSubclassOf<AActor> EnemyClass, int32 MissionIndex);
-    FEnemySpawnRow* GetRandomObject() const;
+    FEnemySpawnRow* GetRandomEnemy() const;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MissionType")
     EMissionType AssignedMissionType;

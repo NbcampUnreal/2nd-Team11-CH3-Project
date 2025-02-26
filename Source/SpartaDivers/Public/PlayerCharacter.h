@@ -13,6 +13,7 @@ class UCameraComponent;
 struct FInputActionValue;
 class UGunBase;
 class UInventoryComponent;
+class AMissionStartTrigger;
 
 UCLASS()
 class SPARTADIVERS_API APlayerCharacter : public ACharacterBase
@@ -97,7 +98,13 @@ public:
 
 
 	UFUNCTION()
+	void Interact(const FInputActionValue& value);
+
+	UFUNCTION()
 	UGunBase* GetEquippedGun();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	AMissionStartTrigger* CurrentMissionTrigger;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UInventoryComponent* InventoryComponent;

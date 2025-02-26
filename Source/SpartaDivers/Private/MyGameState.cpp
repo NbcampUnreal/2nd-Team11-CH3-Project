@@ -15,6 +15,8 @@
 
 AMyGameState::AMyGameState()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	Score = 0;
 }
 
@@ -63,46 +65,145 @@ void AMyGameState::UpdateHUD()
 	{
 		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
 		{
+			// HudWidget
 			if (UUserWidget* HUDWidget = MyPlayerController->GetHUDWidget())
 			{
+				// Health Bar & Ammo
 				if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn()))
 				{
-					// Health Bar 
 					if (UProgressBar* HealthBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("HealthBar"))))
 					{
-						float HealthPercent =
-							PlayerCharacter->GetStatusContainerComponent()->GetCurHealth()
-							/ PlayerCharacter->GetStatusContainerComponent()->GetMaxHealth();
-						HealthBar->SetPercent(HealthPercent);
+						if (PlayerCharacter->GetStatusContainerComponent()->GetMaxHealth() > 0)
+						{
+							float HealthPercent =
+								PlayerCharacter->GetStatusContainerComponent()->GetCurHealth()
+								/ PlayerCharacter->GetStatusContainerComponent()->GetMaxHealth();
+							HealthBar->SetPercent(HealthPercent);
+						}
 					}
-					// Ammo
 					if (UTextBlock* AmmoText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("AmmoText"))))
 					{
 						if (!PlayerCharacter->GetEquippedGun()) return;
 						int32 CurAmmo = PlayerCharacter->GetEquippedGun()->CurAmmo;
 						int32 MaxAmmo = PlayerCharacter->GetEquippedGun()->MaxAmmo;
-						AmmoText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"), CurAmmo , MaxAmmo)));
+						AmmoText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"), CurAmmo, MaxAmmo)));
 					}
 				}
-				
-			}
-
-			if (UUserWidget* CrosshairWidget = MyPlayerController->GetHUDWidget())
-			{
-				UFunction* PlayAnimCrosshair = CrosshairWidget->FindFunction(FName("CrossHairsAnimation"));
-				if (PlayAnimCrosshair)
+				// Mission Informations
+				if (AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass())))
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Anim Played"));
-					CrosshairWidget->ProcessEvent(PlayAnimCrosshair, nullptr);
+
+					if (UTextBlock* MissionText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("MissionText"))))
+					{
+						MissionText->SetText(FText::FromName(MissionManager->CurrentMissionData.MissionName));
+					}
+					// Hide all Information
+					if (UProgressBar* EliminateProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("EliminateProgressBar"))))
+					{
+						EliminateProgressBar->SetVisibility(ESlateVisibility::Hidden);
+					}
+					if (UTextBlock* EliminateText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("EliminateText"))))
+					{
+						EliminateText->SetVisibility(ESlateVisibility::Hidden);
+					}
+					if (UProgressBar* SurviveProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("SurviveProgressBar"))))
+					{
+						SurviveProgressBar->SetVisibility(ESlateVisibility::Hidden);
+					}
+					if (UProgressBar* CaptureProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("CaptureProgressBar"))))
+					{
+						CaptureProgressBar->SetVisibility(ESlateVisibility::Hidden);
+					}
+					if (UProgressBar* BossHealthBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("BossHealthBar"))))
+					{
+						BossHealthBar->SetVisibility(ESlateVisibility::Hidden);
+					}
+					// Update ProgressBars Based On MissionType of CurrentMissionData
+					switch (MissionManager->CurrentMissionData.MissionType)
+					{
+					case EMissionType::Eliminate:
+					{
+						if (UProgressBar* EliminateProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("EliminateProgressBar"))))
+						{
+							if (MissionManager->SpawnedEnemyCount > 0)
+							{
+								EliminateProgressBar->SetVisibility(ESlateVisibility::Visible);
+								float EliminateProgress = (static_cast<float>(MissionManager->KilledEnemyCount)) / MissionManager->SpawnedEnemyCount;
+								EliminateProgressBar->SetPercent(EliminateProgress);
+							}
+						}
+						if (UTextBlock* EliminateText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("EliminateText"))))
+						{
+							EliminateText->SetVisibility(ESlateVisibility::Visible);
+							EliminateText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"),
+								MissionManager->KilledEnemyCount,
+								MissionManager->SpawnedEnemyCount)));
+						}
+						break;
+					}
+					case EMissionType::Survive:
+					{
+						if (UProgressBar* SurviveProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("SurviveProgressBar"))))
+						{
+							if (MissionManager->CurrentMissionData.SurviveTime > 0)
+							{
+								SurviveProgressBar->SetVisibility(ESlateVisibility::Visible);
+								float RemainingTime = GetWorldTimerManager().GetTimerRemaining(MissionManager->SurvivalTimerHandle);
+								float SurviveProgress = RemainingTime / MissionManager->CurrentMissionData.SurviveTime;
+								SurviveProgressBar->SetPercent(SurviveProgress);
+							}
+						}
+						break;
+					}
+					case EMissionType::Capture:
+					{
+						if (UProgressBar* CaptureProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("CaptureProgressBar"))))
+						{
+							if (MissionManager->CurrentMissionData.CaptureTime > 0)
+							{
+								CaptureProgressBar->SetVisibility(ESlateVisibility::Visible);
+								float CaptureProgress = MissionManager->CaptureProgress / MissionManager->CurrentMissionData.CaptureTime;
+								CaptureProgressBar->SetPercent(CaptureProgress);
+							}
+						}
+
+						break;
+					}
+					case EMissionType::BossCombat:
+					{
+
+						break;
+					}
+					default:
+					{
+
+						break;
+					}
+					}
+				}
+				// CrosshairWidget
+				if (UUserWidget* CrosshairWidget = MyPlayerController->GetCrosshairWidget())
+				{
+					UFunction* PlayAnimCrosshair = CrosshairWidget->FindFunction(FName("CrossHairsAnimation"));
+					if (PlayAnimCrosshair)
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Anim Played"));
+						CrosshairWidget->ProcessEvent(PlayAnimCrosshair, nullptr);
+					}
 				}
 			}
 		}
 	}
 }
 
+void AMyGameState::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	UpdateHUD();
+}
+
 void AMyGameState::BeginPlay()
 {
 	Super::BeginPlay();
-
-	StartGame();
 }
