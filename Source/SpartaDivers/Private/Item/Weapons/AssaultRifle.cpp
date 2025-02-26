@@ -8,8 +8,8 @@
 
 UAssaultRifle::UAssaultRifle()
 {
-    ItemName = FName(TEXT("AssaultRifle"));
-    ItemDescription = FText::FromString(TEXT("AssaultRifleDescription"));
+    //ItemName = FName(TEXT("AssaultRifle"));
+    //ItemDescription = FText::FromString(TEXT("AssaultRifleDescription"));
 
     Damage = 5.0f;
     FireRate = 0.1f;
