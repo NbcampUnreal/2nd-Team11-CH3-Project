@@ -23,14 +23,13 @@ public:
 public:
 	void AddItem(UItemBase* InItem);
 
-	UFUNCTION(BlueprintCallable)
 	void RemoveItem(UItemBase* InItem);
 
 protected:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<UGunBase*> GunInventroy;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<UAttachmentBase*> AttachmentInventroy;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

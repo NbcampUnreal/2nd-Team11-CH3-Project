@@ -32,10 +32,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	FName ItemID;
 
-	FORCEINLINE const EItemType GetItemType() const { return ItemType; }
-	FORCEINLINE const UTexture2D* GetIconImage() const	{ return IconImage;	}
-	FORCEINLINE const FName GetItemName() const { return ItemName; }
-	FORCEINLINE const FText GetItemDescription() const { return ItemDescription; }
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE EItemType GetItemType() { return ItemType; }
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE UTexture2D* GetIconImage() { return IconImage;	}
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE FName GetItemName() { return ItemName; }
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE FText GetItemDescription() { return ItemDescription; }
 
 	virtual void InitializeItem(UItemBase* DefaultItem);
 	
