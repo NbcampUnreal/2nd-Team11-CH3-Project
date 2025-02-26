@@ -17,8 +17,8 @@ UAssaultRifle::UAssaultRifle()
     CurAmmo = MaxAmmo;
     ReloadTime = 1.5f;
 
-    CurRecoil = 0.1f;
-    MaxRecoil = 1.1f;
+    CurRecoil = 0.3f;
+    MaxRecoil = 0.3f;
 }
 
 void UAssaultRifle::Fire()
@@ -109,4 +109,8 @@ void UAssaultRifle::PerformHitScan()
         // If there is no collision, draw the debug line blue
         DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 0, 1.5f);
     }
+
+    // application of gun recoil
+    FRotator GunRecoil = FRotator(-CurRecoil, 0.f, 0.f);
+    PlayerCharacter->AddControllerPitchInput(GunRecoil.Pitch);
 }
