@@ -26,19 +26,21 @@ protected:
 	float SprintSpeed;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
 	float SprintSpeedMultiplier;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
-	float MaxHP;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
-	float CurrentHP;
+
+	UAnimInstance* AnimInstance;
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* DeathMontage;
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* HitMontage;
 
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 	UStatusContainerComponent* StatusContainerComponent;
 
 public:
-	// IStatusContainerInterfaceÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+	// IStatusContainerInterfaceï¿½ï¿½(ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Óµï¿½
 	virtual UStatusContainerComponent* GetStatusContainerComponent() const override;
 
 	//TakeDamge
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamgeEvent, class AController* EnventInstigator, AActor* DamageCauser) override;
 	virtual void OnDeath();
 };

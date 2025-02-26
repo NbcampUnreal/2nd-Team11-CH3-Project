@@ -34,7 +34,6 @@ protected:
 	USpringArmComponent* SpringArmComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* CameraComp;
-	UAnimInstance* AnimInstance;
 
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* FireMontage;
@@ -42,6 +41,9 @@ protected:
 	UAnimMontage* ReloadMontage;
 
 	bool bIsReloading = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sate")
+	bool bIsDead = false;
+	bool bIsOpenInventory = false;
 	FTimerHandle ReloadTimerHandle;
 
 public:	
@@ -76,7 +78,24 @@ public:
 	void Reload(const FInputActionValue& value);
 
 	UFUNCTION()
+	void OpenIventory(const FInputActionValue& value);
+	UFUNCTION()
+	void SwapGun(const FInputActionValue& value);
+	UFUNCTION()
+	void UseOne(const FInputActionValue& value);
+	UFUNCTION()
+	void UseTwo(const FInputActionValue& value);
+	UFUNCTION()
+	void UseThree(const FInputActionValue& value);
+	UFUNCTION()
+	void UseFour(const FInputActionValue& value);
+
+
+	UFUNCTION()
 	void FinishReload();
+
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 
 	UFUNCTION()
 	void Interact(const FInputActionValue& value);

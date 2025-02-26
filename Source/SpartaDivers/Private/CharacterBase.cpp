@@ -17,20 +17,23 @@ UStatusContainerComponent* ACharacterBase::GetStatusContainerComponent() const
 
 float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser) / StatusContainerComponent->GetDepensePower();
 
-	CurrentHP = FMath::Clamp(CurrentHP - DamageAmount, 0.0f, MaxHP);
-	UE_LOG(LogTemp, Warning, TEXT("Enemy Damaged : %f, Current HP : %f"), ActualDamage, CurrentHP);
+	UE_LOG(LogTemp, Warning, TEXT("Enemy Damaged : %f, Current HP : %f"), ActualDamage, StatusContainerComponent->GetCurHealth());
+	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
 
-	if (CurrentHP <= 0.0f)
+	AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->Montage_Play(HitMontage);
+	if (StatusContainerComponent->GetCurHealth() <= 0)
 	{
 		OnDeath();
 	}
-
+	
 	return ActualDamage;
 }
 
 void ACharacterBase::OnDeath()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Character Base DEAD"));
+	AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->Montage_Play(DeathMontage);
 }
