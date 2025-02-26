@@ -16,9 +16,9 @@ UAssaultRifle::UAssaultRifle()
     MaxAmmo = 30;
     CurAmmo = MaxAmmo;
     ReloadTime = 1.5f;
-
     CurRecoil = 0.3f;
     MaxRecoil = 0.3f;
+    bOnInfiniteBullet = false;
 }
 
 void UAssaultRifle::Fire()
@@ -27,6 +27,11 @@ void UAssaultRifle::Fire()
     {
         CurAmmo--;
         bCanFire = false;
+        // for CheatManager::InfiniteBullet
+        if (bOnInfiniteBullet)
+        {
+            CurAmmo++;
+        }
 
         UE_LOG(LogTemp, Warning, TEXT("AssaultRifle fired! Ammo: %d/%d"), CurAmmo, MaxAmmo);
 
