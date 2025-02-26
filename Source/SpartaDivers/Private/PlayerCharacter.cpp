@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/StatusContainerComponent.h"
 #include "Components/InventoryComponent.h"
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
@@ -131,6 +132,60 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					&APlayerCharacter::Reload
 				);
 			}
+			if (PlayerController->InventoryAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->InventoryAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::OpenIventory
+				);
+			}
+			if (PlayerController->SwapAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->SwapAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::SwapGun
+				);
+			}
+			if (PlayerController->ButtonOneAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ButtonOneAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::UseOne
+				);
+			}
+			if (PlayerController->ButtonTwoAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ButtonTwoAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::UseTwo
+				);
+			}
+			if (PlayerController->ButtonThreeAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ButtonThreeAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::UseThree
+				);
+			}
+			if (PlayerController->ButtonFourAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ButtonFourAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::UseFour
+				);
+			}
 		}
 	}
 }
@@ -229,6 +284,48 @@ void APlayerCharacter::FinishReload()
 	{
 		MyGameState->UpdateHUD();
 	}
+}
+void APlayerCharacter::OpenIventory(const FInputActionValue& value)
+{
+	if (!bIsOpenInventory)
+	{
+		bIsOpenInventory = true;
+	}
+	else
+	{
+		bIsOpenInventory = false;
+	}
+}
+void APlayerCharacter::SwapGun(const FInputActionValue& value)
+{
+
+}
+void APlayerCharacter::UseOne(const FInputActionValue& value)
+{
+
+}
+void APlayerCharacter::UseTwo(const FInputActionValue& value)
+{
+
+}
+void APlayerCharacter::UseThree(const FInputActionValue& value)
+{
+
+}
+void APlayerCharacter::UseFour(const FInputActionValue& value)
+{
+
+}
+
+float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	if (StatusContainerComponent->GetCurHealth() <= 0)
+	{
+		bIsDead = true;
+	}
+
+	return DamageAmount;
 }
 
 UGunBase* APlayerCharacter::GetEquippedGun()

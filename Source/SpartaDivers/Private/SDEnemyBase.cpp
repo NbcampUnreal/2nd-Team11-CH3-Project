@@ -4,6 +4,7 @@
 #include "SDAIController.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/StatusContainerComponent.h"
 #include "Item/DropItem.h"
 
 ASDEnemyBase::ASDEnemyBase()
@@ -15,23 +16,23 @@ ASDEnemyBase::ASDEnemyBase()
 
 	EnemyType = FName(TEXT("DefaultEnemy"));
 	MoveSpeed = 300.f;
-	MaxHP = 100.0f;
-	CurrentHP = MaxHP;
+	StatusContainerComponent->SetMaxHealth(100);
+	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
 }
 
 float ASDEnemyBase::GetHealth() const
 {
-	return CurrentHP;
+	return StatusContainerComponent->GetCurHealth();
 }
 
 float ASDEnemyBase::GetMaxHealth() const
 {
-	return MaxHP;
+	return StatusContainerComponent->GetMaxHealth();
 }
 
 void ASDEnemyBase::AddHealth(float Amount)
 {
-	CurrentHP = FMath::Clamp(CurrentHP + Amount, 0.0f, MaxHP);
+	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() + Amount);
 }
 
 FName ASDEnemyBase::GetEnemyType() const
