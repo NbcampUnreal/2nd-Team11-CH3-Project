@@ -53,7 +53,7 @@ float ASDEnemyBase::TakeDamage(
 	return ActualDamage;
 }
 
-void ASDEnemyBase::Attack()
+void ASDEnemyBase::Attack(int32 SkillIndex)
 {
 }
 

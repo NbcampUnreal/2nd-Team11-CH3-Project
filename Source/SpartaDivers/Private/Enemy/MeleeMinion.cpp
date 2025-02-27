@@ -4,7 +4,7 @@
 #include "Enemy/MeleeMinion.h"
 #include "PlayerCharacter.h"
 
-void AMeleeMinion::Attack()
+void AMeleeMinion::Attack(int32 SkillIndex)
 {
 	if (AttackMontages.IsEmpty()) return;
 
