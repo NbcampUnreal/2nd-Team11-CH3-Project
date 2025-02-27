@@ -27,15 +27,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
 	float SprintSpeedMultiplier;
 
-	UAnimInstance* AnimInstance;
-	UPROPERTY(EditAnywhere)
-	UAnimMontage* DeathMontage;
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* HitMontage;
 
 	UPROPERTY(VisibleAnywhere, Category = "Status")
 	UStatusContainerComponent* StatusContainerComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsDead = false;
 public:
 	// IStatusContainerInterface��(��) ���� ��ӵ�
 	virtual UStatusContainerComponent* GetStatusContainerComponent() const override;

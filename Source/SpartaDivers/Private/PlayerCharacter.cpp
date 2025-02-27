@@ -263,8 +263,7 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 		EquippedGun->Fire();
-		AnimInstance = GetMesh()->GetAnimInstance();
-		AnimInstance->Montage_Play(FireMontage);
+		GetMesh()->GetAnimInstance()->Montage_Play(FireMontage);
 	}
 
 	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
@@ -281,8 +280,7 @@ void APlayerCharacter::Reload(const FInputActionValue& value)
 		bIsReloading = true;
 		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &APlayerCharacter::FinishReload, EquippedGun->ReloadTime, false);
 
-		AnimInstance = GetMesh()->GetAnimInstance();
-		AnimInstance->Montage_Play(ReloadMontage);
+		GetMesh()->GetAnimInstance()->Montage_Play(ReloadMontage);
 	}
 }
 

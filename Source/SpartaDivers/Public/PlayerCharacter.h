@@ -42,7 +42,6 @@ protected:
 
 	bool bIsReloading = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sate")
-	bool bIsDead = false;
 	bool bIsOpenInventory = false;
 	FTimerHandle ReloadTimerHandle;
 

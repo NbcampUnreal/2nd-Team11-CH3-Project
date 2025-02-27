@@ -1,10 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Enemy/RangedMinion.h"
 #include "EnemyProjectile.h"
 
-void ARangedMinion::Attack()
+void ARangedMinion::Attack(int32 SkillIndex)
 {
 	if (AttackMontage == nullptr || ProjectileClass == nullptr) return;
 

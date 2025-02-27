@@ -53,7 +53,7 @@ float ASDEnemyBase::TakeDamage(
 	return ActualDamage;
 }
 
-void ASDEnemyBase::Attack()
+void ASDEnemyBase::Attack(int32 SkillIndex)
 {
 }
 
@@ -70,12 +70,18 @@ void ASDEnemyBase::OnDeath()
 		MissionManager->CheckMissionCompletion();
 	}
 
-	Destroy();
+	AAIController* AIController = Cast<AAIController>(GetController());
+	if (AIController)
+	{
+		AIController->UnPossess();
+	}
 }
 
 void ASDEnemyBase::OnDropItem()
 {
 	float CumDropWeight = 0.f;
+
+	if (DropItemInfos.IsEmpty()) return;
 
 	for (FDropItemInfo dropItemInfo : DropItemInfos)
 	{
@@ -88,14 +94,18 @@ void ASDEnemyBase::OnDropItem()
 		RandomWeight -= dropItemInfo.dropWeight;
 		if (RandomWeight < 0.f)
 		{
-			if (dropItemInfo.dropItemClass)
+			if (dropItemInfo.dropItemClass && DropItem)
 			{
 				ADropItem* DropItemInstance = GetWorld()->SpawnActor<ADropItem>(DropItem);
-				DropItemInstance->OwningItemClass = dropItemInfo.dropItemClass;
+				if (DropItemInstance)
+				{
+					DropItemInstance->OwningItemClass = dropItemInfo.dropItemClass;
+					DropItemInstance->SetActorLocation(GetActorLocation());
+				}
 			}
-		}
 
-		break;
+			break;
+		}
 	}
 }
 
