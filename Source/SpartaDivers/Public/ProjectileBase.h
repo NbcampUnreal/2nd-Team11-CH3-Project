@@ -40,6 +40,7 @@ protected:
 
 public:
 	virtual void InitProjectile(float InitVelocity);
+	virtual void SetVelocity(FVector InDirection, float Speed);
 
 
 };

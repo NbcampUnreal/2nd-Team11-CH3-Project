@@ -12,6 +12,7 @@ class USpringArmComponent;
 class UCameraComponent;
 struct FInputActionValue;
 class UGunBase;
+class URocketLauncher;
 class UInventoryComponent;
 class AMissionStartTrigger;
 
@@ -28,7 +29,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* EquippedGun;
 	UGunBase* SubGun;
-
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -74,7 +74,7 @@ public:
 
 	UFUNCTION()
 	void Fire(const FInputActionValue& value);
-	
+
 	UFUNCTION()
 	void Reload(const FInputActionValue& value);
 
