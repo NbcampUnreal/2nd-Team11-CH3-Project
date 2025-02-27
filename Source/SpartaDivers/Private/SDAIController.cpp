@@ -33,4 +33,5 @@ void ASDAIController::BeginPlay()
 		CrowdFollowingComponent->SetGroupsToAvoid(1);
 		CrowdFollowingComponent->SetCrowdCollisionQueryRange(CollisionQueryRange);
 	}
+
 }
