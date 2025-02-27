@@ -309,7 +309,9 @@ void APlayerCharacter::OpenIventory(const FInputActionValue& value)
 }
 void APlayerCharacter::SwapGun(const FInputActionValue& value)
 {
-
+	UGunBase* temp = EquippedGun;
+	EquippedGun = SubGun;
+	SubGun = EquippedGun;
 }
 void APlayerCharacter::UseOne(const FInputActionValue& value)
 {
