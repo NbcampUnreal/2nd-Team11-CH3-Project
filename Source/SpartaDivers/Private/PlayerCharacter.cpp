@@ -11,6 +11,7 @@
 #include "Components/InventoryComponent.h"
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
+#include "Blueprint/UserWidget.h"
 #include "MissionStartTrigger.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -187,6 +188,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					ETriggerEvent::Started,
 					this,
 					&APlayerCharacter::UseFour
+				);
+			}
 			if (PlayerController->InteractAction)
 			{
 				EnhancedInput->BindAction(
