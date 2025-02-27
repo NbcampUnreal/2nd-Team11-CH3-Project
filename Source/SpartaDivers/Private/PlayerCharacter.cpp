@@ -12,6 +12,7 @@
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
 #include "Item/Weapons/RocketLauncher.h"
+#include "Blueprint/UserWidget.h"
 #include "MissionStartTrigger.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -272,8 +273,7 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 		EquippedGun->Fire();
-		AnimInstance = GetMesh()->GetAnimInstance();
-		AnimInstance->Montage_Play(FireMontage);
+		GetMesh()->GetAnimInstance()->Montage_Play(FireMontage);
 	}
 }
 
@@ -284,8 +284,7 @@ void APlayerCharacter::Reload(const FInputActionValue& value)
 		bIsReloading = true;
 		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &APlayerCharacter::FinishReload, EquippedGun->ReloadTime, false);
 
-		AnimInstance = GetMesh()->GetAnimInstance();
-		AnimInstance->Montage_Play(ReloadMontage);
+		GetMesh()->GetAnimInstance()->Montage_Play(ReloadMontage);
 	}
 }
 
@@ -308,7 +307,9 @@ void APlayerCharacter::OpenIventory(const FInputActionValue& value)
 }
 void APlayerCharacter::SwapGun(const FInputActionValue& value)
 {
-
+	UGunBase* temp = EquippedGun;
+	EquippedGun = SubGun;
+	SubGun = EquippedGun;
 }
 void APlayerCharacter::UseOne(const FInputActionValue& value)
 {

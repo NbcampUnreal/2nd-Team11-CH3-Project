@@ -44,7 +44,13 @@ public:
 	float BasicAttackRange;
 
 	UPROPERTY(EditDefaultsOnly)
+	float BasicAttackRate;
+
+	UPROPERTY(EditDefaultsOnly)
 	float JumpAttackRange;
+
+	UPROPERTY(EditDefaultsOnly)
+	float JumpAttackRate;
 
 	UPROPERTY(EditDefaultsOnly)
 	float SpawnMinionNum;

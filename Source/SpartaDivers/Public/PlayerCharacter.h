@@ -28,7 +28,7 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* EquippedGun;
-	
+	UGunBase* SubGun;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -43,9 +43,9 @@ protected:
 
 	bool bIsReloading = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sate")
-	bool bIsDead = false;
 	bool bIsOpenInventory = false;
 	FTimerHandle ReloadTimerHandle;
+
 
 public:	
 	// Called every frame
