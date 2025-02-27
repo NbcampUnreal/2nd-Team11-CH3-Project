@@ -11,6 +11,7 @@
 #include "Components/InventoryComponent.h"
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
+#include "Blueprint/UserWidget.h"
 #include "MissionStartTrigger.h"
 
 APlayerCharacter::APlayerCharacter()
