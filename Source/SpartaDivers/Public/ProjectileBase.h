@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -16,30 +16,19 @@ class SPARTADIVERS_API AProjectileBase : public AActor
 	GENERATED_BODY()
 	
 public:	
+	// Sets default values for this actor's properties
 	AProjectileBase();
 
 protected:
 	UPROPERTY(EditAnywhere)
-	USphereComponent* Collision;
+	USphereComponent* SphereComponent;
+
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshComponent;
+
 	UPROPERTY(EditAnywhere)
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
-	FTimerHandle ExplosionTimerHandle;
-
-	UPROPERTY(EditAnywhere, Category = "Explode")
-	float ExplosionDelay;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Explode")
-	float ExplosionRadius;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Explode")
-	float ExplosionDamage;
-
-	UFUNCTION()
-	virtual void Explode();
-
 public:
 	virtual void InitProjectile(float InitVelocity);
-
-
 };

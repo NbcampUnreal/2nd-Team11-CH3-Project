@@ -34,8 +34,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* SwapAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-	UInputAction* InteractAction;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* InventoryAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* ButtonOneAction;
@@ -45,6 +43,7 @@ public:
 	UInputAction* ButtonThreeAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* ButtonFourAction;
+	UInputAction* InteractAction;
 
 	UFUNCTION(BlueprintPure, Category = "UI|HUD")
 	UUserWidget* GetHUDWidget() const;
