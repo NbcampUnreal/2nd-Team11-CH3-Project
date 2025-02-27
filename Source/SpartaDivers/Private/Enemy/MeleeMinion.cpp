@@ -4,7 +4,7 @@
 #include "Enemy/MeleeMinion.h"
 #include "PlayerCharacter.h"
 
-void AMeleeMinion::Attack()
+void AMeleeMinion::Attack(int32 SkillIndex)
 {
 	if (AttackMontages.IsEmpty()) return;
 
@@ -42,5 +42,5 @@ void AMeleeMinion::ApplyAttackEffect(int32 EffectIndex)
             UDamageType::StaticClass());
 	}
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), AttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
+	//DrawDebugSphere(GetWorld(), GetActorLocation(), AttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
 }

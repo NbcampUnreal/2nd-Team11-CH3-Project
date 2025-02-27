@@ -48,7 +48,7 @@ protected:
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION(BlueprintCallable)
-	virtual void Attack();
+	virtual void Attack(int32 SkillIndex);
 
 	void OnDeath() override;
 

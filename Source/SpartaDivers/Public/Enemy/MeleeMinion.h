@@ -15,7 +15,7 @@ class SPARTADIVERS_API AMeleeMinion : public ASDEnemyBase
 	GENERATED_BODY()
 	
 protected:
-	virtual void Attack() override;
+	virtual void Attack(int32 SkillIndex) override;
 
 	int32 CurCombo = 0;
 
