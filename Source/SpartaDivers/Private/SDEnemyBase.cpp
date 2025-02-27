@@ -70,7 +70,11 @@ void ASDEnemyBase::OnDeath()
 		MissionManager->CheckMissionCompletion();
 	}
 
-	Destroy();
+	AAIController* AIController = Cast<AAIController>(GetController());
+	if (AIController)
+	{
+		AIController->UnPossess();
+	}
 }
 
 void ASDEnemyBase::OnDropItem()
