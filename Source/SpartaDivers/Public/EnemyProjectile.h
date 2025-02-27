@@ -14,6 +14,8 @@ class SPARTADIVERS_API AEnemyProjectile : public AProjectileBase
 public:
 	AEnemyProjectile();
 
+	FTimerHandle EnemyProjectileTimerHandle;
+
 	UFUNCTION()
 	void OnProjectileOverlap(
 		UPrimitiveComponent* OverlappedComp,
@@ -26,6 +28,4 @@ public:
 	void Explode() override;
 
 	void InitProjectile(float InitVelocity) override;
-
-
 };
