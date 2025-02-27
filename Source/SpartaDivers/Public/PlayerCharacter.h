@@ -27,6 +27,7 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* EquippedGun;
+	UGunBase* SubGun;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
