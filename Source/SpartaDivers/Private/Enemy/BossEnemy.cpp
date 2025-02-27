@@ -2,6 +2,7 @@
 
 
 #include "Enemy/BossEnemy.h"
+#include "PlayerCharacter.h"
 
 void ABossEnemy::Attack(int32 SkillIndex)
 {
@@ -37,13 +38,100 @@ void ABossEnemy::Attack(int32 SkillIndex)
 			PlayAnimMontage(FireMontage);
 		}
 		break;
-	case 5:
-		if (JumpToPlayerMontage)
-		{
-			PlayAnimMontage(JumpToPlayerMontage);
-		}
+	default:
+		break;
+	}
+}
+
+void ABossEnemy::ApplyAttackEffect(int32 EffectIndex)
+{
+	switch (EffectIndex)
+	{
+	case 0:
+		ApplyBasicAttackEffect();
+		break;
+	case 1:
+		ApplyJumpAttackEffect();
+		break;
+	case 2:
+		ApplySpawnMinionEffect();
 		break;
 	default:
 		break;
+	}
+}
+
+void ABossEnemy::ApplyBasicAttackEffect()
+{
+	TArray<FHitResult> OutHits;
+	FVector Start = GetActorLocation();
+	FCollisionQueryParams CollisionParams(NAME_Name, false, this);
+	FCollisionObjectQueryParams ColisionObjectParams(ECollisionChannel::ECC_Visibility);
+
+	bool OnHit = GetWorld()->SweepMultiByChannel(OutHits, Start, Start, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(BasicAttackRange), CollisionParams);
+	if (OnHit == false) return;
+
+	for (const FHitResult& OutHit : OutHits)
+	{
+		APlayerCharacter* Player = Cast<APlayerCharacter>(OutHit.GetActor());
+		if (Player == nullptr) continue;
+
+		UGameplayStatics::ApplyDamage(
+			Player,
+			Damage,
+			GetController(),
+			this,
+			UDamageType::StaticClass());
+	}
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), BasicAttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
+}
+
+void ABossEnemy::ApplyJumpAttackEffect()
+{
+	TArray<FHitResult> OutHits;
+	FVector Start = GetActorLocation();
+	FCollisionQueryParams CollisionParams(NAME_Name, false, this);
+	FCollisionObjectQueryParams ColisionObjectParams(ECollisionChannel::ECC_Visibility);
+
+	bool OnHit = GetWorld()->SweepMultiByChannel(OutHits, Start, Start, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(JumpAttackRange), CollisionParams);
+	if (OnHit == false) return;
+
+	for (const FHitResult& OutHit : OutHits)
+	{
+		APlayerCharacter* Player = Cast<APlayerCharacter>(OutHit.GetActor());
+		if (Player == nullptr) continue;
+
+		UGameplayStatics::ApplyDamage(
+			Player,
+			Damage,
+			GetController(),
+			this,
+			UDamageType::StaticClass());
+	}
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), JumpAttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
+}
+
+void ABossEnemy::ApplySpawnMinionEffect()
+{
+	if (SpawnEnemies.IsEmpty()) return;
+	if (SpawnMinionNum == 0) return;
+
+	float AngleStep = 360.f / SpawnMinionNum;
+
+	for (int i = 0; i < SpawnMinionNum; i++)
+	{
+		int32 RandomInt = FMath::RandRange(0, SpawnEnemies.Num() - 1);
+		if (SpawnEnemies[RandomInt] == nullptr) return;
+
+		float AngleInRadians = FMath::DegreesToRadians(i * AngleStep);
+
+		float X = GetActorLocation().X + SpawnMinionRange * FMath::Cos(AngleInRadians);
+		float Y = GetActorLocation().Y + SpawnMinionRange * FMath::Sin(AngleInRadians);
+
+		FVector SpawnLocation = FVector(X, Y, GetActorLocation().Z + 200.f);
+
+		GetWorld()->SpawnActor<AActor>(SpawnEnemies[RandomInt], SpawnLocation, GetActorRotation());
 	}
 }

@@ -34,6 +34,24 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* FireMontage;
 
+	virtual void ApplyAttackEffect(int32 EffectIndex) override;
+
+	void ApplyBasicAttackEffect();
+	void ApplyJumpAttackEffect();
+	void ApplySpawnMinionEffect();
+
 	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* JumpToPlayerMontage;
+	float BasicAttackRange;
+
+	UPROPERTY(EditDefaultsOnly)
+	float JumpAttackRange;
+
+	UPROPERTY(EditDefaultsOnly)
+	float SpawnMinionNum;
+
+	UPROPERTY(EditDefaultsOnly)
+	float SpawnMinionRange;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TSubclassOf<ASDEnemyBase>> SpawnEnemies;
 };
