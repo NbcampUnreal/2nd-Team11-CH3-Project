@@ -4,7 +4,7 @@
 #include "Enemy/RangedMinion.h"
 #include "EnemyProjectile.h"
 
-void ARangedMinion::Attack()
+void ARangedMinion::Attack(int32 SkillIndex)
 {
 	if (AttackMontage == nullptr || ProjectileClass == nullptr) return;
 
