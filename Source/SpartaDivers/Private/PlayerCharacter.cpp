@@ -187,6 +187,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					ETriggerEvent::Started,
 					this,
 					&APlayerCharacter::UseFour
+				);
+			}
 			if (PlayerController->InteractAction)
 			{
 				EnhancedInput->BindAction(
