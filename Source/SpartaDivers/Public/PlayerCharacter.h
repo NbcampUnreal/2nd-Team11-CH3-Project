@@ -36,6 +36,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* CameraComp;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerStatus")
+	UStatusContainerComponent* PlayerStatus;
+
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* FireMontage;
 	UPROPERTY(EditAnywhere)
@@ -95,7 +98,11 @@ public:
 	UFUNCTION()
 	void FinishReload();
 
-	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	float TakeDamage(
+		float DamageAmount,
+		FDamageEvent const& DamageEvent, 
+		AController* EventInstigator, 
+		AActor* DamageCauser) override;
 
 
 	UFUNCTION()
@@ -103,6 +110,8 @@ public:
 
 	UFUNCTION()
 	UGunBase* GetEquippedGun();
+
+	UStatusContainerComponent* GetStatusContainerComponent() const override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	AMissionStartTrigger* CurrentMissionTrigger;
