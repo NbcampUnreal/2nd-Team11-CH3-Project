@@ -34,6 +34,10 @@ APlayerCharacter::APlayerCharacter()
 	SprintSpeedMultiplier = 1.5f;
 	SprintSpeed = MoveSpeed * SprintSpeedMultiplier;
 
+	PlayerStatus = CreateDefaultSubobject<UStatusContainerComponent>(TEXT("PlayerStatus"));
+	PlayerStatus->SetMaxHealth(100.0f);
+	PlayerStatus->SetCurHealth(PlayerStatus->GetMaxHealth());
+
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
@@ -330,14 +334,18 @@ void APlayerCharacter::UseFour(const FInputActionValue& value)
 
 }
 
-float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+float APlayerCharacter::TakeDamage(
+	float DamageAmount,
+	FDamageEvent const& DamageEvent,
+	AController* EventInstigator,
+	AActor* DamageCauser)
 {
-	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	if (StatusContainerComponent->GetCurHealth() <= 0)
-	{
-		bIsDead = true;
-	}
-
+	float ActualDamage = Super::TakeDamage(
+		DamageAmount,
+		DamageEvent,
+		EventInstigator,
+		DamageCauser);
+	UE_LOG(LogTemp, Warning, TEXT("Player Damaged : %f"), ActualDamage);
 	return DamageAmount;
 }
 
@@ -356,4 +364,9 @@ UGunBase* APlayerCharacter::GetEquippedGun()
 		return EquippedGun;
 	}
 	return nullptr;
+}
+
+UStatusContainerComponent* APlayerCharacter::GetStatusContainerComponent() const
+{
+	return PlayerStatus;
 }

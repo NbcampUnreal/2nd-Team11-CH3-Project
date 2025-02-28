@@ -23,7 +23,7 @@ void AEnemyProjectile::OnProjectileOverlap(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherActor->ActorHasTag("Player"))
+	if (OtherActor)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(EnemyProjectileTimerHandle);
 		Explode();
@@ -32,7 +32,7 @@ void AEnemyProjectile::OnProjectileOverlap(
 
 void AEnemyProjectile::Explode()
 {
-	TArray<AActor*> TargetActors;
+	TArray<AActor*> IgnoreActors;
 
 	TArray<FOverlapResult> OverlapResults;
 	FCollisionQueryParams QueryParams;
@@ -52,9 +52,9 @@ void AEnemyProjectile::Explode()
 		for (const FOverlapResult& Result : OverlapResults)
 		{
 			AActor* HitActor = Result.GetActor();
-			if (HitActor && HitActor->IsA(APlayerCharacter::StaticClass()))
+			if (HitActor && HitActor->ActorHasTag("Enemy"))
 			{
-				TargetActors.Add(HitActor);
+				IgnoreActors.Add(HitActor);
 			}
 		}
 	}
@@ -65,9 +65,8 @@ void AEnemyProjectile::Explode()
 		GetActorLocation(),
 		ExplosionRadius,
 		UDamageType::StaticClass(),
-		TargetActors
+		IgnoreActors
 	);
-	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.0f);
 	Super::Explode();
 }
 

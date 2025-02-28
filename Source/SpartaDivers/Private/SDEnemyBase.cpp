@@ -48,8 +48,8 @@ float ASDEnemyBase::TakeDamage(
 	AController* EventInstigator,
 	AActor* DamageCauser)
 {
-	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
+	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	UE_LOG(LogTemp, Warning, TEXT("Enemy Damaged : %f"), ActualDamage);
 	return ActualDamage;
 }
 
