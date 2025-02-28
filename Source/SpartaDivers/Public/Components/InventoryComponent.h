@@ -25,6 +25,12 @@ public:
 
 	void RemoveItem(UItemBase* InItem);
 
+	const TArray<UGunBase*>& GetGunInventory() const { return GunInventroy; }
+
+	const TArray<UAttachmentBase*>& GetAttachmentInventory() const { return AttachmentInventroy; }
+
+	const TArray<UConsumableBase*>& GetConsumableInventory() const { return ConsumableInventroy; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<UGunBase*> GunInventroy;

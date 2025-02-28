@@ -73,23 +73,3 @@ void UStatusContainerComponent::SetMaxHealth(float NewMaxHealth)
 		StatusStruct.CurHealth = GetMaxHealth();
 	}
 }
-
-float UStatusContainerComponent::GetAttackPower() const
-{
-	return StatusStruct.AttackPower;
-}
-
-void UStatusContainerComponent::SetAttackPower(float NewAttackPower)
-{
-	StatusStruct.AttackPower = NewAttackPower;
-}
-
-float UStatusContainerComponent::GetDepensePower() const
-{
-	return StatusStruct.DefensePower;
-}
-
-void UStatusContainerComponent::SetDepensePower(float NewDepensePower)
-{
-	StatusStruct.DefensePower = NewDepensePower;
-}

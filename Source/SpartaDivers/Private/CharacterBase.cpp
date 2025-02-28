@@ -19,7 +19,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 {
 	if (bIsDead) return 0.f;
 
-	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser) / StatusContainerComponent->GetDepensePower();
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	UE_LOG(LogTemp, Warning, TEXT("Enemy Damaged : %f, Current HP : %f"), ActualDamage, StatusContainerComponent->GetCurHealth());
 	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
