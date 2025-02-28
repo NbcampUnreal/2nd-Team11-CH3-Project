@@ -130,4 +130,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UInventoryComponent* InventoryComponent;
+
+	void OnDeath() override;
+	FTimerHandle GameOverTimerHandle;
 };
