@@ -13,14 +13,35 @@
 void UUserWidget_GunAttachmentSlot::ApplyUIToModel(UAttachmentBase* InAttachment)
 {
 	if (InAttachment == nullptr) return;
-
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	UAttachmentBase* OwningAttachment = GetOwningItem();
-	if (OwningAttachment == nullptr) return;
+	UGunBase* OwningGun = nullptr;
 
 	if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(Player))
 	{
-		OwningAttachment = InAttachment;
+		if (bIsMainGun)
+		{
+			OwningGun = PlayerCharacter->GetEquippedGun();
+		}
+		else
+		{
+			OwningGun = PlayerCharacter->GetSubGun();
+		}
+
+		switch (SlotNum)
+		{
+		case 0:
+			OwningGun->FirstAttachment = InAttachment;
+			break;
+		case 1:
+			OwningGun->SecondAttachment = InAttachment;
+			break;
+		case 2:
+			OwningGun->ThirdAttachment = InAttachment;
+			break;
+		default:
+			break;
+		}
+
 		PlayerCharacter->InventoryComponent->RemoveItem(InAttachment);
 	}
 	UpdateUI();
@@ -77,13 +98,13 @@ UAttachmentBase* UUserWidget_GunAttachmentSlot::GetOwningItem()
 
 		switch (SlotNum)
 		{
+		case 0:
+			OwningAttachment = OwningGun->FirstAttachment;
+			break;
 		case 1:
 			OwningAttachment = OwningGun->SecondAttachment;
 			break;
 		case 2:
-			OwningAttachment = OwningGun->SecondAttachment;
-			break;
-		case 3:
 			OwningAttachment = OwningGun->ThirdAttachment;
 			break;
 		default:
