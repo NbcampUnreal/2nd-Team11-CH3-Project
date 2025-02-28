@@ -187,7 +187,6 @@ void AMyGameState::UpdateHUD()
 					UFunction* PlayAnimCrosshair = CrosshairWidget->FindFunction(FName("CrossHairsAnimation"));
 					if (PlayAnimCrosshair)
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Anim Played"));
 						CrosshairWidget->ProcessEvent(PlayAnimCrosshair, nullptr);
 					}
 				}

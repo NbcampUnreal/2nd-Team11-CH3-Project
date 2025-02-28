@@ -26,7 +26,6 @@ float ACharacterBase::TakeDamage(
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
-
 	GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
 	if (StatusContainerComponent->GetCurHealth() <= 0)
 	{
