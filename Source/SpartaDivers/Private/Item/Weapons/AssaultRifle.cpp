@@ -23,18 +23,9 @@ UAssaultRifle::UAssaultRifle()
 
 void UAssaultRifle::Fire()
 {
-    if (bCanFire && CurAmmo > 0)
-    {
-        PerformHitScan();
-        Super::Fire();
+    Super::Fire();
 
-        GetWorld()->GetTimerManager().SetTimer(
-            FireCooldownTimer,
-            this,
-            &UAssaultRifle::ResetFireCooldown,
-            FireRate,
-            false);
-    }
+    PerformHitScan();
 }
 
 void UAssaultRifle::ResetFireCooldown()

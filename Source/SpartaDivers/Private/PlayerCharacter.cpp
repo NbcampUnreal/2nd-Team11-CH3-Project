@@ -11,6 +11,7 @@
 #include "Components/InventoryComponent.h"
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
+#include "Item/Weapons/SniperRifle.h"
 #include "Item/Weapons/RocketLauncher.h"
 #include "Blueprint/UserWidget.h"
 #include "MissionStartTrigger.h"
@@ -58,9 +59,10 @@ void APlayerCharacter::BeginPlay()
 	//	EquippedGun->Ammo = 30;
 	//}
 
-	// AssaultRifle 테스트
+	// AssaultRifle 테스트 (기본 착용)
 	EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
-	
+	SubGun = NewObject<USniperRifle>(this, USniperRifle::StaticClass());
+
 	//// 로켓런처 테스트
 	//UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
 	//if (RocketLauncherBPClass)
@@ -276,7 +278,7 @@ void APlayerCharacter::StopSprint(const FInputActionValue& value)
 
 void APlayerCharacter::Fire(const FInputActionValue& value)
 {
-	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0)
+	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0 && EquippedGun->bCanFire)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 		EquippedGun->Fire();
@@ -311,9 +313,21 @@ void APlayerCharacter::OpenIventory(const FInputActionValue& value)
 
 void APlayerCharacter::SwapGun(const FInputActionValue& value)
 {
-	UGunBase* temp = EquippedGun;
-	EquippedGun = SubGun;
-	SubGun = EquippedGun;
+	if (bIsReloading == false)
+	{
+		UGunBase* TempGun = EquippedGun;
+		EquippedGun = SubGun;
+		SubGun = TempGun;
+
+		if (EquippedGun)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Equipped Gun: %s"), *EquippedGun->GetName());
+		}
+		if (SubGun)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Sub Gun: %s"), *SubGun->GetName());
+		}
+	}
 }
 
 void APlayerCharacter::UseOne(const FInputActionValue& value)
