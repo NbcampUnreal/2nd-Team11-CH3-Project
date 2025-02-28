@@ -17,8 +17,7 @@ class SPARTADIVERS_API AMyHUD : public AHUD
 	GENERATED_BODY()
 	
 public:
-	void ShowMainMenu();
-	void HideMainMenu();
+	void ToggleMainMenu();
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "UI")
@@ -27,4 +26,5 @@ protected:
     UPROPERTY()
     UUserWidget_MainMenu* MainMenuWidgetInstance;
 
+	bool bIsMainMenuVisible = false;
 };

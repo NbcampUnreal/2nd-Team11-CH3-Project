@@ -13,6 +13,7 @@
 #include "Item/Weapons/AssaultRifle.h"
 #include "MissionStartTrigger.h"
 #include "UI/MyHUD.h"
+#include "Item/ConsumableBase.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -298,31 +299,22 @@ void APlayerCharacter::FinishReload()
 }
 void APlayerCharacter::OpenIventory(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OpenInventory : try"))
-
 	AMyHUD* MyHUD = Cast<AMyHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	if (MyHUD == nullptr) return;
 
-	if (!bIsOpenInventory)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("OpenInventory : Open"))
-		bIsOpenInventory = true;
-		MyHUD->ShowMainMenu();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("OpenInventory : Close"))
-		bIsOpenInventory = false;
-		MyHUD->HideMainMenu();
-	}
+	MyHUD->ToggleMainMenu();
 }
+
 void APlayerCharacter::SwapGun(const FInputActionValue& value)
 {
 
 }
 void APlayerCharacter::UseOne(const FInputActionValue& value)
 {
-
+	if (InventoryComponent->GetConsumableInventory().Num() > 0)
+	{
+		InventoryComponent->GetConsumableInventory()[0]->ApplyConsumableEffect(this);
+	}
 }
 void APlayerCharacter::UseTwo(const FInputActionValue& value)
 {

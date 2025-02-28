@@ -18,5 +18,7 @@ void UHealthPotion::ApplyConsumableEffect(APlayerCharacter* InPlayerCharacter)
 
 	StatusContainerComponent->SetCurHealth(curHealth + HealAmount);
 
+	UE_LOG(LogTemp, Warning, TEXT("Heal : %f"), HealAmount);
+
 	InPlayerCharacter->InventoryComponent->RemoveItem(this);
 }

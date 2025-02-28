@@ -6,7 +6,7 @@
 #include "UI/UserWidget_MainMenu.h"
 #include "Kismet/GameplayStatics.h"
 
-void AMyHUD::ShowMainMenu()
+void AMyHUD::ToggleMainMenu()
 {
 	if (MainMenuWidgetInstance == nullptr)
 	{
@@ -18,39 +18,30 @@ void AMyHUD::ShowMainMenu()
 		MainMenuWidgetInstance->AddToViewport();
 	}
 
-	MainMenuWidgetInstance->SetVisibility(ESlateVisibility::Visible);
-	MainMenuWidgetInstance->UpdateInventorySlot();
-
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (PlayerController)
+	if (PlayerController == nullptr) return;
+
+	if (bIsMainMenuVisible)
 	{
-		PlayerController->SetInputMode(FInputModeUIOnly());
-		PlayerController->bShowMouseCursor = true;
-	}
-
-	UGameplayStatics::SetGamePaused(GetWorld(), true);
-}
-
-void AMyHUD::HideMainMenu()
-{
-	if (MainMenuWidgetInstance == nullptr)
-	{
-		if (MainMenuWidgetClass == nullptr) return;
-
-		MainMenuWidgetInstance = Cast<UUserWidget_MainMenu>(CreateWidget(GetWorld(), MainMenuWidgetClass));
-		if (MainMenuWidgetInstance == nullptr) return;
-
-		MainMenuWidgetInstance->AddToViewport();
-	}
-
-	MainMenuWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (PlayerController)
-	{
+		MainMenuWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
 		PlayerController->SetInputMode(FInputModeGameOnly());
+
 		PlayerController->bShowMouseCursor = false;
+
+		bIsMainMenuVisible = false;
+
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
 	}
+	else
+	{
+		MainMenuWidgetInstance->SetVisibility(ESlateVisibility::Visible);
+		MainMenuWidgetInstance->UpdateInventorySlot();
+		PlayerController->SetInputMode(FInputModeUIOnly());
 
-	UGameplayStatics::SetGamePaused(GetWorld(), false);
+		PlayerController->bShowMouseCursor = true;
+
+		bIsMainMenuVisible = true;
+
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+	}
 }
-

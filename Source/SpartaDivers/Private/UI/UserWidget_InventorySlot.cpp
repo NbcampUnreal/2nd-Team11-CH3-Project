@@ -31,6 +31,8 @@ void UUserWidget_InventorySlot::UpdateInventorySlot(UInventoryComponent* Invento
 			break;
 		}
 
+		int32 ChildrenWidgetNum = InventorySlot->GetAllChildren().Num();
+		if (ItemNum > ChildrenWidgetNum) ItemNum = ChildrenWidgetNum;
 		for (int i = 0; i < ItemNum; i++)
 		{
 			UUserWidget_ItemSlot* ItemSlot = Cast<UUserWidget_ItemSlot>(InventorySlot->GetAllChildren()[i]);
@@ -60,7 +62,6 @@ void UUserWidget_InventorySlot::UpdateInventorySlot(UInventoryComponent* Invento
 			}
 		}
 
-		int32 ChildrenWidgetNum = InventorySlot->GetAllChildren().Num();
 		for (int i = ItemNum; i < ChildrenWidgetNum; i++)
 		{
 			UUserWidget_ItemSlot* ItemSlot = Cast<UUserWidget_ItemSlot>(InventorySlot->GetAllChildren()[i]);
