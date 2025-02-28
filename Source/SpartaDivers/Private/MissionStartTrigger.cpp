@@ -54,7 +54,6 @@ void AMissionStartTrigger::OnInteracted()
 {
 	if (bIsActive && MissionManager)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Interacted!!"));
 		GetWorld()->GetTimerManager().SetTimer(
 			MissionStartTimerHandle,
 			MissionManager,

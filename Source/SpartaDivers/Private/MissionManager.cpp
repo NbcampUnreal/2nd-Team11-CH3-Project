@@ -41,8 +41,6 @@ void AMissionManager::Tick(float DeltaTime)
 		if (bIsPlayerInCaptureZone && bIsPlayerOnMission)
 		{
 			CaptureProgress += DeltaTime;
-			UE_LOG(LogTemp, Log, TEXT("Capture Progress: %f / %f"), CaptureProgress, CurrentMissionData.CaptureTime);
-
 			if (CaptureProgress >= CurrentMissionData.CaptureTime)
 			{
 				CheckMissionCompletion();
@@ -68,8 +66,6 @@ void AMissionManager::StartMission()
 	{
 		bIsPlayerOnMission = true;
 		CurrentMissionData = *AllMissions[CurrentMissionIndex];
-		UE_LOG(LogTemp, Warning, TEXT("Mission %d started: %s"), CurrentMissionIndex, *UEnum::GetValueAsString(CurrentMissionData.MissionType));
-
 		switch (CurrentMissionData.MissionType)
 		{
 		case EMissionType::Eliminate:
@@ -144,7 +140,6 @@ void AMissionManager::CompleteMission()
 	GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
 
 	bIsPlayerOnMission = false;
-	UE_LOG(LogTemp, Warning, TEXT("Mission %d Success!"), CurrentMissionIndex);
 
 	if (AMyGameState* MyGameState = GetWorld()->GetGameState<AMyGameState>())
 	{

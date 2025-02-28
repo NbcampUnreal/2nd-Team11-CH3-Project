@@ -34,9 +34,8 @@ APlayerCharacter::APlayerCharacter()
 	SprintSpeedMultiplier = 1.5f;
 	SprintSpeed = MoveSpeed * SprintSpeedMultiplier;
 
-	PlayerStatus = CreateDefaultSubobject<UStatusContainerComponent>(TEXT("PlayerStatus"));
-	PlayerStatus->SetMaxHealth(100.0f);
-	PlayerStatus->SetCurHealth(PlayerStatus->GetMaxHealth());
+	StatusContainerComponent->SetMaxHealth(100);
+	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
 
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 
@@ -59,16 +58,19 @@ void APlayerCharacter::BeginPlay()
 	//	EquippedGun->Ammo = 30;
 	//}
 
-	//EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
-	UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
-	if (RocketLauncherBPClass)
-	{
-		EquippedGun = NewObject<URocketLauncher>(this, RocketLauncherBPClass);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to load BP_RocketLauncher!"));
-	}
+	// AssaultRifle 테스트
+	EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
+	
+	//// 로켓런처 테스트
+	//UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
+	//if (RocketLauncherBPClass)
+	//{
+	//	EquippedGun = NewObject<URocketLauncher>(this, RocketLauncherBPClass);
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("Failed to load BP_RocketLauncher!"));
+	//}
 
 	this->Tags.Add(TEXT("Player"));
 }
@@ -76,7 +78,6 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -338,15 +339,15 @@ float APlayerCharacter::TakeDamage(
 	float DamageAmount,
 	FDamageEvent const& DamageEvent,
 	AController* EventInstigator,
-	AActor* DamageCauser)
+	AActor* DamageCauser) 
 {
-	float ActualDamage = Super::TakeDamage(
+	const float ActualDamage = Super::TakeDamage(
 		DamageAmount,
 		DamageEvent,
 		EventInstigator,
 		DamageCauser);
-	UE_LOG(LogTemp, Warning, TEXT("Player Damaged : %f"), ActualDamage);
-	return DamageAmount;
+
+	return ActualDamage;
 }
 
 void APlayerCharacter::Interact(const FInputActionValue& value)
@@ -368,5 +369,5 @@ UGunBase* APlayerCharacter::GetEquippedGun()
 
 UStatusContainerComponent* APlayerCharacter::GetStatusContainerComponent() const
 {
-	return PlayerStatus;
+	return StatusContainerComponent;
 }

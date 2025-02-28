@@ -40,6 +40,7 @@ public:
 	virtual UStatusContainerComponent* GetStatusContainerComponent() const override;
 
 	//TakeDamge
+	UFUNCTION()
 	virtual float TakeDamage(
 		float DamageAmount, 
 		FDamageEvent const& DamgeEvent,

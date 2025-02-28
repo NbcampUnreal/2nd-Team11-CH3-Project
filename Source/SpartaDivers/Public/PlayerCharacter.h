@@ -36,9 +36,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* CameraComp;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerStatus")
-	UStatusContainerComponent* PlayerStatus;
-
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* FireMontage;
 	UPROPERTY(EditAnywhere)
