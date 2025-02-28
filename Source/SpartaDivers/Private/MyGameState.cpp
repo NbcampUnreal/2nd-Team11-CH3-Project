@@ -15,7 +15,7 @@
 
 AMyGameState::AMyGameState()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	Score = 0;
 }
@@ -39,6 +39,12 @@ void AMyGameState::AddScore(int32 Amount)
 
 void AMyGameState::StartGame()
 {
+	AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
+	if (MissionManager)
+	{
+		MissionManager->StartMission();
+	}
+
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 	{
 		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
@@ -46,17 +52,18 @@ void AMyGameState::StartGame()
 			MyPlayerController->ShowGameHUD();
 		}
 	}
-
-	AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
-	if (MissionManager)
-	{
-		MissionManager->StartMission();
-	}
 }
 
 void AMyGameState::OnGameOver()
 {
-
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
+		{
+			MyPlayerController->SetPause(true);
+			MyPlayerController->ShowMainMenu(true);
+		}
+	}
 }
 
 void AMyGameState::UpdateHUD()
@@ -181,28 +188,38 @@ void AMyGameState::UpdateHUD()
 					}
 					}
 				}
-				// CrosshairWidget
-				if (UUserWidget* CrosshairWidget = MyPlayerController->GetCrosshairWidget())
+			}
+			// CrosshairWidget
+			if (UUserWidget* CrosshairWidget = MyPlayerController->GetCrosshairWidget())
+			{
+				UFunction* PlayAnimCrosshair = CrosshairWidget->FindFunction(FName("CrossHairsAnimation"));
+				if (PlayAnimCrosshair)
 				{
-					UFunction* PlayAnimCrosshair = CrosshairWidget->FindFunction(FName("CrossHairsAnimation"));
-					if (PlayAnimCrosshair)
-					{
-						CrosshairWidget->ProcessEvent(PlayAnimCrosshair, nullptr);
-					}
+					CrosshairWidget->ProcessEvent(PlayAnimCrosshair, nullptr);
 				}
 			}
 		}
 	}
 }
 
-void AMyGameState::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	UpdateHUD();
-}
-
 void AMyGameState::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(GameInstance);
+		if (MyGameInstance && MyGameInstance->bGameStarted)
+		{
+			StartGame();
+		}
+	}
+
+	GetWorldTimerManager().SetTimer(
+		HUDUpdateTimerHandle,
+		this,
+		&AMyGameState::UpdateHUD,
+		0.1f,
+		true
+	);
 }

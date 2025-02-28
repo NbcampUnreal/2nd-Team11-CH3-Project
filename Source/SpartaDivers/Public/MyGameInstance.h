@@ -15,8 +15,14 @@ public:
 	UMyGameInstance();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
+	int32 BestScore;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
 	int32 TotalScore;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
+	bool bGameStarted;
 
+	UFUNCTION(BlueprintCallable, Category = "GameData")
+	void UpdateBestScore(int32 Score);
 	UFUNCTION(BlueprintCallable, Category = "GameData")
 	void AddToScore(int32 Amount);
 };

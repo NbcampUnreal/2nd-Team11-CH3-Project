@@ -22,18 +22,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Score")
 	void AddScore(int32 Amount);
 
+	FTimerHandle HUDUpdateTimerHandle;
+
 	TArray<AActor*> FoundMissionManagers;
 	
 	UFUNCTION(BlueprintCallable, Category = "Level")
 	void StartGame();
-	
 	UFUNCTION(BlueprintCallable, Category = "Level")
 	void OnGameOver();
-
 	UFUNCTION(BlueprintCallable)
 	void UpdateHUD();
 
 protected:
-	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 };

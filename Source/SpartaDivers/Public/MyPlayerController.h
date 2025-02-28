@@ -48,11 +48,20 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "UI|HUD")
 	UUserWidget* GetHUDWidget() const;
-	UUserWidget* GetCrosshairWidget() const;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|HUD")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UI|HUD")
 	UUserWidget* HUDWidgetInstance;
+
+	UFUNCTION(BlueprintPure, Category = "UI|MainMenu")
+	UUserWidget* GetMainMenuWidget() const;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|MainMenu")
+	TSubclassOf<UUserWidget> MainMenuWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UI|MainMenu")
+	UUserWidget* MainMenuWidgetInstance;
+
+	UFUNCTION(BlueprintPure, Category = "UI|Crosshair")
+	UUserWidget* GetCrosshairWidget() const;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|Crosshair")
 	TSubclassOf<UUserWidget> CrosshairWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UI|Crosshair")
@@ -60,8 +69,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI|HUD")
 	void ShowGameHUD();
+	UFUNCTION(BlueprintCallable, Category = "UI|MainMenu")
+	void ShowMainMenu(bool bIsRestart);
 	UFUNCTION(BlueprintCallable, Category = "UI|Crosshair")
 	void ShowCrosshair();
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void StartGame();
 
 	virtual void BeginPlay() override;
 };

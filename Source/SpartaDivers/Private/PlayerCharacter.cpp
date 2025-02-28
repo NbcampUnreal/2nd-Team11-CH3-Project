@@ -371,3 +371,22 @@ UStatusContainerComponent* APlayerCharacter::GetStatusContainerComponent() const
 {
 	return StatusContainerComponent;
 }
+
+void APlayerCharacter::OnDeath()
+{
+	Super::OnDeath();
+
+	// Handling GameOver After a Delay
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			GameOverTimerHandle, 
+			MyGameState,
+			&AMyGameState::OnGameOver,
+			2.0f,
+			false);
+	}
+}
+
+
