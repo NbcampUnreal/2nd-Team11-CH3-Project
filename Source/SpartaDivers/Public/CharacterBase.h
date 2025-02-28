@@ -40,6 +40,11 @@ public:
 	virtual UStatusContainerComponent* GetStatusContainerComponent() const override;
 
 	//TakeDamge
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamgeEvent, class AController* EnventInstigator, AActor* DamageCauser) override;
+	UFUNCTION()
+	virtual float TakeDamage(
+		float DamageAmount, 
+		FDamageEvent const& DamgeEvent,
+		AController* EnventInstigator, 
+		AActor* DamageCauser) override;
 	virtual void OnDeath();
 };

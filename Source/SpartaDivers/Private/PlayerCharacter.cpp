@@ -34,6 +34,9 @@ APlayerCharacter::APlayerCharacter()
 	SprintSpeedMultiplier = 1.5f;
 	SprintSpeed = MoveSpeed * SprintSpeedMultiplier;
 
+	StatusContainerComponent->SetMaxHealth(100);
+	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
+
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
@@ -55,16 +58,19 @@ void APlayerCharacter::BeginPlay()
 	//	EquippedGun->Ammo = 30;
 	//}
 
-	//EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
-	UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
-	if (RocketLauncherBPClass)
-	{
-		EquippedGun = NewObject<URocketLauncher>(this, RocketLauncherBPClass);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to load BP_RocketLauncher!"));
-	}
+	// AssaultRifle 테스트
+	EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
+	
+	//// 로켓런처 테스트
+	//UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
+	//if (RocketLauncherBPClass)
+	//{
+	//	EquippedGun = NewObject<URocketLauncher>(this, RocketLauncherBPClass);
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("Failed to load BP_RocketLauncher!"));
+	//}
 
 	this->Tags.Add(TEXT("Player"));
 }
@@ -72,7 +78,6 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -340,15 +345,19 @@ void APlayerCharacter::UseFour(const FInputActionValue& value)
 
 }
 
-float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+float APlayerCharacter::TakeDamage(
+	float DamageAmount,
+	FDamageEvent const& DamageEvent,
+	AController* EventInstigator,
+	AActor* DamageCauser) 
 {
-	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	if (StatusContainerComponent->GetCurHealth() <= 0)
-	{
-		bIsDead = true;
-	}
+	const float ActualDamage = Super::TakeDamage(
+		DamageAmount,
+		DamageEvent,
+		EventInstigator,
+		DamageCauser);
 
-	return DamageAmount;
+	return ActualDamage;
 }
 
 void APlayerCharacter::Interact(const FInputActionValue& value)
@@ -375,4 +384,8 @@ UGunBase* APlayerCharacter::GetSubGun()
 		return SubGun;
 	}
 	return nullptr;
+  
+UStatusContainerComponent* APlayerCharacter::GetStatusContainerComponent() const
+{
+	return StatusContainerComponent;
 }

@@ -103,7 +103,11 @@ public:
 	UFUNCTION()
 	void FinishReload();
 
-	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	float TakeDamage(
+		float DamageAmount,
+		FDamageEvent const& DamageEvent, 
+		AController* EventInstigator, 
+		AActor* DamageCauser) override;
 
 
 	UFUNCTION()
@@ -114,6 +118,7 @@ public:
 
 	UFUNCTION()
 	UGunBase* GetSubGun();
+	UStatusContainerComponent* GetStatusContainerComponent() const override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	AMissionStartTrigger* CurrentMissionTrigger;
