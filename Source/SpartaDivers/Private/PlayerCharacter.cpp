@@ -376,7 +376,6 @@ UGunBase* APlayerCharacter::GetEquippedGun()
 	}
 	return nullptr;
 }
-
 UGunBase* APlayerCharacter::GetSubGun()
 {
 	if (SubGun)
@@ -384,6 +383,7 @@ UGunBase* APlayerCharacter::GetSubGun()
 		return SubGun;
 	}
 	return nullptr;
+}
   
 UStatusContainerComponent* APlayerCharacter::GetStatusContainerComponent() const
 {
