@@ -67,7 +67,7 @@ void ASDEnemyBase::OnDeath()
 		MissionManager->KilledEnemyCount++;
 		UE_LOG(LogTemp, Warning, TEXT("KilledEnemyCount : %d"), MissionManager->KilledEnemyCount);
 		MissionManager->CheckMissionCompletion();
-	}
+	}	
 
 	AAIController* AIController = Cast<AAIController>(GetController());
 	if (AIController)
