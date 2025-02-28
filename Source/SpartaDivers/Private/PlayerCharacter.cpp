@@ -11,6 +11,8 @@
 #include "Components/InventoryComponent.h"
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
+#include "Item/Weapons/RocketLauncher.h"
+#include "Blueprint/UserWidget.h"
 #include "MissionStartTrigger.h"
 #include "UI/MyHUD.h"
 #include "Item/ConsumableBase.h"
@@ -53,7 +55,16 @@ void APlayerCharacter::BeginPlay()
 	//	EquippedGun->Ammo = 30;
 	//}
 
-	EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
+	//EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
+	UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
+	if (RocketLauncherBPClass)
+	{
+		EquippedGun = NewObject<URocketLauncher>(this, RocketLauncherBPClass);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to load BP_RocketLauncher!"));
+	}
 
 	this->Tags.Add(TEXT("Player"));
 }
@@ -266,12 +277,6 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 		EquippedGun->Fire();
 		GetMesh()->GetAnimInstance()->Montage_Play(FireMontage);
 	}
-
-	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-	if (MyGameState)
-	{
-		MyGameState->UpdateHUD();
-	}
 }
 
 void APlayerCharacter::Reload(const FInputActionValue& value)
@@ -290,12 +295,6 @@ void APlayerCharacter::FinishReload()
 	EquippedGun->Reload();
 
 	bIsReloading = false;
-
-	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-	if (MyGameState)
-	{
-		MyGameState->UpdateHUD();
-	}
 }
 void APlayerCharacter::OpenIventory(const FInputActionValue& value)
 {
@@ -307,7 +306,9 @@ void APlayerCharacter::OpenIventory(const FInputActionValue& value)
 
 void APlayerCharacter::SwapGun(const FInputActionValue& value)
 {
-
+	UGunBase* temp = EquippedGun;
+	EquippedGun = SubGun;
+	SubGun = EquippedGun;
 }
 void APlayerCharacter::UseOne(const FInputActionValue& value)
 {

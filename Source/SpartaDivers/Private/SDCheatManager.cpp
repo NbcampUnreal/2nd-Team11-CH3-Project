@@ -4,7 +4,6 @@
 #include "MyGameState.h"
 #include "PlayerCharacter.h"
 #include "Item/GunBase.h"
-#include "Item/Weapons/AssaultRifle.h"
 #include "SDEnemyBase.h"
 #include "MissionManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -82,8 +81,8 @@ void USDCheatManager::SDInfi()
     {
         if (Player)
         {
-            UAssaultRifle* AssaultRifle = Cast<UAssaultRifle>(Player->GetEquippedGun());
-            AssaultRifle->bOnInfiniteBullet = true;
+            UGunBase* GunBase = Cast<UGunBase>(Player->GetEquippedGun());
+            GunBase->bOnInfiniteBullet = true;
         }
     }
 }
@@ -94,8 +93,8 @@ void USDCheatManager::SDADamage(float NewDamage)
     {
         if (Player)
         {
-            UAssaultRifle* AssaultRifle = Cast<UAssaultRifle>(Player->GetEquippedGun());
-            AssaultRifle->Damage = NewDamage;
+            UGunBase* GunBase = Cast<UGunBase>(Player->GetEquippedGun());
+            GunBase->Damage = NewDamage;
         }
     }
 }

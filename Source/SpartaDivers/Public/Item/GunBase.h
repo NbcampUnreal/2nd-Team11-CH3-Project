@@ -17,10 +17,11 @@ class SPARTADIVERS_API UGunBase : public UItemBase
 
 public:
 	UGunBase();
-	
+
 	APlayerCharacter* PlayerCharacter;
 	FTimerHandle FireCooldownTimer;
 	bool bCanFire;
+	bool bOnInfiniteBullet;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float Damage;
@@ -35,6 +36,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float CurRecoil;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
+	float RecoilGap;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float MaxRecoil;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float ReloadTime;
@@ -46,4 +49,15 @@ public:
 	virtual void ResetFireCooldown();
 	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
 	virtual void Reload();
+	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
+	virtual void ApplyRecoil();
+
+	FVector GetCameraLocation() const;
+	FRotator GetCameraRotation() const;
+	float GetSpringArmLength() const;
+
+protected:
+	virtual FVector GetFireStartLocation() const;
+	virtual FVector GetFireEndLocation() const;
+
 };

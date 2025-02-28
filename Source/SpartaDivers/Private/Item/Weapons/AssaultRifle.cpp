@@ -1,10 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Item/Weapons/AssaultRifle.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerCharacter.h"
 #include "DrawDebugHelpers.h"
-#include "GameFramework/SpringArmComponent.h"
 
 UAssaultRifle::UAssaultRifle()
 {
@@ -17,7 +16,8 @@ UAssaultRifle::UAssaultRifle()
     CurAmmo = MaxAmmo;
     ReloadTime = 1.5f;
     CurRecoil = 0.3f;
-    MaxRecoil = 0.3f;
+    RecoilGap = 0.05f;
+    MaxRecoil = 1.0f;
     bOnInfiniteBullet = false;
 }
 
@@ -25,66 +25,37 @@ void UAssaultRifle::Fire()
 {
     if (bCanFire && CurAmmo > 0)
     {
-        CurAmmo--;
-        bCanFire = false;
-        // for CheatManager::InfiniteBullet
-        if (bOnInfiniteBullet)
-        {
-            CurAmmo++;
-        }
-
-        UE_LOG(LogTemp, Warning, TEXT("AssaultRifle fired! Ammo: %d/%d"), CurAmmo, MaxAmmo);
-
         PerformHitScan();
+        Super::Fire();
 
         GetWorld()->GetTimerManager().SetTimer(
-            FireCooldownTimer, 
-            this, 
-            &UGunBase::ResetFireCooldown,
+            FireCooldownTimer,
+            this,
+            &UAssaultRifle::ResetFireCooldown,
             FireRate,
             false);
-    }
-    else if (CurAmmo <= 0)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Out of ammo! AssaultRifle Reload needed."));
     }
 }
 
 void UAssaultRifle::ResetFireCooldown()
 {
-    bCanFire = true;
-    UE_LOG(LogTemp, Warning, TEXT("AssaultRifle Fire cooldown reset. Ready to shoot again!"));
+    Super::ResetFireCooldown();
 }
 
 void UAssaultRifle::Reload()
 {
-    CurAmmo = MaxAmmo;
-    UE_LOG(LogTemp, Warning, TEXT("AssaultRifle reloaded! Ammo: %d/%d"), CurAmmo, MaxAmmo);
+    Super::Reload();
+}
+
+void UAssaultRifle::ApplyRecoil()
+{
+    Super::ApplyRecoil();
 }
 
 void UAssaultRifle::PerformHitScan()
 {
-    FVector CameraLocation;
-    FRotator CameraRotation;
-
-    PlayerCharacter->GetController()->GetPlayerViewPoint(CameraLocation, CameraRotation);
-
-    float SpringArmLength = 300.0f; // Default Value
-
-    USpringArmComponent* SpringArm = PlayerCharacter->FindComponentByClass<USpringArmComponent>();
-    if (SpringArm)
-    {
-        // Adjust the starting position of the muzzle by the length of the spring arm
-        SpringArmLength = SpringArm->TargetArmLength;
-    }
-
-    FVector ForwardVector = CameraRotation.Vector();
-    FVector MuzzleOffset = ForwardVector * SpringArmLength;
-    FVector MuzzleLocation = CameraLocation + MuzzleOffset;
-
-    FVector Start = MuzzleLocation;
-
-    FVector End = Start + CameraRotation.Vector() * 10000.0f;
+    FVector Start = GetFireStartLocation();
+    FVector End =  GetFireEndLocation();
 
     FHitResult HitResult;
     FCollisionQueryParams QueryParams;
@@ -115,7 +86,5 @@ void UAssaultRifle::PerformHitScan()
         DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 0, 1.5f);
     }
 
-    // application of gun recoil
-    FRotator GunRecoil = FRotator(-CurRecoil, 0.f, 0.f);
-    PlayerCharacter->AddControllerPitchInput(GunRecoil.Pitch);
+    ApplyRecoil();
 }
