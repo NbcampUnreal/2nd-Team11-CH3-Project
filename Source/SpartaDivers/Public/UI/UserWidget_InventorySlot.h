@@ -4,11 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Item/ItemBase.h"
 #include "UserWidget_InventorySlot.generated.h"
 
 class UUniformGridPanel;
-class UInventoryComponent;
 
 /**
  * 
@@ -20,12 +18,12 @@ class SPARTADIVERS_API UUserWidget_InventorySlot : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void UpdateInventorySlot(UInventoryComponent* InventoryComponent);
+	void UpdateInventorySlot();
+
+	UFUNCTION(BlueprintPure)
+	UUniformGridPanel* GetInventorySlot();
 	
 protected:
-	UPROPERTY(EditAnywhere)
-	EItemType InventoryType;
-
 	UPROPERTY(meta = (BindWidget))
 	UUniformGridPanel* InventorySlot;
 };

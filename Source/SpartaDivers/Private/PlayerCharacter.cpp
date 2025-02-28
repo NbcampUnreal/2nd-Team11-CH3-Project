@@ -310,20 +310,30 @@ void APlayerCharacter::SwapGun(const FInputActionValue& value)
 	EquippedGun = SubGun;
 	SubGun = EquippedGun;
 }
+
 void APlayerCharacter::UseOne(const FInputActionValue& value)
 {
-	if (InventoryComponent->GetConsumableInventory().Num() > 0)
+	if (FirstConsumable)
 	{
-		InventoryComponent->GetConsumableInventory()[0]->ApplyConsumableEffect(this);
+		FirstConsumable->ApplyConsumableEffect(this);
+		FirstConsumable = nullptr;
 	}
 }
 void APlayerCharacter::UseTwo(const FInputActionValue& value)
 {
-
+	if (SecondConsumable)
+	{
+		SecondConsumable->ApplyConsumableEffect(this);
+		SecondConsumable = nullptr;
+	}
 }
 void APlayerCharacter::UseThree(const FInputActionValue& value)
 {
-
+	if (ThirdConsumable)
+	{
+		ThirdConsumable->ApplyConsumableEffect(this);
+		ThirdConsumable = nullptr;
+	}
 }
 void APlayerCharacter::UseFour(const FInputActionValue& value)
 {
@@ -354,6 +364,15 @@ UGunBase* APlayerCharacter::GetEquippedGun()
 	if (EquippedGun)
 	{
 		return EquippedGun;
+	}
+	return nullptr;
+}
+
+UGunBase* APlayerCharacter::GetSubGun()
+{
+	if (SubGun)
+	{
+		return SubGun;
 	}
 	return nullptr;
 }

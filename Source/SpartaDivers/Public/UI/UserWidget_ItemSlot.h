@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Item/ItemBase.h"
 #include "UserWidget_ItemSlot.generated.h"
 
+
 class UImage;
-class UItemBase;
+class UInventoryComponent;
 
 /**
  * 
@@ -19,9 +21,34 @@ class SPARTADIVERS_API UUserWidget_ItemSlot : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void UpdateItemSlot(UItemBase* InItem);
+	void UpdateItemSlot();
+
+	UFUNCTION(BlueprintPure)
+	UImage* GetItemIcon();
+
+	UFUNCTION(BlueprintPure)
+	UItemBase* GetOwningItem();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void ApplyUIToModel(UItemBase* InItem);
+
+	UPROPERTY(EditAnywhere)
+	EItemType ItemSlotType;
+
+	UPROPERTY(EditAnywhere)
+	int32 ItemSlotIndex;
+
+	UFUNCTION(BlueprintCallable)
+	void SetItemSlotIndex(int32 InIndex);
+
+	UFUNCTION(BlueprintCallable)
+	void SetItemSlotType(EItemType InType);
 
 private:
 	UPROPERTY(meta = (BindWidget))
 	UImage* ItemIcon;
+
+	TWeakObjectPtr<UInventoryComponent> OwningUInventoryComponent;
+
+	void UpdateOwningUInventoryComponent();
 };

@@ -35,7 +35,7 @@ void AMyHUD::ToggleMainMenu()
 	else
 	{
 		MainMenuWidgetInstance->SetVisibility(ESlateVisibility::Visible);
-		MainMenuWidgetInstance->UpdateInventorySlot();
+		UpdateMainUI();
 		PlayerController->SetInputMode(FInputModeUIOnly());
 
 		PlayerController->bShowMouseCursor = true;
@@ -44,4 +44,10 @@ void AMyHUD::ToggleMainMenu()
 
 		UGameplayStatics::SetGamePaused(GetWorld(), true);
 	}
+}
+
+void AMyHUD::UpdateMainUI()
+{
+	MainMenuWidgetInstance->UpdateInventorySlot();
+	MainMenuWidgetInstance->UpdateMainMenu();
 }

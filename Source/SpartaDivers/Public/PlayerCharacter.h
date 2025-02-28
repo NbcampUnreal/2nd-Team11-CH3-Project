@@ -15,6 +15,7 @@ class UGunBase;
 class URocketLauncher;
 class UInventoryComponent;
 class AMissionStartTrigger;
+class UConsumableBase;
 
 UCLASS()
 class SPARTADIVERS_API APlayerCharacter : public ACharacterBase
@@ -24,6 +25,13 @@ class SPARTADIVERS_API APlayerCharacter : public ACharacterBase
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
+
+	UPROPERTY(VisibleAnywhere)
+	UConsumableBase* FirstConsumable;
+	UPROPERTY(VisibleAnywhere)
+	UConsumableBase* SecondConsumable;
+	UPROPERTY(VisibleAnywhere)
+	UConsumableBase* ThirdConsumable;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
@@ -103,6 +111,9 @@ public:
 
 	UFUNCTION()
 	UGunBase* GetEquippedGun();
+
+	UFUNCTION()
+	UGunBase* GetSubGun();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	AMissionStartTrigger* CurrentMissionTrigger;
