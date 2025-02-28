@@ -18,14 +18,20 @@ void UUserWidget_GunSlot::ApplyUIToModel(UGunBase* InGun)
 	{
 		if (bIsMainGun)
 		{
-			PlayerCharacter->SetEquippedGun(InGun);
+			if (PlayerCharacter->GetEquippedGun() == nullptr)
+			{
+				PlayerCharacter->SetEquippedGun(InGun);
+				PlayerCharacter->InventoryComponent->RemoveItem(InGun);
+			}
 		}
 		else
 		{
-			PlayerCharacter->SetSubGun(InGun);
+			if (PlayerCharacter->GetSubGun() == nullptr)
+			{
+				PlayerCharacter->SetSubGun(InGun);
+				PlayerCharacter->InventoryComponent->RemoveItem(InGun);
+			}
 		}
-
-		PlayerCharacter->InventoryComponent->RemoveItem(InGun);
 	}
 	UpdateUI();
 	if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0))

@@ -31,19 +31,29 @@ void UUserWidget_GunAttachmentSlot::ApplyUIToModel(UAttachmentBase* InAttachment
 		switch (SlotNum)
 		{
 		case 0:
-			OwningGun->FirstAttachment = InAttachment;
+			if (OwningGun->FirstAttachment == nullptr)
+			{
+				OwningGun->FirstAttachment = InAttachment;
+				PlayerCharacter->InventoryComponent->RemoveItem(InAttachment);
+			}
 			break;
 		case 1:
-			OwningGun->SecondAttachment = InAttachment;
+			if (OwningGun->SecondAttachment == nullptr)
+			{
+				OwningGun->SecondAttachment = InAttachment;
+				PlayerCharacter->InventoryComponent->RemoveItem(InAttachment);
+			}
 			break;
 		case 2:
-			OwningGun->ThirdAttachment = InAttachment;
+			if (OwningGun->ThirdAttachment == nullptr)
+			{
+				OwningGun->ThirdAttachment = InAttachment;
+				PlayerCharacter->InventoryComponent->RemoveItem(InAttachment);
+			}
 			break;
 		default:
 			break;
 		}
-
-		PlayerCharacter->InventoryComponent->RemoveItem(InAttachment);
 	}
 	UpdateUI();
 	if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0))
