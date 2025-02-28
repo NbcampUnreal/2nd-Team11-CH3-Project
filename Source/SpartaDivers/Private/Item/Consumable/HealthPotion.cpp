@@ -13,12 +13,12 @@ void UHealthPotion::InitializeItem(UItemBase* DefaultItem)
 
 void UHealthPotion::ApplyConsumableEffect(APlayerCharacter* InPlayerCharacter)
 {
+	Super::ApplyConsumableEffect(InPlayerCharacter);
+
 	UStatusContainerComponent* StatusContainerComponent = InPlayerCharacter->GetStatusContainerComponent();
 	float curHealth = StatusContainerComponent->GetCurHealth();
 
 	StatusContainerComponent->SetCurHealth(curHealth + HealAmount);
-
-	UE_LOG(LogTemp, Warning, TEXT("Heal : %f"), HealAmount);
 
 	InPlayerCharacter->InventoryComponent->RemoveItem(this);
 }

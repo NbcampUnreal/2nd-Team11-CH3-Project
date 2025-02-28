@@ -14,7 +14,7 @@ void UUserWidget_MainMenu::UpdateInventorySlot()
 		if (!OwnerCharacter.IsValid()) return;
 	}
 
-	GunInventorySlot->UpdateInventorySlot(OwnerCharacter->InventoryComponent);
-	AttachmentInventorySlot->UpdateInventorySlot(OwnerCharacter->InventoryComponent);
-	ConsumableInventorySlot->UpdateInventorySlot(OwnerCharacter->InventoryComponent);
+	GunInventorySlot->UpdateInventorySlot();
+	AttachmentInventorySlot->UpdateInventorySlot();
+	ConsumableInventorySlot->UpdateInventorySlot();
 }

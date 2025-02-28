@@ -7,6 +7,7 @@
 #include "GunBase.generated.h"
 
 class APlayerCharacter;
+class UAttachmentBase;
 
 UCLASS()
 class SPARTADIVERS_API UGunBase : public UItemBase
@@ -42,6 +43,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float ReloadTime;
 
+	UPROPERTY()
+	UAttachmentBase* FirstAttachment;
+	UPROPERTY()
+	UAttachmentBase* SecondAttachment;
+	UPROPERTY()
+	UAttachmentBase* ThirdAttachment;
 
 	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
 	virtual void Fire();

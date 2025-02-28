@@ -19,6 +19,8 @@ class SPARTADIVERS_API AMyHUD : public AHUD
 public:
 	void ToggleMainMenu();
 
+	void UpdateMainUI();
+
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "UI")
     TSubclassOf<UUserWidget> MainMenuWidgetClass;
