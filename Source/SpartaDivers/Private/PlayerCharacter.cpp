@@ -384,6 +384,16 @@ UGunBase* APlayerCharacter::GetSubGun()
 	}
 	return nullptr;
 }
+
+void APlayerCharacter::SetEquippedGun(UGunBase* InGun)
+{
+	EquippedGun = InGun;
+}
+
+void APlayerCharacter::SetSubGun(UGunBase* InGun)
+{
+	SubGun = InGun;
+}
   
 UStatusContainerComponent* APlayerCharacter::GetStatusContainerComponent() const
 {

@@ -119,6 +119,9 @@ public:
 	UFUNCTION()
 	UGunBase* GetSubGun();
 
+	void SetEquippedGun(UGunBase* InGun);
+	void SetSubGun(UGunBase* InGun);
+
 	UStatusContainerComponent* GetStatusContainerComponent() const override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
