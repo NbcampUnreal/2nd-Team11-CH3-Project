@@ -3,9 +3,12 @@
 #include "EnemyProjectile.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/SphereComponent.h"
+#include "PlayerCharacter.h"
+#include "Engine/OverlapResult.h" 
 
 AEnemyProjectile::AEnemyProjectile()
 {
+	ExplosionRadius = 200.0f;
 	ExplosionDelay = 2.0f;
 	ExplosionDamage = 10.0f;
 
@@ -22,31 +25,59 @@ void AEnemyProjectile::OnProjectileOverlap(
 {
 	if (OtherActor && OtherActor->ActorHasTag("Player"))
 	{
-		GetWorld()->GetTimerManager().ClearTimer(ExplosionTimerHandle);
-		UGameplayStatics::ApplyRadialDamage(
-			this,
-			ExplosionDamage,
-			GetActorLocation(),
-			ExplosionRadius,
-			UDamageType::StaticClass(),
-			TArray<AActor*>()
-		);
-		UE_LOG(LogTemp, Warning, TEXT("Player Get Damaged %f"), ExplosionDamage);
+		GetWorld()->GetTimerManager().ClearTimer(EnemyProjectileTimerHandle);
 		Explode();
 	}
 }
 
 void AEnemyProjectile::Explode()
 {
+	TArray<AActor*> TargetActors;
+
+	TArray<FOverlapResult> OverlapResults;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->OverlapMultiByChannel(
+		OverlapResults,
+		GetActorLocation(),
+		FQuat::Identity,
+		ECC_Pawn,
+		FCollisionShape::MakeSphere(ExplosionRadius),
+		QueryParams
+	);
+
+	if (bHit)
+	{
+		for (const FOverlapResult& Result : OverlapResults)
+		{
+			AActor* HitActor = Result.GetActor();
+			if (HitActor && HitActor->IsA(APlayerCharacter::StaticClass()))
+			{
+				TargetActors.Add(HitActor);
+			}
+		}
+	}
+
+	UGameplayStatics::ApplyRadialDamage(
+		this,
+		ExplosionDamage,
+		GetActorLocation(),
+		ExplosionRadius,
+		UDamageType::StaticClass(),
+		TargetActors
+	);
+	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.0f);
 	Super::Explode();
 }
+
 
 void AEnemyProjectile::InitProjectile(float InitVelocity)
 {
 	Super::InitProjectile(InitVelocity);
 
 	GetWorld()->GetTimerManager().SetTimer(
-		ExplosionTimerHandle,
+		EnemyProjectileTimerHandle,
 		this,
 		&AEnemyProjectile::Explode,
 		ExplosionDelay);
