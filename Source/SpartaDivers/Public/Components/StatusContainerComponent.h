@@ -16,12 +16,6 @@ struct FStatusStruct
 
 	UPROPERTY(EditDefaultsOnly)
 	float MaxHealth;
-
-	UPROPERTY(EditDefaultsOnly)
-	float AttackPower;
-
-	UPROPERTY(EditDefaultsOnly)
-	float DefensePower;
 };
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -49,10 +43,4 @@ public:
 
 	FORCEINLINE float GetMaxHealth() const;
 	void SetMaxHealth(float NewMaxHealth);
-
-	FORCEINLINE float GetAttackPower() const;
-	void SetAttackPower(float NewAttackPower);
-
-	FORCEINLINE float GetDepensePower() const;
-	void SetDepensePower(float NewDepensePower);
 };

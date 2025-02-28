@@ -23,7 +23,7 @@ float ACharacterBase::TakeDamage(
 {
 	if (bIsDead) return 0.f;
 
-	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser) / StatusContainerComponent->GetDepensePower();
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
 

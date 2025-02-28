@@ -7,6 +7,7 @@
 #include "ItemDataRow.generated.h"
 
 class UTexture2D;
+class UItemBase;
 
 USTRUCT(BlueprintType)
 struct FItemDataRow : public FTableRowBase
@@ -14,6 +15,9 @@ struct FItemDataRow : public FTableRowBase
 	GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSubclassOf<UItemBase> ItemClass;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     UTexture2D* IconImage;
 
