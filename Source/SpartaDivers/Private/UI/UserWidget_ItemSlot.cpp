@@ -92,11 +92,22 @@ void UUserWidget_ItemSlot::ApplyUIToModel(UItemBase* InItem)
 		{
 			UGunBase* InGun = Cast<UGunBase>(InItem);
 			if (InGun) OwningUInventoryComponent->AddItem(InGun);
+
+			if (PlayerCharacter->GetEquippedGun() == InGun) PlayerCharacter->SetEquippedGun(nullptr);
+			if (PlayerCharacter->GetSubGun() == InGun) PlayerCharacter->SetSubGun(nullptr);
 		}
 		else if (ItemSlotType == EItemType::Attachment)
 		{
 			UAttachmentBase* InAttachment = Cast<UAttachmentBase>(InItem);
 			if (InAttachment) OwningUInventoryComponent->AddItem(InAttachment);
+
+			if (PlayerCharacter->GetEquippedGun()->FirstAttachment == InAttachment) PlayerCharacter->GetEquippedGun()->FirstAttachment = nullptr;
+			if (PlayerCharacter->GetEquippedGun()->SecondAttachment == InAttachment) PlayerCharacter->GetEquippedGun()->SecondAttachment = nullptr;
+			if (PlayerCharacter->GetEquippedGun()->ThirdAttachment == InAttachment) PlayerCharacter->GetEquippedGun()->ThirdAttachment = nullptr;
+			if (PlayerCharacter->GetSubGun()->FirstAttachment == InAttachment) PlayerCharacter->GetSubGun()->FirstAttachment = nullptr;
+			if (PlayerCharacter->GetSubGun()->SecondAttachment == InAttachment) PlayerCharacter->GetSubGun()->SecondAttachment = nullptr;
+			if (PlayerCharacter->GetSubGun()->ThirdAttachment == InAttachment) PlayerCharacter->GetSubGun()->ThirdAttachment = nullptr;
+
 		}
 		else if (ItemSlotType == EItemType::Consumable)
 		{

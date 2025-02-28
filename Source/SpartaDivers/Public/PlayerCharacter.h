@@ -36,6 +36,7 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* EquippedGun;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* SubGun;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -118,6 +119,9 @@ public:
 
 	UFUNCTION()
 	UGunBase* GetSubGun();
+
+	void SetEquippedGun(UGunBase* InGun);
+	void SetSubGun(UGunBase* InGun);
 
 	UStatusContainerComponent* GetStatusContainerComponent() const override;
 

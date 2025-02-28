@@ -8,7 +8,11 @@
 
 UGunBase::UGunBase()
 {
-    PlayerCharacter = Cast<APlayerCharacter>(GetOuter());
+    ACharacter* Character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+    if (Character)
+    {
+        PlayerCharacter = Cast<APlayerCharacter>(Character);
+    }
 
     Damage = 0.0f;
     FireRate = 0.0f;

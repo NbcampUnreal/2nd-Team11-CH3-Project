@@ -26,6 +26,7 @@ void UUserWidget_GunAttachmentSlot::ApplyUIToModel(UAttachmentBase* InAttachment
 		{
 			OwningGun = PlayerCharacter->GetSubGun();
 		}
+		if (OwningGun == nullptr) return;
 
 		switch (SlotNum)
 		{
