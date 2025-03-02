@@ -53,3 +53,13 @@ void AProjectileBase::SetVelocity(FVector InDirection, float Speed)
 		ProjectileMovementComponent->Velocity = InDirection * Speed;
 	}
 }
+
+void AProjectileBase::SetExplosionDamage(float NewDamage)
+{
+	ExplosionDamage = NewDamage;
+}
+
+float AProjectileBase::GetExplosionDamage() const
+{
+	return ExplosionDamage;
+}

@@ -10,7 +10,7 @@ UAssaultRifle::UAssaultRifle()
     //ItemName = FName(TEXT("AssaultRifle"));
     //ItemDescription = FText::FromString(TEXT("AssaultRifleDescription"));
 
-    Damage = 5.0f;
+    Damage = 25.0f;
     FireRate = 0.1f;
     MaxAmmo = 30;
     CurAmmo = MaxAmmo;
@@ -24,7 +24,7 @@ UAssaultRifle::UAssaultRifle()
 void UAssaultRifle::Fire()
 {
     Super::Fire();
-
+    Damage = FMath::RandRange(25.0f, 40.0f);
     PerformHitScan();
 }
 
@@ -62,12 +62,17 @@ void UAssaultRifle::PerformHitScan()
             float FinalDamage = Damage; // 기본 데미지
 
             // 헤드샷 여부 판별
-            if (HitResult.BoneName == FName("head"))
+            if (HitResult.Component == Cast<UPrimitiveComponent>(HitActor->FindComponentByClass<UStaticMeshComponent>()))
             {
-                FinalDamage *= 2.0f; // 헤드샷 데미지 2배
+                bHitHead = true;
+                FinalDamage *= 2.0f;
                 UE_LOG(LogTemp, Warning, TEXT("Headshot! Extra damage applied."));
             }
-
+            else
+            {
+                bHitHead = false;
+            }
+            
             UGameplayStatics::ApplyPointDamage(
                 HitActor,
                 FinalDamage,

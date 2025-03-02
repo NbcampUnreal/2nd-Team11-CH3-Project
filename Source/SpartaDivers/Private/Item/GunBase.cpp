@@ -24,6 +24,7 @@ UGunBase::UGunBase()
     RecoilGap = 0.0f;
     MaxRecoil = 0.0f;
 
+    bHitHead = false;
     bCanFire = true;
     bOnInfiniteBullet = false;
 }
@@ -52,6 +53,7 @@ void UGunBase::ResetFireCooldown()
 void UGunBase::Reload()
 {
     CurAmmo = MaxAmmo;
+    bCanFire = true;
 }
 
 void UGunBase::ApplyRecoil()

@@ -2,11 +2,13 @@
 
 #include "SDEnemyBase.h"
 #include "SDAIController.h"
+#include "MyGameState.h"
 #include "MissionManager.h"
+#include "PlayerCharacter.h"
 #include "DamageTextComponent.h"
 #include "Engine/DamageEvents.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/StatusContainerComponent.h"
 #include "Item/DropItem.h"
 #include "Item/ItemBase.h"
@@ -22,7 +24,21 @@ ASDEnemyBase::ASDEnemyBase()
 	DamageTextComp->SetupAttachment(RootComponent);
 	DamageTextComp->SetWidgetSpace(EWidgetSpace::World);
 
+	HeadHitbox = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HeadHitbox"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> HeadStaticMeshAsset(TEXT("/Engine/EditorMeshes/EditorSphere.EditorSphere"));
+	if (HeadStaticMeshAsset.Succeeded())
+	{
+		HeadHitbox->SetStaticMesh(HeadStaticMeshAsset.Object);
+	}
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> HeadMaterialAsset(TEXT("/Game/_Art/Materials/MasterMaterial/MI_Invisible.MI_Invisible"));
+	if (HeadMaterialAsset.Succeeded())
+	{
+		HeadHitbox->SetMaterial(0, HeadMaterialAsset.Object);
+	}
+	HeadHitbox->SetupAttachment(GetMesh(), TEXT("head"));
+
 	EnemyType = FName(TEXT("DefaultEnemy"));
+	KillScore = 10.0f;
 	MoveSpeed = 300.f;
 	StatusContainerComponent->SetMaxHealth(100);
 	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
@@ -64,16 +80,6 @@ float ASDEnemyBase::TakeDamage(
 		if (PointDamageEvent)
 		{
 			HitLocation = PointDamageEvent->HitInfo.ImpactPoint;
-			UE_LOG(LogTemp, Warning, TEXT("Point Damage Hit Location: %s"), *HitLocation.ToString());
-		}
-	}
-	else if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
-	{
-		const FRadialDamageEvent* RadialDamageEvent = static_cast<const FRadialDamageEvent*>(&DamageEvent);
-		if (RadialDamageEvent && RadialDamageEvent->ComponentHits.Num() > 0)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("RadialDamageEventCalled!!"));
-			HitLocation = RadialDamageEvent->ComponentHits[0].ImpactPoint;
 		}
 	}
 
@@ -91,6 +97,14 @@ void ASDEnemyBase::Attack(int32 SkillIndex)
 void ASDEnemyBase::OnDeath()
 {
 	OnDropItem();
+
+	if (AMyGameState* MyGameState = GetWorld()->GetGameState<AMyGameState>())
+	{
+		if (MyGameState)
+		{
+			MyGameState->AddScore(KillScore);
+		}
+	}
 
 	Super::OnDeath();
 	AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));

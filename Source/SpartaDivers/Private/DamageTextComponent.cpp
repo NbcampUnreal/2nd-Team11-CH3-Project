@@ -30,7 +30,7 @@ void UDamageTextComponent::ShowDamageText(float Damage, FVector HitLocation)
 	if (!DamageTextWidgetComponent) return;
 
 	// 위치 설정 (HitLocation을 기준으로 약간의 높이를 추가)
-	DamageTextWidgetComponent->SetWorldLocation(HitLocation + FVector(0, 0, 50));  // Z 값으로 텍스트 높이 조정
+	DamageTextWidgetComponent->SetWorldLocation(HitLocation + FVector(-100, 0, 80));  // Z 값으로 텍스트 높이 조정
 
 	// 위젯을 표시
 	DamageTextWidgetComponent->SetVisibility(true);
@@ -38,6 +38,10 @@ void UDamageTextComponent::ShowDamageText(float Damage, FVector HitLocation)
 	// DamageText 찾기
 	if (UTextBlock* DamageText = Cast<UTextBlock>(DamageTextWidgetComponent->GetWidget()->GetWidgetFromName("DamageText")))
 	{
+		if (Damage <= 0.0f)
+		{
+			HideDamageText();
+		}
 		DamageText->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Damage)));
 	}
 

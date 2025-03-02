@@ -49,6 +49,9 @@ protected:
 
 	FName GetEnemyType() const;
 
+	UPROPERTY(VisibleAnywhere, Category = "Hitbox")
+	UStaticMeshComponent* HeadHitbox;
+
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION(BlueprintCallable)

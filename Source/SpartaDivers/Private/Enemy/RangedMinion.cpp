@@ -2,6 +2,15 @@
 
 #include "Enemy/RangedMinion.h"
 #include "EnemyProjectile.h"
+#include "Components/StatusContainerComponent.h"
+
+ARangedMinion::ARangedMinion()
+{
+	Damage = FMath::RandRange(20.0f, 50.0f);
+	KillScore = Damage * 3 + StatusContainerComponent->GetMaxHealth();
+	StatusContainerComponent->SetMaxHealth(FMath::RandRange(100.0f, 200.0f));
+	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
+}
 
 void ARangedMinion::Attack(int32 SkillIndex)
 {
@@ -20,6 +29,7 @@ void ARangedMinion::ApplyAttackEffect(int32 EffectIndex)
 
 	if (ProjectileInstance)
 	{
+		ProjectileInstance->SetExplosionDamage(Damage);
 		ProjectileInstance->InitProjectile(VelocityOfProjectile);
 	}
 }
