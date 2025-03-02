@@ -3,6 +3,8 @@
 #include "SDEnemyBase.h"
 #include "SDAIController.h"
 #include "MissionManager.h"
+#include "DamageTextComponent.h"
+#include "Engine/DamageEvents.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StatusContainerComponent.h"
@@ -15,6 +17,10 @@ ASDEnemyBase::ASDEnemyBase()
 
 	AIControllerClass = ASDAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	DamageTextComp = CreateDefaultSubobject<UDamageTextComponent>(TEXT("DamageTextComp"));
+	DamageTextComp->SetupAttachment(RootComponent);
+	DamageTextComp->SetWidgetSpace(EWidgetSpace::World);
 
 	EnemyType = FName(TEXT("DefaultEnemy"));
 	MoveSpeed = 300.f;
@@ -49,6 +55,32 @@ float ASDEnemyBase::TakeDamage(
 	AActor* DamageCauser)
 {
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	UE_LOG(LogTemp, Warning, TEXT("DamageEvent TypeID: %d"), DamageEvent.GetTypeID());
+	FVector HitLocation = GetActorLocation();
+
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		const FPointDamageEvent* PointDamageEvent = static_cast<const FPointDamageEvent*>(&DamageEvent);
+		if (PointDamageEvent)
+		{
+			HitLocation = PointDamageEvent->HitInfo.ImpactPoint;
+			UE_LOG(LogTemp, Warning, TEXT("Point Damage Hit Location: %s"), *HitLocation.ToString());
+		}
+	}
+	else if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
+	{
+		const FRadialDamageEvent* RadialDamageEvent = static_cast<const FRadialDamageEvent*>(&DamageEvent);
+		if (RadialDamageEvent && RadialDamageEvent->ComponentHits.Num() > 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("RadialDamageEventCalled!!"));
+			HitLocation = RadialDamageEvent->ComponentHits[0].ImpactPoint;
+		}
+	}
+
+	if (DamageTextComp)
+	{
+		DamageTextComp->ShowDamageText(ActualDamage, HitLocation);
+	}
 	return ActualDamage;
 }
 
@@ -67,7 +99,7 @@ void ASDEnemyBase::OnDeath()
 		MissionManager->KilledEnemyCount++;
 		UE_LOG(LogTemp, Warning, TEXT("KilledEnemyCount : %d"), MissionManager->KilledEnemyCount);
 		MissionManager->CheckMissionCompletion();
-	}	
+	}
 
 	AAIController* AIController = Cast<AAIController>(GetController());
 	if (AIController)
@@ -122,6 +154,4 @@ void ASDEnemyBase::BeginPlay()
 void ASDEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
-

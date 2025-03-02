@@ -37,7 +37,10 @@ float ACharacterBase::TakeDamage(
 
 void ACharacterBase::OnDeath()
 {
-	GetMesh()->GetAnimInstance()->StopAllMontages(0.25f);
+	if (GetMesh()->GetAnimInstance())
+	{
+		GetMesh()->GetAnimInstance()->StopAllMontages(0.25f);
+	}
 
 	bIsDead = true;
 }

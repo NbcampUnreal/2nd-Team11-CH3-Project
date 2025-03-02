@@ -8,6 +8,7 @@
 
 class ADropItem;
 class UItemBase;
+class UDamageTextComponent;
 
 USTRUCT(BlueprintType)
 struct FDropItemInfo
@@ -26,7 +27,7 @@ UCLASS()
 class SPARTADIVERS_API ASDEnemyBase : public ACharacterBase
 {
 	GENERATED_BODY()
-	
+
 public:
 	ASDEnemyBase();
 
@@ -38,6 +39,9 @@ public:
 	float GetMaxHealth() const;
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void AddHealth(float Amount);
+
+	UPROPERTY(EditAnywhere, BlueprintReadwrite, Category = "UI")
+	UDamageTextComponent* DamageTextComp;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadwrite, Category = "Status")

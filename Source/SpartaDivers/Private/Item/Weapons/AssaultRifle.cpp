@@ -47,8 +47,8 @@ void UAssaultRifle::PerformHitScan()
 {
     FVector Start = GetFireStartLocation();
     FVector End =  GetFireEndLocation();
-
     FHitResult HitResult;
+    FVector ShotDirection = HitResult.Location - Start;
     FCollisionQueryParams QueryParams;
     QueryParams.AddIgnoredActor(PlayerCharacter); // Player characters ignore conflict
 
@@ -59,9 +59,20 @@ void UAssaultRifle::PerformHitScan()
         AActor* HitActor = HitResult.GetActor();
         if (HitActor && HitActor->ActorHasTag("Enemy"))
         {
-            UGameplayStatics::ApplyDamage(
+            float FinalDamage = Damage; // 기본 데미지
+
+            // 헤드샷 여부 판별
+            if (HitResult.BoneName == FName("head"))
+            {
+                FinalDamage *= 2.0f; // 헤드샷 데미지 2배
+                UE_LOG(LogTemp, Warning, TEXT("Headshot! Extra damage applied."));
+            }
+
+            UGameplayStatics::ApplyPointDamage(
                 HitActor,
-                Damage,
+                FinalDamage,
+                ShotDirection,
+                HitResult,
                 PlayerCharacter->GetController(),
                 PlayerCharacter,
                 UDamageType::StaticClass());
