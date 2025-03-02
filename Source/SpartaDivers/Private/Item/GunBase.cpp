@@ -24,6 +24,7 @@ UGunBase::UGunBase()
     RecoilGap = 0.0f;
     MaxRecoil = 0.0f;
 
+    bHitHead = false;
     bCanFire = true;
     bOnInfiniteBullet = false;
 }
@@ -41,23 +42,18 @@ void UGunBase::Fire()
             &UGunBase::ResetFireCooldown,
             FireRate,
             false);
-
-        UE_LOG(LogTemp, Warning, TEXT("Gunbase fired! Ammo: %d/%d"), CurAmmo, MaxAmmo);
     }
 }
 
 void UGunBase::ResetFireCooldown()
 {
     bCanFire = true;
-
-    UE_LOG(LogTemp, Warning, TEXT("Gunbase Fire cooldown reset. Ready to shoot again!"));
 }
 
 void UGunBase::Reload()
 {
     CurAmmo = MaxAmmo;
-
-    UE_LOG(LogTemp, Warning, TEXT("Gunbase reloaded! Ammo: %d/%d"), CurAmmo, MaxAmmo);
+    bCanFire = true;
 }
 
 void UGunBase::ApplyRecoil()

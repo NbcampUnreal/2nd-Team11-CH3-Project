@@ -10,7 +10,7 @@ UAssaultRifle::UAssaultRifle()
     //ItemName = FName(TEXT("AssaultRifle"));
     //ItemDescription = FText::FromString(TEXT("AssaultRifleDescription"));
 
-    Damage = 5.0f;
+    Damage = 25.0f;
     FireRate = 0.1f;
     MaxAmmo = 30;
     CurAmmo = MaxAmmo;
@@ -24,7 +24,7 @@ UAssaultRifle::UAssaultRifle()
 void UAssaultRifle::Fire()
 {
     Super::Fire();
-
+    Damage = FMath::RandRange(25.0f, 40.0f);
     PerformHitScan();
 }
 
@@ -47,8 +47,8 @@ void UAssaultRifle::PerformHitScan()
 {
     FVector Start = GetFireStartLocation();
     FVector End =  GetFireEndLocation();
-
     FHitResult HitResult;
+    FVector ShotDirection = HitResult.Location - Start;
     FCollisionQueryParams QueryParams;
     QueryParams.AddIgnoredActor(PlayerCharacter); // Player characters ignore conflict
 
@@ -59,9 +59,25 @@ void UAssaultRifle::PerformHitScan()
         AActor* HitActor = HitResult.GetActor();
         if (HitActor && HitActor->ActorHasTag("Enemy"))
         {
-            UGameplayStatics::ApplyDamage(
+            float FinalDamage = Damage; // 기본 데미지
+
+            // 헤드샷 여부 판별
+            if (HitResult.Component == Cast<UPrimitiveComponent>(HitActor->FindComponentByClass<UStaticMeshComponent>()))
+            {
+                bHitHead = true;
+                FinalDamage *= 2.0f;
+                UE_LOG(LogTemp, Warning, TEXT("Headshot! Extra damage applied."));
+            }
+            else
+            {
+                bHitHead = false;
+            }
+            
+            UGameplayStatics::ApplyPointDamage(
                 HitActor,
-                Damage,
+                FinalDamage,
+                ShotDirection,
+                HitResult,
                 PlayerCharacter->GetController(),
                 PlayerCharacter,
                 UDamageType::StaticClass());
