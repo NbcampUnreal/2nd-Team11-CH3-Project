@@ -23,8 +23,10 @@ void AEnemyProjectile::OnProjectileOverlap(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	if (OtherActor)
+	if (Cast<APlayerCharacter>(OtherActor))
 	{
+
+
 		GetWorld()->GetTimerManager().ClearTimer(EnemyProjectileTimerHandle);
 		Explode();
 	}

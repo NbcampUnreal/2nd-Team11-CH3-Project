@@ -33,11 +33,17 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UConsumableBase* ThirdConsumable;
 
+	UFUNCTION(BlueprintCallable)
+	void SetConsumable(UConsumableBase* InItem, int32 InSlotNum);
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* EquippedGun;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* SubGun;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<UGunBase> InitGun;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")

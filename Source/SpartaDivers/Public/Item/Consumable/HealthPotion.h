@@ -15,8 +15,6 @@ class SPARTADIVERS_API UHealthPotion : public UConsumableBase
 	GENERATED_BODY()
 	
 public:
-	virtual void InitializeItem(UItemBase* DefaultItem) override;
-
 	virtual void ApplyConsumableEffect(APlayerCharacter* InPlayerCharacter) override;
 
 protected:

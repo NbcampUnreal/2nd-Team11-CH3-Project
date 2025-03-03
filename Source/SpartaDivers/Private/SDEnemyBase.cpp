@@ -111,7 +111,7 @@ void ASDEnemyBase::OnDeath()
 			MyGameState->AddScore(KillScore);
 		}
 	}
-
+  
 	Super::OnDeath();
 
 	AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
@@ -178,11 +178,24 @@ void ASDEnemyBase::OnDropItem()
 		{
 			if (dropItemInfo.dropItemClass && DropItem)
 			{
-				ADropItem* DropItemInstance = GetWorld()->SpawnActor<ADropItem>(DropItem);
-				if (DropItemInstance)
+				UE_LOG(LogTemp, Warning, TEXT("Spawn"));
+				if (ADropItem* DropItemInstance = GetWorld()->SpawnActor<ADropItem>(DropItem))
 				{
 					DropItemInstance->OwningItemClass = dropItemInfo.dropItemClass;
-					DropItemInstance->SetActorLocation(GetActorLocation());
+
+					FVector Start = GetActorLocation();
+					FVector End = Start - FVector::ZAxisVector * 1000.f;
+
+					FHitResult HitResult;
+					FCollisionQueryParams QueryParams;
+					QueryParams.AddIgnoredActor(this); // Player characters ignore conflict
+
+					bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_WorldStatic, QueryParams);
+
+					if (bHit)
+					{
+						DropItemInstance->SetActorLocation(HitResult.Location);
+					}
 				}
 			}
 

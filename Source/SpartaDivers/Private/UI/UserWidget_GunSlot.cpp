@@ -58,6 +58,8 @@ void UUserWidget_GunSlot::UpdateUI()
 		{
 			ItemIcon->SetVisibility(ESlateVisibility::Visible);
 			ItemIcon->SetBrushFromTexture(OwningGun->GetIconImage());
+
+			ItemIcon->SetToolTipText(OwningGun->GetItemDescription());
 		}
 	}
 }
