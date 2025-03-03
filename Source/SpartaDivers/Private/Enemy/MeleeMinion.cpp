@@ -7,6 +7,7 @@
 
 AMeleeMinion::AMeleeMinion()
 {
+	EnemyType = "Melee Minion";
 	Damage = FMath::RandRange(10.0f, 30.0f);
 	KillScore = Damage * 3 + StatusContainerComponent->GetMaxHealth();
 	StatusContainerComponent->SetMaxHealth(FMath::RandRange(150.0f, 300.0f));

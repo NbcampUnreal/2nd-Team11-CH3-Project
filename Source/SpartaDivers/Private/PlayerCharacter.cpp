@@ -257,6 +257,11 @@ void APlayerCharacter::StartJump(const FInputActionValue& value)
 	if (value.Get<bool>())
 	{
 		Jump();
+		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+		if (MyGameState)
+		{
+			MyGameState->UpdateCrossHair();
+		}
 	}
 }
 
@@ -318,6 +323,12 @@ void APlayerCharacter::FinishReload()
 {
 	EquippedGun->Reload();
 
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		MyGameState->UpdateCrossHair();
+	}
+
 	bIsReloading = false;
 }
 void APlayerCharacter::OpenIventory(const FInputActionValue& value)
@@ -343,6 +354,12 @@ void APlayerCharacter::SwapGun(const FInputActionValue& value)
 		if (SubGun)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Sub Gun: %s"), *SubGun->GetName());
+		}
+
+		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+		if (MyGameState)
+		{
+			MyGameState->UpdateCrossHair();
 		}
 	}
 }

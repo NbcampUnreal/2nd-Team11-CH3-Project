@@ -5,6 +5,8 @@
 #include "MyGameInstance.h"
 #include "EnhancedInputSubsystems.h"
 #include "SDCheatManager.h"
+#include "SDLogManager.h"
+#include "KillLogWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
@@ -25,6 +27,8 @@ ButtonThreeAction(nullptr),
 ButtonFourAction(nullptr),
 HUDWidgetClass(nullptr),
 HUDWidgetInstance(nullptr),
+KillLogWidgetClass(nullptr),
+KillLogWidgetInstance(nullptr),
 MainMenuWidgetClass(nullptr),
 MainMenuWidgetInstance(nullptr),
 CrosshairWidgetClass(nullptr),
@@ -36,6 +40,11 @@ CrosshairWidgetInstance(nullptr)
 UUserWidget* AMyPlayerController::GetHUDWidget() const
 {
 	return HUDWidgetInstance;
+}
+
+UKillLogWidget* AMyPlayerController::GetKillLogWidget() const
+{
+	return KillLogWidgetInstance;
 }
 
 UUserWidget* AMyPlayerController::GetMainMenuWidget() const
@@ -79,7 +88,7 @@ void AMyPlayerController::ShowGameHUD()
 	{
 		MyGameState->UpdateHUD();
 	}
-
+	ShowKillLog();
 	ShowCrosshair();
 }
 
@@ -206,6 +215,26 @@ void AMyPlayerController::ShowCrosshair()
 	}
 }
 
+void AMyPlayerController::ShowKillLog()
+{
+	if (KillLogWidgetInstance)
+	{
+		KillLogWidgetInstance->RemoveFromParent();
+		KillLogWidgetInstance = nullptr;
+		UE_LOG(LogTemp, Warning, TEXT("KillLogWidgetInstance Removed"));
+
+	}
+
+	if (KillLogWidgetClass)
+	{
+		if (KillLogWidgetInstance)
+		{
+			KillLogWidgetInstance->AddToViewport();
+			UE_LOG(LogTemp, Warning, TEXT("KillLogWidgetInstance Added"));
+		}
+	}
+}
+
 void AMyPlayerController::StartGame()
 {
 	if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
@@ -221,6 +250,20 @@ void AMyPlayerController::StartGame()
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UMyGameInstance* GameInstance = Cast<UMyGameInstance>(GetGameInstance());
+	if (!GameInstance) return;
+
+	USDLogManager* LogManager = USDLogManager::Get();
+	if (!LogManager) return;
+
+	// UI 위젯 생성 후 LogManager에 연결
+	UKillLogWidget* KillLogWidget = CreateWidget<UKillLogWidget>(GetWorld(), KillLogWidgetClass);
+	if (KillLogWidget)
+	{
+		KillLogWidget->AddToViewport();
+		LogManager->SetKillLogWidget(KillLogWidget);
+	}
 
 	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
 	{

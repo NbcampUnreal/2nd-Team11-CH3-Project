@@ -189,10 +189,21 @@ void AMyGameState::UpdateHUD()
 					}
 				}
 			}
+
+		}
+	}
+}
+
+void AMyGameState::UpdateCrossHair()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
+		{
 			// CrosshairWidget
 			if (UUserWidget* CrosshairWidget = MyPlayerController->GetCrosshairWidget())
 			{
-				UFunction* PlayAnimCrosshair = CrosshairWidget->FindFunction(FName("CrossHairsAnimation"));
+				UFunction* PlayAnimCrosshair = CrosshairWidget->FindFunction(FName("PlayCrosshairAnim"));
 				if (PlayAnimCrosshair)
 				{
 					CrosshairWidget->ProcessEvent(PlayAnimCrosshair, nullptr);
@@ -209,6 +220,7 @@ void AMyGameState::UpdateHUD()
 void AMyGameState::BeginPlay()
 {
 	Super::BeginPlay();
+
 
 	if (UGameInstance* GameInstance = GetGameInstance())
 	{

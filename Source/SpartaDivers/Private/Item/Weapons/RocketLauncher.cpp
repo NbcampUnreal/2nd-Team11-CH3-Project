@@ -8,7 +8,7 @@
 
 URocketLauncher::URocketLauncher()
 {
-    //ItemName = FName(TEXT("AssaultRifle"));
+    ItemName = FName(TEXT("AssaultRifle"));
     //ItemDescription = FText::FromString(TEXT("AssaultRifleDescription"));
 
     static ConstructorHelpers::FClassFinder<APlayerProjectile> ProjectileBP(TEXT("/Game/_Blueprint/Player/BP_PlayerProjectile.BP_PlayerProjectile"));
