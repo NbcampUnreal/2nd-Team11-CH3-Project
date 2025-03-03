@@ -33,21 +33,21 @@ void UUserWidget_GunAttachmentSlot::ApplyUIToModel(UAttachmentBase* InAttachment
 		case 0:
 			if (OwningGun->FirstAttachment == nullptr)
 			{
-				OwningGun->FirstAttachment = InAttachment;
+				OwningGun->SetAttachment(0, InAttachment);
 				PlayerCharacter->InventoryComponent->RemoveItem(InAttachment);
 			}
 			break;
 		case 1:
 			if (OwningGun->SecondAttachment == nullptr)
 			{
-				OwningGun->SecondAttachment = InAttachment;
+				OwningGun->SetAttachment(1, InAttachment);
 				PlayerCharacter->InventoryComponent->RemoveItem(InAttachment);
 			}
 			break;
 		case 2:
 			if (OwningGun->ThirdAttachment == nullptr)
 			{
-				OwningGun->ThirdAttachment = InAttachment;
+				OwningGun->SetAttachment(2, InAttachment);
 				PlayerCharacter->InventoryComponent->RemoveItem(InAttachment);
 			}
 			break;
@@ -80,6 +80,8 @@ void UUserWidget_GunAttachmentSlot::UpdateUI()
 		{
 			ItemIcon->SetVisibility(ESlateVisibility::Visible);
 			ItemIcon->SetBrushFromTexture(OwningAttachment->GetIconImage());
+
+			ItemIcon->SetToolTipText(OwningAttachment->GetItemDescription());
 		}
 	}
 }

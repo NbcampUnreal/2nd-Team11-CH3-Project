@@ -61,6 +61,8 @@ void UUserWidget_PlayerConsumableSlot::UpdateUI()
 			{
 				ItemIcon->SetVisibility(ESlateVisibility::Visible);
 				ItemIcon->SetBrushFromTexture(OwningConsumable->GetIconImage());
+
+				ItemIcon->SetToolTipText(OwningConsumable->GetItemDescription());
 			}
 		}
 	}
@@ -95,4 +97,9 @@ UConsumableBase* UUserWidget_PlayerConsumableSlot::GetOwningItem()
 	}
 
 	return OwningConsumable;
+}
+
+int32 UUserWidget_PlayerConsumableSlot::GetSlotNum()
+{
+	return SlotNum;
 }

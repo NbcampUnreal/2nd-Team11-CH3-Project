@@ -29,6 +29,8 @@ void UUserWidget_ItemSlot::UpdateItemSlot()
 		{
 			ItemIcon->SetVisibility(ESlateVisibility::Visible);
 			ItemIcon->SetBrushFromTexture(InItem->GetIconImage());
+
+			ItemIcon->SetToolTipText(InItem->GetItemDescription());
 		}
 	}
 }
@@ -74,6 +76,16 @@ UItemBase* UUserWidget_ItemSlot::GetOwningItem()
 	return output;
 }
 
+EItemType UUserWidget_ItemSlot::GetItemSlotType()
+{
+	return ItemSlotType;
+}
+
+int32 UUserWidget_ItemSlot::GetItemSlotIndex()
+{
+	return ItemSlotIndex;
+}
+
 void UUserWidget_ItemSlot::ApplyUIToModel(UItemBase* InItem)
 {
 	if (InItem == nullptr) return;
@@ -101,12 +113,18 @@ void UUserWidget_ItemSlot::ApplyUIToModel(UItemBase* InItem)
 			UAttachmentBase* InAttachment = Cast<UAttachmentBase>(InItem);
 			if (InAttachment) OwningUInventoryComponent->AddItem(InAttachment);
 
-			if (PlayerCharacter->GetEquippedGun()->FirstAttachment == InAttachment) PlayerCharacter->GetEquippedGun()->FirstAttachment = nullptr;
-			if (PlayerCharacter->GetEquippedGun()->SecondAttachment == InAttachment) PlayerCharacter->GetEquippedGun()->SecondAttachment = nullptr;
-			if (PlayerCharacter->GetEquippedGun()->ThirdAttachment == InAttachment) PlayerCharacter->GetEquippedGun()->ThirdAttachment = nullptr;
-			if (PlayerCharacter->GetSubGun()->FirstAttachment == InAttachment) PlayerCharacter->GetSubGun()->FirstAttachment = nullptr;
-			if (PlayerCharacter->GetSubGun()->SecondAttachment == InAttachment) PlayerCharacter->GetSubGun()->SecondAttachment = nullptr;
-			if (PlayerCharacter->GetSubGun()->ThirdAttachment == InAttachment) PlayerCharacter->GetSubGun()->ThirdAttachment = nullptr;
+			if (PlayerCharacter->GetEquippedGun())
+			{
+				if (PlayerCharacter->GetEquippedGun()->FirstAttachment == InAttachment) PlayerCharacter->GetEquippedGun()->SetAttachment(0, nullptr);
+				if (PlayerCharacter->GetEquippedGun()->SecondAttachment == InAttachment) PlayerCharacter->GetEquippedGun()->SetAttachment(1, nullptr);
+				if (PlayerCharacter->GetEquippedGun()->ThirdAttachment == InAttachment) PlayerCharacter->GetEquippedGun()->SetAttachment(2, nullptr);
+			}
+			if (PlayerCharacter->GetSubGun())
+			{
+				if (PlayerCharacter->GetSubGun()->FirstAttachment == InAttachment) PlayerCharacter->GetSubGun()->SetAttachment(0, nullptr);
+				if (PlayerCharacter->GetSubGun()->SecondAttachment == InAttachment) PlayerCharacter->GetSubGun()->SetAttachment(1, nullptr);
+				if (PlayerCharacter->GetSubGun()->ThirdAttachment == InAttachment) PlayerCharacter->GetSubGun()->SetAttachment(2, nullptr);
+			}
 
 		}
 		else if (ItemSlotType == EItemType::Consumable)

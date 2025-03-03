@@ -35,4 +35,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	UConsumableBase* GetOwningItem();
+
+	UFUNCTION(BlueprintPure)
+	int32 GetSlotNum();
 };

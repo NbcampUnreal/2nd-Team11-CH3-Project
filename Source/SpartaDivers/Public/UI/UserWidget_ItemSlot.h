@@ -29,6 +29,12 @@ public:
 	UFUNCTION(BlueprintPure)
 	UItemBase* GetOwningItem();
 
+	UFUNCTION(BlueprintPure)
+	EItemType GetItemSlotType();
+
+	UFUNCTION(BlueprintPure)
+	int32 GetItemSlotIndex();
+
 	UFUNCTION(BlueprintCallable)
 	virtual void ApplyUIToModel(UItemBase* InItem);
 
