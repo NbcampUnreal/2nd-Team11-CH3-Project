@@ -14,6 +14,8 @@ class SPARTADIVERS_API ARangedMinion : public ASDEnemyBase
 	GENERATED_BODY()
 
 protected:
+	ARangedMinion();
+
 	virtual void Attack(int32 SkillIndex) override;
 
 	UPROPERTY(EditDefaultsOnly)

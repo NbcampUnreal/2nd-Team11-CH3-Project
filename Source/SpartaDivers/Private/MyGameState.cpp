@@ -197,6 +197,10 @@ void AMyGameState::UpdateHUD()
 				{
 					CrosshairWidget->ProcessEvent(PlayAnimCrosshair, nullptr);
 				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("FailedToo......"));
+				}
 			}
 		}
 	}

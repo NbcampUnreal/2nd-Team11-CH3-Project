@@ -60,6 +60,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sate")
 	bool bIsOpenInventory = false;
 	FTimerHandle ReloadTimerHandle;
+	bool bIsSprinting = false;
+	FTimerHandle FireTimerHandle;
+
 
 
 public:	
@@ -71,28 +74,20 @@ public:
 
 	UFUNCTION()
 	void Move(const FInputActionValue& value);
-	
 	UFUNCTION()
 	void StartJump(const FInputActionValue& value);
-	
 	UFUNCTION()
 	void StopJump(const FInputActionValue& value);
-	
 	UFUNCTION()
 	void Look(const FInputActionValue& value);
-	
 	UFUNCTION()
 	void StartSprint(const FInputActionValue& value);
-	
 	UFUNCTION()
-	void StopSprint(const FInputActionValue& value);
-
+	void StopSprint();
 	UFUNCTION()
 	void Fire(const FInputActionValue& value);
-
 	UFUNCTION()
 	void Reload(const FInputActionValue& value);
-
 	UFUNCTION()
 	void OpenIventory(const FInputActionValue& value);
 	UFUNCTION()
@@ -105,8 +100,6 @@ public:
 	void UseThree(const FInputActionValue& value);
 	UFUNCTION()
 	void UseFour(const FInputActionValue& value);
-
-
 	UFUNCTION()
 	void FinishReload();
 
@@ -115,7 +108,6 @@ public:
 		FDamageEvent const& DamageEvent, 
 		AController* EventInstigator, 
 		AActor* DamageCauser) override;
-
 
 	UFUNCTION()
 	void Interact(const FInputActionValue& value);

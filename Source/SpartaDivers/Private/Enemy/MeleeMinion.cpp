@@ -2,11 +2,15 @@
 
 #include "Enemy/MeleeMinion.h"
 #include "PlayerCharacter.h"
+#include "Components/StatusContainerComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 AMeleeMinion::AMeleeMinion()
 {
-	Damage = 10.0f;
+	Damage = FMath::RandRange(10.0f, 30.0f);
+	KillScore = Damage * 3 + StatusContainerComponent->GetMaxHealth();
+	StatusContainerComponent->SetMaxHealth(FMath::RandRange(150.0f, 300.0f));
+	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
 }
 
 void AMeleeMinion::Attack(int32 SkillIndex)
