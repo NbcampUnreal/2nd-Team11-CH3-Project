@@ -43,6 +43,24 @@ APlayerCharacter::APlayerCharacter()
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 }
 
+void APlayerCharacter::SetConsumable(UConsumableBase* InItem, int32 InSlotNum)
+{
+	switch (InSlotNum)
+	{
+	case 0:
+		FirstConsumable = InItem;
+		break;
+	case 1:
+		SecondConsumable = InItem;
+		break;
+	case 2:
+		ThirdConsumable = InItem;
+		break;
+	default:
+		break;
+	}
+}
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -60,8 +78,16 @@ void APlayerCharacter::BeginPlay()
 	//}
 
 	// AssaultRifle 테스트 (기본 착용)
-	EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
-	SubGun = NewObject<USniperRifle>(this, USniperRifle::StaticClass());
+	//EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
+	//SubGun = NewObject<USniperRifle>(this, USniperRifle::StaticClass());
+	//BP에서 직접 할당
+
+	if (InitGun)
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, InitGun);
+		NewGun->InitializeItem(InitGun->GetDefaultObject<UGunBase>());
+		EquippedGun = NewGun;
+	}
 
 	//// 로켓런처 테스트
 	//UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));

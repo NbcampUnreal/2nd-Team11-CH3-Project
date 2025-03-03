@@ -1,9 +1,11 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Item/ItemBase.h"
+#include "UObject/ConstructorHelpers.h"
 
 UItemBase::UItemBase()
 {
+
 }
 
 void UItemBase::InitializeItem(UItemBase* DefaultItem)

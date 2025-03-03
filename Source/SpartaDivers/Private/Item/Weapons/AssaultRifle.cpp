@@ -19,6 +19,7 @@ UAssaultRifle::UAssaultRifle()
     RecoilGap = 0.05f;
     MaxRecoil = 1.0f;
     bOnInfiniteBullet = false;
+
 }
 
 void UAssaultRifle::Fire()

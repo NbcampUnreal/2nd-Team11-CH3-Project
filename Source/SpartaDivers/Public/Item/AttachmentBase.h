@@ -30,10 +30,14 @@ public:
 	UAttachmentBase();
 
 	virtual void ApplyAttachmentEffect(UGunBase* InGun);
+	virtual void RemoveAttachmentEffect(UGunBase* InGun);
 
 	FORCEINLINE const EAttachmentType GetAttachmentType() const { return AttachmentType; }
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	EAttachmentType AttachmentType;
+
+	UPROPERTY(EditDefaultsOnly)
+	float EffectAmount;
 };

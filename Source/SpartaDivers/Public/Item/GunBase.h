@@ -63,6 +63,8 @@ public:
 	FRotator GetCameraRotation() const;
 	float GetSpringArmLength() const;
 
+	void SetAttachment(int32 InAttachmentIndex, UAttachmentBase* InNewAttachment);
+
 protected:
 	virtual FVector GetFireStartLocation() const;
 	virtual FVector GetFireEndLocation() const;
