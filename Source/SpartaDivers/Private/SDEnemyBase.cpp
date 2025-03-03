@@ -2,9 +2,13 @@
 
 #include "SDEnemyBase.h"
 #include "SDAIController.h"
+#include "MyGameInstance.h"
 #include "MyGameState.h"
+#include "SDLogManager.h"
 #include "MissionManager.h"
 #include "PlayerCharacter.h"
+#include "MyPlayerController.h"
+#include "Item/GunBase.h"
 #include "DamageTextComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Kismet/GameplayStatics.h"
@@ -59,7 +63,7 @@ void ASDEnemyBase::AddHealth(float Amount)
 	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() + Amount);
 }
 
-FName ASDEnemyBase::GetEnemyType() const
+FName ASDEnemyBase::GetEnemyType()
 {
 	return EnemyType;
 }
@@ -98,6 +102,8 @@ void ASDEnemyBase::OnDeath()
 {
 	OnDropItem();
 
+	AddToLogManager();
+
 	if (AMyGameState* MyGameState = GetWorld()->GetGameState<AMyGameState>())
 	{
 		if (MyGameState)
@@ -107,7 +113,7 @@ void ASDEnemyBase::OnDeath()
 	}
   
 	Super::OnDeath();
-  
+
 	AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
 	if (MissionManager && MissionManager->CurrentMissionData.MissionType == EMissionType::Eliminate)
 	{
@@ -122,6 +128,36 @@ void ASDEnemyBase::OnDeath()
 		AIController->UnPossess();
 	}
 }
+
+void ASDEnemyBase::AddToLogManager()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn()))
+		{
+			FString VictimName = GetEnemyType().ToString();
+			FString WeaponName = TEXT("Unknown Weapon");
+			if (PlayerCharacter && PlayerCharacter->GetEquippedGun())
+			{
+				WeaponName = PlayerCharacter->GetEquippedGun()->GetItemName().ToString();
+			}
+			bool bHeadshot = PlayerCharacter->GetEquippedGun() && PlayerCharacter->GetEquippedGun()->bHitHead;
+
+			if (USDLogManager* LogManager = USDLogManager::Get())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("AddToLogManager Called"));
+
+				LogManager->AddKillLog(VictimName, WeaponName, bHeadshot);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Failed to Get LogManagers!"));
+
+			}
+		}
+	}
+}
+
 
 void ASDEnemyBase::OnDropItem()
 {

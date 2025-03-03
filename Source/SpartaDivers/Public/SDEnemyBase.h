@@ -46,9 +46,8 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadwrite, Category = "Status")
 	float Damage;
-
-	FName GetEnemyType() const;
-
+	UFUNCTION(BlueprintPure, Category = "KillLog")
+	FName GetEnemyType();
 	UPROPERTY(VisibleAnywhere, Category = "Hitbox")
 	UStaticMeshComponent* HeadHitbox;
 
@@ -58,6 +57,8 @@ protected:
 	virtual void Attack(int32 SkillIndex);
 
 	void OnDeath() override;
+
+	void AddToLogManager();
 
 	void OnDropItem();
 

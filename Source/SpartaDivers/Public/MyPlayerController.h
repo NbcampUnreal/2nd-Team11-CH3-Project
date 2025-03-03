@@ -8,6 +8,8 @@
 
 class UInputMappingContext;
 class UInputAction;
+class USDLogManager;
+class UKillLogWidget;
 
 UCLASS()
 class SPARTADIVERS_API AMyPlayerController : public APlayerController
@@ -53,6 +55,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UI|HUD")
 	UUserWidget* HUDWidgetInstance;
 
+	UFUNCTION(BlueprintPure, Category = "UI|KillLog")
+	UKillLogWidget* GetKillLogWidget() const;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|KillLog")
+	TSubclassOf<UKillLogWidget> KillLogWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|KillLog")
+	UKillLogWidget* KillLogWidgetInstance;
+
 	UFUNCTION(BlueprintPure, Category = "UI|MainMenu")
 	UUserWidget* GetMainMenuWidget() const;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|MainMenu")
@@ -73,8 +82,12 @@ public:
 	void ShowMainMenu(bool bIsRestart);
 	UFUNCTION(BlueprintCallable, Category = "UI|Crosshair")
 	void ShowCrosshair();
+	UFUNCTION(BlueprintCallable, Category = "UI|KillLog")
+	void ShowKillLog();
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void StartGame();
 
+	
+	
 	virtual void BeginPlay() override;
 };
