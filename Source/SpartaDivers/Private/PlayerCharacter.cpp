@@ -11,6 +11,7 @@
 #include "Components/InventoryComponent.h"
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
+#include "Animation/AnimMontage.h"
 #include "Blueprint/UserWidget.h"
 #include "MissionStartTrigger.h"
 
@@ -199,13 +200,43 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					&APlayerCharacter::Interact
 				);
 			}
+			if (PlayerController->CrouchAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->CrouchAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::StartCrouch
+				);
+			}
+			if (PlayerController->CrouchAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->CrouchAction,
+					ETriggerEvent::Completed,
+					this,
+					&APlayerCharacter::StopCrouch
+				);
+			}
+			if (PlayerController->RollingAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->RollingAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::Rolling
+				);
+			}
 		}
 	}
 }
 
 void APlayerCharacter::Move(const FInputActionValue& value)
 {
-	if (!Controller) return;
+	if (bIsRolling)
+		return;
+	if (!Controller) 
+		return;
 
 	const FVector2D MoveInput = value.Get<FVector2D>();
 
@@ -220,7 +251,7 @@ void APlayerCharacter::Move(const FInputActionValue& value)
 }
 void APlayerCharacter::StartJump(const FInputActionValue& value)
 {
-	if (value.Get<bool>())
+	if (value.Get<bool>() && !bIsRolling)
 	{
 		Jump();
 	}
@@ -243,7 +274,7 @@ void APlayerCharacter::Look(const FInputActionValue& value)
 
 void APlayerCharacter::StartSprint(const FInputActionValue& value)
 {
-	if (GetCharacterMovement() && bIsReloading == false)
+	if (GetCharacterMovement() && bIsReloading == false && bIsCrouch == false && !bIsRolling)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 	}
@@ -259,7 +290,7 @@ void APlayerCharacter::StopSprint(const FInputActionValue& value)
 
 void APlayerCharacter::Fire(const FInputActionValue& value)
 {
-	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0)
+	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0 && !bIsCrouch && !bIsRolling)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 		EquippedGun->Fire();
@@ -275,7 +306,7 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 
 void APlayerCharacter::Reload(const FInputActionValue& value)
 {
-	if (EquippedGun && bIsReloading == false)
+	if (EquippedGun && bIsReloading && bIsRolling == false)
 	{
 		bIsReloading = true;
 		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &APlayerCharacter::FinishReload, EquippedGun->ReloadTime, false);
@@ -329,6 +360,20 @@ void APlayerCharacter::UseFour(const FInputActionValue& value)
 {
 
 }
+void APlayerCharacter::StartCrouch(const FInputActionValue& value)
+{
+	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	bIsCrouch = true;
+
+	Crouch();
+}
+void APlayerCharacter::StopCrouch(const FInputActionValue& value)
+{
+	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+	bIsCrouch = false;
+
+	UnCrouch();
+}
 
 float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
@@ -349,6 +394,21 @@ void APlayerCharacter::Interact(const FInputActionValue& value)
 	}
 }
 
+void APlayerCharacter::Rolling (const FInputActionValue& value)
+{
+	if (!(GetMesh()->GetAnimInstance()->Montage_IsPlaying(RollingMontage)))
+	{
+		GetMesh()->GetAnimInstance()->Montage_Play(RollingMontage);
+		Crouch();
+		bIsRolling = true;
+	}
+
+	FOnMontageEnded EndDelegate;
+	EndDelegate.BindUObject(this,&APlayerCharacter::StopRolling);
+
+	GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate, RollingMontage);
+}
+
 UGunBase* APlayerCharacter::GetEquippedGun()
 {
 	if (EquippedGun)
@@ -356,4 +416,10 @@ UGunBase* APlayerCharacter::GetEquippedGun()
 		return EquippedGun;
 	}
 	return nullptr;
+}
+
+void APlayerCharacter::StopRolling(UAnimMontage* Montage, bool isEnded)
+{
+	UnCrouch();
+	bIsRolling = false;
 }
