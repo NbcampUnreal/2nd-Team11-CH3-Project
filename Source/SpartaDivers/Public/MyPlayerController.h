@@ -47,6 +47,10 @@ public:
 	UInputAction* ButtonThreeAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* ButtonFourAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* CrouchAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* RollingAction;
 
 	UFUNCTION(BlueprintPure, Category = "UI|HUD")
 	UUserWidget* GetHUDWidget() const;
