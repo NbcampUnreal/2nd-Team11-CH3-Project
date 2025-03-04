@@ -13,7 +13,7 @@ void UArmor::ApplyConsumableEffect(APlayerCharacter* InPlayerCharacter)
 	UStatusContainerComponent* StatusContainerComponent = InPlayerCharacter->GetStatusContainerComponent();
 	float curArmor = StatusContainerComponent->GetCurArmor();
 
-	StatusContainerComponent->SetCurHealth(curArmor + ArmorAmount);
+	StatusContainerComponent->SetCurArmor(curArmor + ArmorAmount);
 
 	InPlayerCharacter->InventoryComponent->RemoveItem(this);
 
