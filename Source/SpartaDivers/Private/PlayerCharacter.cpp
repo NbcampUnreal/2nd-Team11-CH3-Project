@@ -20,7 +20,7 @@
 
 APlayerCharacter::APlayerCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComp->SetupAttachment(RootComponent);
@@ -89,16 +89,16 @@ void APlayerCharacter::BeginPlay()
 		EquippedGun = NewGun;
 	}
 
-	//// 로켓런처 테스트
-	//UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
-	//if (RocketLauncherBPClass)
-	//{
-	//	EquippedGun = NewObject<URocketLauncher>(this, RocketLauncherBPClass);
-	//}
-	//else
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("Failed to load BP_RocketLauncher!"));
-	//}
+	// 로켓런처 테스트
+	/*UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
+	if (RocketLauncherBPClass)
+	{
+		EquippedGun = NewObject<URocketLauncher>(this, RocketLauncherBPClass);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to load BP_RocketLauncher!"));
+	}*/
 
 	this->Tags.Add(TEXT("Player"));
 }
@@ -106,6 +106,21 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bIsSprinting)
+	{
+		// SprintSpeed로 서서히 증가
+		float TargetSpeed = SprintSpeed;
+		float InterpSpeed = FMath::FInterpTo(GetCharacterMovement()->MaxWalkSpeed, TargetSpeed, DeltaTime, 8.0f); // 8.0f는 보간 속도
+		GetCharacterMovement()->MaxWalkSpeed = InterpSpeed;
+	}
+	else
+	{
+		// MoveSpeed로 서서히 감소
+		float TargetSpeed = MoveSpeed;
+		float InterpSpeed = FMath::FInterpTo(GetCharacterMovement()->MaxWalkSpeed, TargetSpeed, DeltaTime, 8.0f); // 8.0f는 보간 속도
+		GetCharacterMovement()->MaxWalkSpeed = InterpSpeed;
+	}
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -288,22 +303,24 @@ void APlayerCharacter::Look(const FInputActionValue& value)
 
 void APlayerCharacter::StartSprint(const FInputActionValue& value)
 {
-	if (GetCharacterMovement() && bIsReloading == false)
+	if (GetCharacterMovement() && !bIsReloading) 
 	{
-		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+		bIsSprinting = true; // 스프린트 상태 시작
 	}
 }
 
-void APlayerCharacter::StopSprint(const FInputActionValue& value)
+void APlayerCharacter::StopSprint()
 {
 	if (GetCharacterMovement())
 	{
-		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+		bIsSprinting = false; // 스프린트 상태 종료
 	}
 }
 
 void APlayerCharacter::Fire(const FInputActionValue& value)
 {
+	if (bIsSprinting) StopSprint();
+
 	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0 && EquippedGun->bCanFire)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;

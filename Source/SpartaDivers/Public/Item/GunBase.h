@@ -21,6 +21,7 @@ public:
 
 	APlayerCharacter* PlayerCharacter;
 	FTimerHandle FireCooldownTimer;
+	bool bHitHead;
 	bool bCanFire;
 	bool bOnInfiniteBullet;
 
