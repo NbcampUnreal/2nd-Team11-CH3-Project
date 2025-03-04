@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Item/AttachmentBase.h"
 
+
 UGunBase::UGunBase()
 {
     ACharacter* Character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
@@ -43,6 +44,8 @@ void UGunBase::Fire()
             &UGunBase::ResetFireCooldown,
             FireRate,
             false);
+
+        UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, PlayerCharacter->GetActorLocation());
     }
 }
 
@@ -146,6 +149,11 @@ void UGunBase::SetAttachment(int32 InAttachmentIndex, UAttachmentBase* InNewAtta
     default:
         break;
     }
+}
+
+USoundBase* UGunBase::GetReloadSound()
+{
+    return ReloadSound;
 }
 
 FVector UGunBase::GetFireStartLocation() const
