@@ -10,7 +10,7 @@
 
 USniperRifle::USniperRifle()
 {
-	//ItemName = FName(TEXT("SniperRifle"));
+	ItemName = FName(TEXT("SniperRifle"));
 	//ItemDescription = FText::FromString(TEXT("SniperRifleDescription"));
 
 	Damage = 100.0f;

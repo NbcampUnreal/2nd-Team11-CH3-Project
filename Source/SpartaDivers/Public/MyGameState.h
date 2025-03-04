@@ -10,8 +10,9 @@ UCLASS()
 class SPARTADIVERS_API AMyGameState : public AGameStateBase
 {
 	GENERATED_BODY()
-	
+
 public:
+	
 	AMyGameState();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Score")
@@ -32,6 +33,8 @@ public:
 	void OnGameOver();
 	UFUNCTION(BlueprintCallable)
 	void UpdateHUD();
+	UFUNCTION(BlueprintCallable)
+	void UpdateCrossHair();
 
 protected:
 	virtual void BeginPlay() override;
