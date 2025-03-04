@@ -5,6 +5,7 @@
 #include "MyPlayerController.h"
 #include "MissionManager.h"
 #include "PlayerCharacter.h"
+#include "Enemy/BossEnemy.h"
 #include "Components/StatusContainerComponent.h"
 #include "Item/GunBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -96,7 +97,7 @@ void AMyGameState::UpdateHUD()
 			// HudWidget
 			if (UUserWidget* HUDWidget = MyPlayerController->GetHUDWidget())
 			{
-				// Health Bar & Ammo
+				// Player Informations
 				if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn()))
 				{
 					if (UProgressBar* HealthBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("HealthBar"))))
@@ -113,7 +114,7 @@ void AMyGameState::UpdateHUD()
 					{
 						if (PlayerCharacter->GetStatusContainerComponent()->GetMaxArmor() > 0)
 						{
-							float ArmorPercent=
+							float ArmorPercent =
 								PlayerCharacter->GetStatusContainerComponent()->GetCurArmor()
 								/ PlayerCharacter->GetStatusContainerComponent()->GetMaxArmor();
 							ArmorBar->SetPercent(ArmorPercent);
@@ -126,11 +127,30 @@ void AMyGameState::UpdateHUD()
 						int32 MaxAmmo = PlayerCharacter->GetEquippedGun()->MaxAmmo;
 						AmmoText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"), CurAmmo, MaxAmmo)));
 					}
+					if (UImage* WeaponImage = Cast<UImage>(HUDWidget->GetWidgetFromName(TEXT("WeaponImage"))))
+					{
+						if (WeaponImage)
+						{
+							if (PlayerCharacter->GetEquippedGun())
+							{
+								WeaponImage->SetBrushFromTexture(PlayerCharacter->GetEquippedGun()->GetIconImage());
+							}
+						}
+					}
+					if (UImage* SubWeaponImage = Cast<UImage>(HUDWidget->GetWidgetFromName(TEXT("SubWeaponImage"))))
+					{
+						if (SubWeaponImage)
+						{
+							if (PlayerCharacter->GetSubGun())
+							{
+								SubWeaponImage->SetBrushFromTexture(PlayerCharacter->GetSubGun()->GetIconImage());
+							}
+						}
+					}
 				}
 				// Mission Informations
 				if (AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass())))
 				{
-
 					if (UTextBlock* MissionText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("MissionText"))))
 					{
 						MissionText->SetText(FText::FromName(MissionManager->CurrentMissionData.MissionName));
@@ -209,7 +229,28 @@ void AMyGameState::UpdateHUD()
 					}
 					case EMissionType::BossCombat:
 					{
+						if (UProgressBar* BossHealthBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("BossHealthBar"))))
+						{
+							TArray<AActor*> FoundActors;
+							UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Boss")), FoundActors);
 
+							// 각 액터의 체력 가져오기
+							for (AActor* Actor : FoundActors)
+							{
+								if (Actor)
+								{
+									ABossEnemy* Boss = Cast<ABossEnemy>(Actor);
+									if (UStatusContainerComponent* StatusComponent = Boss->GetStatusContainerComponent())
+									{
+										float CurrentHealth = StatusComponent->GetCurHealth();
+										float MaxHealth = StatusComponent->GetMaxHealth();
+										float BossHealthPercent = CurrentHealth / MaxHealth;
+										BossHealthBar->SetVisibility(ESlateVisibility::Visible);
+										BossHealthBar->SetPercent(BossHealthPercent);
+									}
+								}
+							}
+						}
 						break;
 					}
 					default:

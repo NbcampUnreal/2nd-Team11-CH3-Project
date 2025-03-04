@@ -70,40 +70,12 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//EquippedGun = NewObject<UGunBase>(this, UGunBase::StaticClass());
-	//if (EquippedGun)
-	//{
-	//	// ÃÑ±â ÃÊ±âÈ­
-	//	EquippedGun->ItemName = FName(TEXT("PlayerGun"));
-	//	EquippedGun->ItemDescription = FText::FromString(TEXT("A powerful gun"));
-	//	EquippedGun->Damage = 50.0f;
-	//	EquippedGun->FireRate = 1.5f;
-	//	EquippedGun->MaxAmmo = 30;
-	//	EquippedGun->Ammo = 30;
-	//}
-
-	// AssaultRifle 테스트 (기본 착용)
-	//EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
-	//SubGun = NewObject<USniperRifle>(this, USniperRifle::StaticClass());
-	//BP에서 직접 할당
-
 	if (InitGun)
 	{
 		UGunBase* NewGun = NewObject<UGunBase>(this, InitGun);
 		NewGun->InitializeItem(InitGun->GetDefaultObject<UGunBase>());
 		EquippedGun = NewGun;
 	}
-
-	// 로켓런처 테스트
-	/*UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
-	if (RocketLauncherBPClass)
-	{
-		EquippedGun = NewObject<URocketLauncher>(this, RocketLauncherBPClass);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to load BP_RocketLauncher!"));
-	}*/
 
 	this->Tags.Add(TEXT("Player"));
 	GetWorld()->GetTimerManager().SetTimer(
@@ -388,9 +360,12 @@ void APlayerCharacter::SwapGun(const FInputActionValue& value)
 {
 	if (bIsReloading == false)
 	{
-		UGunBase* TempGun = EquippedGun;
-		EquippedGun = SubGun;
-		SubGun = TempGun;
+		if (SubGun)
+		{
+			UGunBase* TempGun = EquippedGun;
+			EquippedGun = SubGun;
+			SubGun = TempGun;
+		}
 
 		if (EquippedGun)
 		{

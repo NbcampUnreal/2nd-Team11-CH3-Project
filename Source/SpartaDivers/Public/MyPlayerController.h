@@ -87,7 +87,5 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void StartGame();
 
-	
-	
 	virtual void BeginPlay() override;
 };

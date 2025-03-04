@@ -4,6 +4,7 @@
 #include "MissionManager.h"
 #include "PlayerCharacter.h"
 #include "MyPlayerController.h"
+#include "Components/TextBlock.h"
 #include "Components/BoxComponent.h"
 #include "Blueprint/UserWidget.h"
 
@@ -15,16 +16,12 @@ AMissionStartTrigger::AMissionStartTrigger()
 	RootComponent = TriggerBox;
 	TriggerBox->SetGenerateOverlapEvents(true);
 
-	// UI 위젯 설정 
-	/*InteractionWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractionWidget"));
-	InteractionWidget->SetupAttachment(RootComponent);
-	InteractionWidget->SetVisibility(false);*/
-
 	// 오버랩 이벤트 바인딩
 	TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AMissionStartTrigger::OnOverlapBegin);
 	TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AMissionStartTrigger::OnOverlapEnd);
 
 	bIsActive = false;
+	bOverlapTrigger = false;
 }
 
 void AMissionStartTrigger::BeginPlay()
@@ -53,7 +50,6 @@ void AMissionStartTrigger::DeactivateTrigger()
 
 void AMissionStartTrigger::OnInteracted()
 {
-	UE_LOG(LogTemp, Error, TEXT("OnInteracted is called!"));
 	if (bIsActive && MissionManager)
 	{
 		GetWorld()->GetTimerManager().SetTimer(
@@ -62,7 +58,6 @@ void AMissionStartTrigger::OnInteracted()
 			&AMissionManager::StartMission,
 			0.5f,
 			false);
-
 
 		if (MissionManager->CurrentMissionData.MissionType == EMissionType::Eliminate)
 		{
@@ -78,10 +73,6 @@ void AMissionStartTrigger::OnInteracted()
 
 		OnInteracted_BP();
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("OnInteracted Not callef!"));
-	}
 }
 
 void AMissionStartTrigger::OnOverlapBegin(
@@ -92,15 +83,13 @@ void AMissionStartTrigger::OnOverlapBegin(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	if (bIsActive && InteractionWidget)
-	{
-	}
+	bOverlapTrigger = true;
+	ShowInteractText();
 	APlayerCharacter* Player = Cast<APlayerCharacter>(OtherActor);
 	if (Player)
 	{
 
 		Player->CurrentMissionTrigger = this;
-		//InteractionWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
@@ -110,13 +99,39 @@ void AMissionStartTrigger::OnOverlapEnd(
 	UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex)
 {
-	if (InteractionWidget)
-	{
-	}
+	bOverlapTrigger = false;
+	ShowInteractText();
 	APlayerCharacter* Player = Cast<APlayerCharacter>(OtherActor);
 	if (Player && Player->CurrentMissionTrigger == this)
 	{
 		Player->CurrentMissionTrigger = nullptr;
-		//InteractionWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void AMissionStartTrigger::ShowInteractText()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
+		{
+			// HudWidget
+			if (UUserWidget* HUDWidget = MyPlayerController->GetHUDWidget())
+			{
+				if (UTextBlock* InteractText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("InteractText"))))
+				{
+					if (bOverlapTrigger)
+					{
+						InteractText->SetVisibility(ESlateVisibility::Visible);
+					UE_LOG(LogTemp, Warning, TEXT("InteractionWidget->SetVisibility(ESlateVisibility::Visible)"));
+
+					}
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("InteractionWidget->SetVisibility(ESlateVisibility::Hidden)"));
+						InteractText->SetVisibility(ESlateVisibility::Hidden);
+					}
+				}
+			}
+		}
 	}
 }
