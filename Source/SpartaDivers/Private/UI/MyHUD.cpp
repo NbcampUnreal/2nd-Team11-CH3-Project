@@ -26,7 +26,7 @@ void AMyHUD::ToggleMainMenu()
 		MainMenuWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
 		PlayerController->SetInputMode(FInputModeGameOnly());
 
-		PlayerController->bShowMouseCursor = false;
+		PlayerController->SetShowMouseCursor(false);
 
 		bIsMainMenuVisible = false;
 
@@ -38,7 +38,7 @@ void AMyHUD::ToggleMainMenu()
 		UpdateMainUI();
 		PlayerController->SetInputMode(FInputModeUIOnly());
 
-		PlayerController->bShowMouseCursor = true;
+		PlayerController->SetShowMouseCursor(true);
 
 		bIsMainMenuVisible = true;
 
