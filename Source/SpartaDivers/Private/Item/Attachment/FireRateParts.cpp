@@ -6,10 +6,10 @@
 
 void UFireRateParts::ApplyAttachmentEffect(UGunBase* InGun)
 {
-	InGun->FireRate += EffectAmount;
+	InGun->FireRate *= EffectAmount;
 }
 
 void UFireRateParts::RemoveAttachmentEffect(UGunBase* InGun)
 {
-	InGun->FireRate -= EffectAmount;
+	InGun->FireRate /= EffectAmount;
 }
