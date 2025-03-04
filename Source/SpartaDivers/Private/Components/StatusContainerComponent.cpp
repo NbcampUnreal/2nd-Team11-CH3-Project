@@ -1,18 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Components/StatusContainerComponent.h"
 
-// Sets default values for this component's properties
 UStatusContainerComponent::UStatusContainerComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
-// Called when the game starts
 void UStatusContainerComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -67,5 +62,45 @@ void UStatusContainerComponent::SetMaxHealth(float NewMaxHealth)
 	if (GetCurHealth() > GetMaxHealth())
 	{
 		StatusStruct.CurHealth = GetMaxHealth();
+	}
+}
+
+float UStatusContainerComponent::GetCurArmor() const
+{
+	return StatusStruct.CurArmor;
+}
+
+void UStatusContainerComponent::SetCurArmor(float NewCurArmor)
+{
+	StatusStruct.CurArmor= NewCurArmor;
+
+	if (StatusStruct.CurArmor< 0.f)
+	{
+		StatusStruct.CurArmor= 0.f;
+	}
+
+	if (GetCurArmor() > GetMaxArmor())
+	{
+		StatusStruct.CurArmor= GetMaxArmor();
+	}
+}
+
+float UStatusContainerComponent::GetMaxArmor() const
+{
+	return StatusStruct.MaxArmor;
+}
+
+void UStatusContainerComponent::SetMaxArmor(float NewMaxArmor)
+{
+	StatusStruct.MaxArmor= NewMaxArmor;
+
+	if (StatusStruct.MaxArmor< 0.f)
+	{
+		StatusStruct.CurArmor= 0.f;
+	}
+
+	if (GetCurArmor() > GetMaxArmor())
+	{
+		StatusStruct.CurArmor= GetMaxArmor();
 	}
 }

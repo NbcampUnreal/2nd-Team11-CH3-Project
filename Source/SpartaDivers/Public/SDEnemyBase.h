@@ -58,6 +58,8 @@ protected:
 
 	void OnDeath() override;
 
+	void UpdateGameData();
+
 	void AddToLogManager();
 
 	void OnDropItem();

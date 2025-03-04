@@ -194,6 +194,110 @@ void AMyPlayerController::ShowMainMenu(bool bIsRestart)
 				StartButtonText->SetText(FText::FromString(TEXT("Game Start!!")));
 			}
 		}
+		// KillCountText
+		if (UTextBlock* KillCountText = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName(TEXT("KillCountText"))))
+		{
+			if (bIsRestart)
+			{
+				KillCountText->SetVisibility(ESlateVisibility::Visible);
+				if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
+				{
+					KillCountText->SetText(FText::FromString(
+						FString::Printf(TEXT("Defeated enemies : %d"), MyGameInstance->TotalKillCount)
+					));
+				}
+			}
+			else
+			{
+				KillCountText->SetVisibility(ESlateVisibility::Hidden);
+
+			}
+		}
+		// AssaultRifleKillBullet
+		if (UTextBlock* AssaultRifleKillBullet = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName(TEXT("AssaultRifleKillBullet"))))
+		{
+			if (bIsRestart)
+			{
+				AssaultRifleKillBullet->SetVisibility(ESlateVisibility::Visible);
+				if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
+				{
+					AssaultRifleKillBullet->SetText(FText::FromString(
+						FString::Printf(TEXT("▷Assault Rifle : %d with %d bullets"), MyGameInstance->AssaultKillCount, MyGameInstance->AssaultBulletCount)
+					));
+				}
+			}
+			else
+			{
+				AssaultRifleKillBullet->SetVisibility(ESlateVisibility::Hidden);
+
+			}
+		}
+		// ShotgunKillBullet
+		if (UTextBlock* ShotgunKillBullet = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName(TEXT("ShotgunKillBullet"))))
+		{
+			if (bIsRestart)
+			{
+				ShotgunKillBullet->SetVisibility(ESlateVisibility::Visible);
+				if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
+				{
+					ShotgunKillBullet->SetText(FText::FromString(
+						FString::Printf(TEXT("▷Shotgun : %d with %d bullets"), MyGameInstance->ShotgunKillCount, MyGameInstance->ShotgunBulletCount)
+					));
+				}
+			}
+			else
+			{
+				ShotgunKillBullet->SetVisibility(ESlateVisibility::Hidden);
+
+			}
+		}
+		// SniperKillBullet
+		if (UTextBlock* SniperKillBullet = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName(TEXT("SniperKillBullet"))))
+		{
+			if (bIsRestart)
+			{
+				SniperKillBullet->SetVisibility(ESlateVisibility::Visible);
+				if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
+				{
+					SniperKillBullet->SetText(FText::FromString(
+						FString::Printf(TEXT("▷Sniper : %d with %d bullets"), MyGameInstance->SniperKillCount, MyGameInstance->SniperBulletCount)
+					));
+				}
+			}
+			else
+			{
+				SniperKillBullet->SetVisibility(ESlateVisibility::Hidden);
+
+			}
+		}
+		// RocketKillBullet
+		if (UTextBlock* RocketKillBullet = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName(TEXT("RocketKillBullet"))))
+		{
+			if (bIsRestart)
+			{
+				RocketKillBullet->SetVisibility(ESlateVisibility::Visible);
+				if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
+				{
+					RocketKillBullet->SetText(FText::FromString(
+						FString::Printf(TEXT("▷Rocket Launcher : %d with %d bullets"), MyGameInstance->RocketKillCount, MyGameInstance->RocketBulletCount)
+					));
+				}
+			}
+			else
+			{
+				RocketKillBullet->SetVisibility(ESlateVisibility::Hidden);
+
+			}
+		}
+
+		if (bIsRestart)
+		{
+			UFunction* PlayClearAnimFunc = MainMenuWidgetInstance->FindFunction(FName("PlayClearLogAnim"));
+			if (PlayClearAnimFunc)
+			{
+				MainMenuWidgetInstance->ProcessEvent(PlayClearAnimFunc, nullptr);
+			}
+		}
 	}
 }
 

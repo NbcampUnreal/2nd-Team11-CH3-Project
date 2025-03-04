@@ -2,6 +2,7 @@
 
 
 #include "Item/Weapons/SniperRifle.h"
+#include "MyGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerCharacter.h"
 #include "DrawDebugHelpers.h"
@@ -26,6 +27,10 @@ USniperRifle::USniperRifle()
 void USniperRifle::Fire()
 {
 	Super::Fire();
+	if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
+	{
+		MyGameInstance->SniperBulletCount;
+	}
 	Damage = FMath::RandRange(150.0f, 300.0f);
 	PerformHitScanWithPenetration();
 }

@@ -13,6 +13,7 @@ UMyGameInstance::UMyGameInstance()
 void UMyGameInstance::AddToScore(int32 Amount)
 {
 	TotalScore += Amount;
+	UpdateBestScore(TotalScore);
 	UE_LOG(LogTemp, Warning, TEXT("Total Score : %d"), TotalScore);
 }
 

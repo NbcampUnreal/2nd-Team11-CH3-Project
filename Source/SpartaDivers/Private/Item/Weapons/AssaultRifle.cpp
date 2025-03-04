@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Item/Weapons/AssaultRifle.h"
+#include "MyGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerCharacter.h"
 #include "DrawDebugHelpers.h"
@@ -25,6 +26,10 @@ UAssaultRifle::UAssaultRifle()
 void UAssaultRifle::Fire()
 {
     Super::Fire();
+    if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
+    {
+        MyGameInstance->AssaultBulletCount;
+    }
     Damage = FMath::RandRange(25.0f, 40.0f);
     PerformHitScan();
 }
