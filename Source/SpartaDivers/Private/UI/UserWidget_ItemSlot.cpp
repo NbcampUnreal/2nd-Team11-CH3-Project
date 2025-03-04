@@ -30,7 +30,7 @@ void UUserWidget_ItemSlot::UpdateItemSlot()
 			ItemIcon->SetVisibility(ESlateVisibility::Visible);
 			ItemIcon->SetBrushFromTexture(InItem->GetIconImage());
 
-			ItemIcon->SetToolTipText(InItem->GetItemDescription());
+			ItemIcon->SetToolTipText(FText::Format(FText::FromString(TEXT("{0}: {1}")), FText::FromString(InItem->GetItemName().ToString()), InItem->GetItemDescription()));
 		}
 	}
 }

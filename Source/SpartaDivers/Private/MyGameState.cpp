@@ -88,6 +88,16 @@ void AMyGameState::UpdateHUD()
 							HealthBar->SetPercent(HealthPercent);
 						}
 					}
+					if (UProgressBar* ArmorBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("ArmorBar"))))
+					{
+						if (PlayerCharacter->GetStatusContainerComponent()->GetMaxArmor() > 0)
+						{
+							float ArmorPercent=
+								PlayerCharacter->GetStatusContainerComponent()->GetCurArmor()
+								/ PlayerCharacter->GetStatusContainerComponent()->GetMaxArmor();
+							ArmorBar->SetPercent(ArmorPercent);
+						}
+					}
 					if (UTextBlock* AmmoText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("AmmoText"))))
 					{
 						if (!PlayerCharacter->GetEquippedGun()) return;

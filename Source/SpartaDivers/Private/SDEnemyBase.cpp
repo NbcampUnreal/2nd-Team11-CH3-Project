@@ -111,7 +111,9 @@ void ASDEnemyBase::OnDeath()
 			MyGameState->AddScore(KillScore);
 		}
 	}
-  
+
+	UpdateGameData();
+	
 	Super::OnDeath();
 
 	AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
@@ -126,6 +128,36 @@ void ASDEnemyBase::OnDeath()
 	if (AIController)
 	{
 		AIController->UnPossess();
+	}
+}
+
+void ASDEnemyBase::UpdateGameData()
+{
+	if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
+	{
+		MyGameInstance->TotalKillCount++;
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn()))
+			{
+				if (PlayerCharacter->GetEquippedGun()->GetItemName() == FName(TEXT("AssaultRifle")))
+				{
+					MyGameInstance->AssaultKillCount;
+				}
+				else if (PlayerCharacter->GetEquippedGun()->GetItemName() == FName(TEXT("Shotgun")))
+				{
+					MyGameInstance->ShotgunKillCount;
+				}
+				else if (PlayerCharacter->GetEquippedGun()->GetItemName() == FName(TEXT("SniperRifle")))
+				{
+					MyGameInstance->SniperKillCount;
+				}
+				else if (PlayerCharacter->GetEquippedGun()->GetItemName() == FName(TEXT("RocketLauncher")))
+				{
+					MyGameInstance->RocketKillCount;
+				}
+			}
+		}
 	}
 }
 

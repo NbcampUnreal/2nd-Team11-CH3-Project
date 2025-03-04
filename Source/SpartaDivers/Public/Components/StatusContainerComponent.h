@@ -1,4 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -13,9 +14,12 @@ struct FStatusStruct
 
 	UPROPERTY(VisibleAnywhere)
 	float CurHealth;
-
 	UPROPERTY(EditDefaultsOnly)
 	float MaxHealth;
+	UPROPERTY(VisibleAnywhere)
+	float CurArmor;
+	UPROPERTY(EditDefaultsOnly)
+	float MaxArmor;
 };
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -40,7 +44,10 @@ public:
 
 	FORCEINLINE float GetCurHealth() const;
 	void SetCurHealth(float NewCurHealth);
-
 	FORCEINLINE float GetMaxHealth() const;
 	void SetMaxHealth(float NewMaxHealth);
+	FORCEINLINE float GetCurArmor() const;
+	void SetCurArmor(float NewCurArmor);
+	FORCEINLINE float GetMaxArmor() const;
+	void SetMaxArmor(float NewMaxArmor);
 };

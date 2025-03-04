@@ -12,6 +12,7 @@
 void UUserWidget_PlayerConsumableSlot::ApplyUIToModel(UConsumableBase* InConsumable)
 {
 	if (InConsumable == nullptr) return;
+	if (GetOwningItem() != nullptr) return;
 
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
@@ -62,7 +63,7 @@ void UUserWidget_PlayerConsumableSlot::UpdateUI()
 				ItemIcon->SetVisibility(ESlateVisibility::Visible);
 				ItemIcon->SetBrushFromTexture(OwningConsumable->GetIconImage());
 
-				ItemIcon->SetToolTipText(OwningConsumable->GetItemDescription());
+				ItemIcon->SetToolTipText(FText::Format(FText::FromString(TEXT("{0}: {1}")), FText::FromString(OwningConsumable->GetItemName().ToString()), OwningConsumable->GetItemDescription()));
 			}
 		}
 	}

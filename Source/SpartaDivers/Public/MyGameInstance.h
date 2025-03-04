@@ -19,6 +19,24 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
 	int32 TotalScore;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
+	int32 TotalKillCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
+	int32 AssaultKillCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
+	int32 AssaultBulletCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
+	int32 ShotgunKillCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
+	int32 ShotgunBulletCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
+	int32 SniperKillCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
+	int32 SniperBulletCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
+	int32 RocketKillCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
+	int32 RocketBulletCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
 	bool bGameStarted;
 
 	UFUNCTION(BlueprintCallable, Category = "GameData")
