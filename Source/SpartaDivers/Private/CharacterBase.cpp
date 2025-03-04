@@ -11,6 +11,7 @@ ACharacterBase::ACharacterBase()
 	StatusContainerComponent = CreateDefaultSubobject<UStatusContainerComponent>(TEXT("StatusContainerComponent"));
 
 	KillScore = 0;
+	bHeadshot = false;
 }
 
 UStatusContainerComponent* ACharacterBase::GetStatusContainerComponent() const
@@ -28,11 +29,9 @@ float ACharacterBase::TakeDamage(
 
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	bool bIsDeadByHeadshot = false;
-
 	if (UGunBase* Gun = Cast<UGunBase>(DamageCauser))
 	{
-		bIsDeadByHeadshot = Gun->bHitHead;
+		bHeadshot = Gun->bHitHead;
 	}
 
 	if (StatusContainerComponent->GetCurArmor() <= 0)
@@ -47,7 +46,7 @@ float ACharacterBase::TakeDamage(
 	}
 	if (StatusContainerComponent->GetCurHealth() <= 0)
 	{
-		if (bIsDeadByHeadshot)
+		if (bHeadshot)
 		{
 			KillScore *= 2;  // 헤드샷이면 KillScore 두 배 증가
 		}

@@ -28,7 +28,7 @@ void UAssaultRifle::Fire()
     Super::Fire();
     if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
     {
-        MyGameInstance->AssaultBulletCount;
+        MyGameInstance->AssaultBulletCount++;
     }
     Damage = FMath::RandRange(25.0f, 40.0f);
     PerformHitScan();

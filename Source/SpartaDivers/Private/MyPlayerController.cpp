@@ -194,6 +194,26 @@ void AMyPlayerController::ShowMainMenu(bool bIsRestart)
 				StartButtonText->SetText(FText::FromString(TEXT("Game Start!!")));
 			}
 		}
+		// PlayTimeText
+		if (UTextBlock* PlayTimeText = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName(TEXT("PlayTimeText"))))
+		{
+			if (bIsRestart)
+			{
+				PlayTimeText->SetVisibility(ESlateVisibility::Visible);
+				AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+				if (MyGameState)
+				{
+					MyGameState->UpdateHUD();
+				}
+				PlayTimeText->SetText(FText::FromString(
+					FString::Printf(TEXT("%s"), *MyGameState->PlayTimeStr)
+				));
+			}
+			else
+			{
+				PlayTimeText->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
 		// KillCountText
 		if (UTextBlock* KillCountText = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName(TEXT("KillCountText"))))
 		{
@@ -325,7 +345,6 @@ void AMyPlayerController::ShowKillLog()
 	{
 		KillLogWidgetInstance->RemoveFromParent();
 		KillLogWidgetInstance = nullptr;
-		UE_LOG(LogTemp, Warning, TEXT("KillLogWidgetInstance Removed"));
 
 	}
 
@@ -334,7 +353,6 @@ void AMyPlayerController::ShowKillLog()
 		if (KillLogWidgetInstance)
 		{
 			KillLogWidgetInstance->AddToViewport();
-			UE_LOG(LogTemp, Warning, TEXT("KillLogWidgetInstance Added"));
 		}
 	}
 }

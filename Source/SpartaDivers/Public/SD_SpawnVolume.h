@@ -16,6 +16,10 @@ class SPARTADIVERS_API ASD_SpawnVolume : public AActor
 public:	
 	ASD_SpawnVolume();
 
+    UPROPERTY(EditDefaultsOnly, Category = "Boss")
+    TSubclassOf<AActor> BossEnemyClass;
+
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
     USceneComponent* Scene;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
@@ -30,6 +34,8 @@ public:
     FVector GetRandomPointInVolume(int32 MissionIndex) const;
     UFUNCTION(BlueprintCallable, Category = "Spawning")
     FRotator GetRandomRotation() const;
+    UFUNCTION(BlueprintCallable, Category = "Spawning")
+    AActor* SpawnBoss();
     UFUNCTION(BlueprintCallable, Category = "Spawning")
     AActor* SpawnEnemy(TSubclassOf<AActor> EnemyClass, int32 MissionIndex);
     FEnemySpawnRow* GetRandomEnemy() const;
