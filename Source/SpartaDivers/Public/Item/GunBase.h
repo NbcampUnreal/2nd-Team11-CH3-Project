@@ -8,6 +8,7 @@
 
 class APlayerCharacter;
 class UAttachmentBase;
+class USoundBase;
 
 UCLASS()
 class SPARTADIVERS_API UGunBase : public UItemBase
@@ -65,6 +66,13 @@ public:
 	float GetSpringArmLength() const;
 
 	void SetAttachment(int32 InAttachmentIndex, UAttachmentBase* InNewAttachment);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Gun|Stats")
+	USoundBase* FireSound;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Gun|Stats")
+	USoundBase* ReloadSound;
+
+	USoundBase* GetReloadSound();
 
 protected:
 	virtual FVector GetFireStartLocation() const;

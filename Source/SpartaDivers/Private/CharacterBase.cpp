@@ -3,6 +3,7 @@
 #include "CharacterBase.h"
 #include "Components/StatusContainerComponent.h"
 #include "Item/GunBase.h"
+#include "Kismet/GameplayStatics.h"
 
 ACharacterBase::ACharacterBase()
 {
@@ -53,11 +54,14 @@ float ACharacterBase::TakeDamage(
 		OnDeath();
 	}
 
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, GetActorLocation());
 	return ActualDamage;
 }
 
 void ACharacterBase::OnDeath()
 {
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
+
 	if (GetMesh()->GetAnimInstance())
 	{
 		GetMesh()->GetAnimInstance()->StopAllMontages(0.25f);

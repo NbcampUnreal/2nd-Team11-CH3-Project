@@ -39,6 +39,13 @@ protected:
 	bool bIsDead = false;
 
 	bool bHeadshot;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* HitSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* DeathSound;
+
 public:
 	// IStatusContainerInterface��(��) ���� ��ӵ�
 	virtual UStatusContainerComponent* GetStatusContainerComponent() const override;
