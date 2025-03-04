@@ -81,7 +81,7 @@ void UUserWidget_GunAttachmentSlot::UpdateUI()
 			ItemIcon->SetVisibility(ESlateVisibility::Visible);
 			ItemIcon->SetBrushFromTexture(OwningAttachment->GetIconImage());
 
-			ItemIcon->SetToolTipText(OwningAttachment->GetItemDescription());
+			ItemIcon->SetToolTipText(FText::Format(FText::FromString(TEXT("{0}: {1}")), FText::FromString(OwningAttachment->GetItemName().ToString()), OwningAttachment->GetItemDescription()));
 		}
 	}
 }
