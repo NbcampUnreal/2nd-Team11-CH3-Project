@@ -17,6 +17,7 @@ class SPARTADIVERS_API AMyHUD : public AHUD
 	GENERATED_BODY()
 	
 public:
+	UFUNCTION(BlueprintCallable)
 	void ToggleMainMenu();
 
 	void UpdateMainUI();
