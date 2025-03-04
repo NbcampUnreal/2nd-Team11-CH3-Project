@@ -3,11 +3,14 @@
 #include "EnemyProjectile.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/SphereComponent.h"
+#include "PlayerCharacter.h"
+#include "Engine/OverlapResult.h" 
 
 AEnemyProjectile::AEnemyProjectile()
 {
+	ExplosionRadius = 200.0f;
 	ExplosionDelay = 2.0f;
-	ExplosionDamage = 10.0f;
+	ExplosionDamage = 0.0f;
 
 	Collision->OnComponentBeginOverlap.AddDynamic(this, &AEnemyProjectile::OnProjectileOverlap);
 }
@@ -20,33 +23,62 @@ void AEnemyProjectile::OnProjectileOverlap(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherActor->ActorHasTag("Player"))
+	if (Cast<APlayerCharacter>(OtherActor))
 	{
-		GetWorld()->GetTimerManager().ClearTimer(ExplosionTimerHandle);
-		UGameplayStatics::ApplyRadialDamage(
-			this,
-			ExplosionDamage,
-			GetActorLocation(),
-			ExplosionRadius,
-			UDamageType::StaticClass(),
-			TArray<AActor*>()
-		);
-		UE_LOG(LogTemp, Warning, TEXT("Player Get Damaged %f"), ExplosionDamage);
+
+
+		GetWorld()->GetTimerManager().ClearTimer(EnemyProjectileTimerHandle);
 		Explode();
 	}
 }
 
 void AEnemyProjectile::Explode()
 {
+	TArray<AActor*> IgnoreActors;
+
+	TArray<FOverlapResult> OverlapResults;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->OverlapMultiByChannel(
+		OverlapResults,
+		GetActorLocation(),
+		FQuat::Identity,
+		ECC_Pawn,
+		FCollisionShape::MakeSphere(ExplosionRadius),
+		QueryParams
+	);
+
+	if (bHit)
+	{
+		for (const FOverlapResult& Result : OverlapResults)
+		{
+			AActor* HitActor = Result.GetActor();
+			if (HitActor && HitActor->ActorHasTag("Enemy"))
+			{
+				IgnoreActors.Add(HitActor);
+			}
+		}
+	}
+
+	UGameplayStatics::ApplyRadialDamage(
+		this,
+		ExplosionDamage,
+		GetActorLocation(),
+		ExplosionRadius,
+		UDamageType::StaticClass(),
+		IgnoreActors
+	);
 	Super::Explode();
 }
+
 
 void AEnemyProjectile::InitProjectile(float InitVelocity)
 {
 	Super::InitProjectile(InitVelocity);
 
 	GetWorld()->GetTimerManager().SetTimer(
-		ExplosionTimerHandle,
+		EnemyProjectileTimerHandle,
 		this,
 		&AEnemyProjectile::Explode,
 		ExplosionDelay);

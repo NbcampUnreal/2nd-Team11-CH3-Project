@@ -8,6 +8,7 @@
 
 class ADropItem;
 class UItemBase;
+class UDamageTextComponent;
 
 USTRUCT(BlueprintType)
 struct FDropItemInfo
@@ -26,7 +27,7 @@ UCLASS()
 class SPARTADIVERS_API ASDEnemyBase : public ACharacterBase
 {
 	GENERATED_BODY()
-	
+
 public:
 	ASDEnemyBase();
 
@@ -39,11 +40,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void AddHealth(float Amount);
 
+	UPROPERTY(EditAnywhere, BlueprintReadwrite, Category = "UI")
+	UDamageTextComponent* DamageTextComp;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadwrite, Category = "Status")
 	float Damage;
-
-	FName GetEnemyType() const;
+	UFUNCTION(BlueprintPure, Category = "KillLog")
+	FName GetEnemyType();
+	UPROPERTY(VisibleAnywhere, Category = "Hitbox")
+	UStaticMeshComponent* HeadHitbox;
 
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -51,6 +57,10 @@ protected:
 	virtual void Attack(int32 SkillIndex);
 
 	void OnDeath() override;
+
+	void UpdateGameData();
+
+	void AddToLogManager();
 
 	void OnDropItem();
 

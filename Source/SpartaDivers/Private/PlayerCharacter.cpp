@@ -12,12 +12,17 @@
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
 #include "Animation/AnimMontage.h"
+#include "Item/Weapons/SniperRifle.h"
+#include "Item/Weapons/RocketLauncher.h"
 #include "Blueprint/UserWidget.h"
 #include "MissionStartTrigger.h"
+#include "UI/MyHUD.h"
+#include "Kismet/GameplayStatics.h"
+#include "Item/ConsumableBase.h"
 
 APlayerCharacter::APlayerCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComp->SetupAttachment(RootComponent);
@@ -32,36 +37,75 @@ APlayerCharacter::APlayerCharacter()
 	SprintSpeedMultiplier = 1.5f;
 	SprintSpeed = MoveSpeed * SprintSpeedMultiplier;
 
+	StatusContainerComponent->SetMaxHealth(200);
+	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
+
+	StatusContainerComponent->SetMaxArmor(100);
+	StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetMaxArmor());
+	RestoreArmorAmount = 5.0f;
+
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+}
+
+void APlayerCharacter::SetConsumable(UConsumableBase* InItem, int32 InSlotNum)
+{
+	switch (InSlotNum)
+	{
+	case 0:
+		FirstConsumable = InItem;
+		break;
+	case 1:
+		SecondConsumable = InItem;
+		break;
+	case 2:
+		ThirdConsumable = InItem;
+		break;
+	default:
+		break;
+	}
 }
 
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//EquippedGun = NewObject<UGunBase>(this, UGunBase::StaticClass());
-	//if (EquippedGun)
-	//{
-	//	// ÃÑ±â ÃÊ±âÈ­
-	//	EquippedGun->ItemName = FName(TEXT("PlayerGun"));
-	//	EquippedGun->ItemDescription = FText::FromString(TEXT("A powerful gun"));
-	//	EquippedGun->Damage = 50.0f;
-	//	EquippedGun->FireRate = 1.5f;
-	//	EquippedGun->MaxAmmo = 30;
-	//	EquippedGun->Ammo = 30;
-	//}
-
-	EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
+	if (InitGun)
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, InitGun);
+		NewGun->InitializeItem(InitGun->GetDefaultObject<UGunBase>());
+		EquippedGun = NewGun;
+	}
 
 	this->Tags.Add(TEXT("Player"));
+	GetWorld()->GetTimerManager().SetTimer(
+		ArmorRestoreTimer,
+		this,
+		&APlayerCharacter::RestoreArmor,
+		5.0f,
+		true
+		);
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bIsSprinting)
+	{
+		// SprintSpeed로 서서히 증가
+		float TargetSpeed = SprintSpeed;
+		float InterpSpeed = FMath::FInterpTo(GetCharacterMovement()->MaxWalkSpeed, TargetSpeed, DeltaTime, 8.0f); // 8.0f는 보간 속도
+		GetCharacterMovement()->MaxWalkSpeed = InterpSpeed;
+	}
+	else
+	{
+		// MoveSpeed로 서서히 감소
+		float TargetSpeed = MoveSpeed;
+		float InterpSpeed = FMath::FInterpTo(GetCharacterMovement()->MaxWalkSpeed, TargetSpeed, DeltaTime, 8.0f); // 8.0f는 보간 속도
+		GetCharacterMovement()->MaxWalkSpeed = InterpSpeed;
+	}
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -254,6 +298,11 @@ void APlayerCharacter::StartJump(const FInputActionValue& value)
 	if (value.Get<bool>() && !bIsRolling)
 	{
 		Jump();
+		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+		if (MyGameState)
+		{
+			MyGameState->UpdateCrossHair();
+		}
 	}
 }
 
@@ -276,31 +325,27 @@ void APlayerCharacter::StartSprint(const FInputActionValue& value)
 {
 	if (GetCharacterMovement() && bIsReloading == false && bIsCrouch == false && !bIsRolling)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+		bIsSprinting = true; // 스프린트 상태 시작
 	}
 }
 
-void APlayerCharacter::StopSprint(const FInputActionValue& value)
+void APlayerCharacter::StopSprint()
 {
 	if (GetCharacterMovement())
 	{
-		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+		bIsSprinting = false; // 스프린트 상태 종료
 	}
 }
 
 void APlayerCharacter::Fire(const FInputActionValue& value)
 {
-	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0 && !bIsCrouch && !bIsRolling)
+	if (bIsSprinting) StopSprint();
+
+	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0 && EquippedGun->bCanFire && !bIsCrouch && !bIsRolling)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 		EquippedGun->Fire();
 		GetMesh()->GetAnimInstance()->Montage_Play(FireMontage);
-	}
-
-	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-	if (MyGameState)
-	{
-		MyGameState->UpdateHUD();
 	}
 }
 
@@ -308,8 +353,15 @@ void APlayerCharacter::Reload(const FInputActionValue& value)
 {
 	if (EquippedGun && bIsReloading && bIsRolling == false)
 	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), EquippedGun->GetReloadSound(), GetActorLocation());		
+
 		bIsReloading = true;
-		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &APlayerCharacter::FinishReload, EquippedGun->ReloadTime, false);
+		GetWorld()->GetTimerManager().SetTimer(
+			ReloadTimerHandle,
+			this,
+			&APlayerCharacter::FinishReload,
+			EquippedGun->ReloadTime,
+			false);
 
 		GetMesh()->GetAnimInstance()->Montage_Play(ReloadMontage);
 	}
@@ -319,42 +371,73 @@ void APlayerCharacter::FinishReload()
 {
 	EquippedGun->Reload();
 
-	bIsReloading = false;
-
 	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
 	if (MyGameState)
 	{
-		MyGameState->UpdateHUD();
+		MyGameState->UpdateCrossHair();
 	}
+
+	bIsReloading = false;
 }
 void APlayerCharacter::OpenIventory(const FInputActionValue& value)
 {
-	if (!bIsOpenInventory)
-	{
-		bIsOpenInventory = true;
-	}
-	else
-	{
-		bIsOpenInventory = false;
-	}
+	AMyHUD* MyHUD = Cast<AMyHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+	if (MyHUD == nullptr) return;
+
+	MyHUD->ToggleMainMenu();
 }
+
 void APlayerCharacter::SwapGun(const FInputActionValue& value)
 {
-	UGunBase* temp = EquippedGun;
-	EquippedGun = SubGun;
-	SubGun = EquippedGun;
+	if (bIsReloading == false)
+	{
+		if (SubGun)
+		{
+			UGunBase* TempGun = EquippedGun;
+			EquippedGun = SubGun;
+			SubGun = TempGun;
+		}
+
+		if (EquippedGun)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Equipped Gun: %s"), *EquippedGun->GetName());
+		}
+		if (SubGun)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Sub Gun: %s"), *SubGun->GetName());
+		}
+
+		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+		if (MyGameState)
+		{
+			MyGameState->UpdateCrossHair();
+		}
+	}
 }
+
 void APlayerCharacter::UseOne(const FInputActionValue& value)
 {
-
+	if (FirstConsumable)
+	{
+		FirstConsumable->ApplyConsumableEffect(this);
+		FirstConsumable = nullptr;
+	}
 }
 void APlayerCharacter::UseTwo(const FInputActionValue& value)
 {
-
+	if (SecondConsumable)
+	{
+		SecondConsumable->ApplyConsumableEffect(this);
+		SecondConsumable = nullptr;
+	}
 }
 void APlayerCharacter::UseThree(const FInputActionValue& value)
 {
-
+	if (ThirdConsumable)
+	{
+		ThirdConsumable->ApplyConsumableEffect(this);
+		ThirdConsumable = nullptr;
+	}
 }
 void APlayerCharacter::UseFour(const FInputActionValue& value)
 {
@@ -375,15 +458,19 @@ void APlayerCharacter::StopCrouch(const FInputActionValue& value)
 	UnCrouch();
 }
 
-float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+float APlayerCharacter::TakeDamage(
+	float DamageAmount,
+	FDamageEvent const& DamageEvent,
+	AController* EventInstigator,
+	AActor* DamageCauser)
 {
-	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	if (StatusContainerComponent->GetCurHealth() <= 0)
-	{
-		bIsDead = true;
-	}
+	const float ActualDamage = Super::TakeDamage(
+		DamageAmount,
+		DamageEvent,
+		EventInstigator,
+		DamageCauser);
 
-	return DamageAmount;
+	return ActualDamage;
 }
 
 void APlayerCharacter::Interact(const FInputActionValue& value)
@@ -417,9 +504,56 @@ UGunBase* APlayerCharacter::GetEquippedGun()
 	}
 	return nullptr;
 }
-
 void APlayerCharacter::StopRolling(UAnimMontage* Montage, bool isEnded)
 {
 	UnCrouch();
 	bIsRolling = false;
+}
+UGunBase* APlayerCharacter::GetSubGun()
+{
+	if (SubGun)
+	{
+		return SubGun;
+	}
+	return nullptr;
+}
+
+void APlayerCharacter::SetEquippedGun(UGunBase* InGun)
+{
+	EquippedGun = InGun;
+}
+
+void APlayerCharacter::SetSubGun(UGunBase* InGun)
+{
+	SubGun = InGun;
+}
+
+UStatusContainerComponent* APlayerCharacter::GetStatusContainerComponent() const
+{
+	return StatusContainerComponent;
+}
+
+void APlayerCharacter::RestoreArmor()
+{
+	if (StatusContainerComponent->GetCurArmor() > 0)
+	{
+		StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetCurArmor() + RestoreArmorAmount);
+	}
+}
+
+void APlayerCharacter::OnDeath()
+{
+	Super::OnDeath();
+
+	// Handling GameOver After a Delay
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			GameOverTimerHandle,
+			MyGameState,
+			&AMyGameState::OnGameOver,
+			2.0f,
+			false);
+	}
 }

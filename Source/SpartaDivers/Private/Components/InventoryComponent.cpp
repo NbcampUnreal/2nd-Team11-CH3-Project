@@ -24,19 +24,19 @@ void UInventoryComponent::AddItem(UItemBase* InItem)
 	case EItemType::Gun:
 		if (UGunBase* InGunBase = Cast<UGunBase>(InItem))
 		{
-			GunInventroy.Add(InGunBase);
+			GunInventroy.AddUnique(InGunBase);
 		}
 		break;
 	case EItemType::Attachment:
 		if (UAttachmentBase* InAttachmentBase = Cast<UAttachmentBase>(InItem))
 		{
-			AttachmentInventroy.Add(InAttachmentBase);
+			AttachmentInventroy.AddUnique(InAttachmentBase);
 		}
 		break;
 	case EItemType::Consumable:
 		if (UConsumableBase* InConsumableBase = Cast<UConsumableBase>(InItem))
 		{
-			ConsumableInventroy.Add(InConsumableBase);
+			ConsumableInventroy.AddUnique(InConsumableBase);
 		}
 		break;
 	default:

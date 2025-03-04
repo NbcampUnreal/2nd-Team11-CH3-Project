@@ -7,6 +7,8 @@
 #include "GunBase.generated.h"
 
 class APlayerCharacter;
+class UAttachmentBase;
+class USoundBase;
 
 UCLASS()
 class SPARTADIVERS_API UGunBase : public UItemBase
@@ -17,10 +19,12 @@ class SPARTADIVERS_API UGunBase : public UItemBase
 
 public:
 	UGunBase();
-	
+
 	APlayerCharacter* PlayerCharacter;
 	FTimerHandle FireCooldownTimer;
+	bool bHitHead;
 	bool bCanFire;
+	bool bOnInfiniteBullet;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float Damage;
@@ -35,10 +39,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float CurRecoil;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
+	float RecoilGap;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float MaxRecoil;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float ReloadTime;
 
+	UPROPERTY()
+	UAttachmentBase* FirstAttachment;
+	UPROPERTY()
+	UAttachmentBase* SecondAttachment;
+	UPROPERTY()
+	UAttachmentBase* ThirdAttachment;
 
 	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
 	virtual void Fire();
@@ -46,4 +58,24 @@ public:
 	virtual void ResetFireCooldown();
 	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
 	virtual void Reload();
+	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
+	virtual void ApplyRecoil();
+
+	FVector GetCameraLocation() const;
+	FRotator GetCameraRotation() const;
+	float GetSpringArmLength() const;
+
+	void SetAttachment(int32 InAttachmentIndex, UAttachmentBase* InNewAttachment);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Gun|Stats")
+	USoundBase* FireSound;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Gun|Stats")
+	USoundBase* ReloadSound;
+
+	USoundBase* GetReloadSound();
+
+protected:
+	virtual FVector GetFireStartLocation() const;
+	virtual FVector GetFireEndLocation() const;
+
 };

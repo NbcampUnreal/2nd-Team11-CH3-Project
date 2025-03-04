@@ -6,17 +6,16 @@
 #include "Components/StatusContainerComponent.h"
 #include "Components/InventoryComponent.h"
 
-void UHealthPotion::InitializeItem(UItemBase* DefaultItem)
-{
-	Super::InitializeItem(DefaultItem);
-}
-
 void UHealthPotion::ApplyConsumableEffect(APlayerCharacter* InPlayerCharacter)
 {
+	Super::ApplyConsumableEffect(InPlayerCharacter);
+
 	UStatusContainerComponent* StatusContainerComponent = InPlayerCharacter->GetStatusContainerComponent();
 	float curHealth = StatusContainerComponent->GetCurHealth();
 
 	StatusContainerComponent->SetCurHealth(curHealth + HealAmount);
 
 	InPlayerCharacter->InventoryComponent->RemoveItem(this);
+
+	UE_LOG(LogTemp, Warning, TEXT("HealthPotion : +%f"), HealAmount);
 }

@@ -1,92 +1,60 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Item/Weapons/AssaultRifle.h"
+#include "MyGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerCharacter.h"
 #include "DrawDebugHelpers.h"
-#include "GameFramework/SpringArmComponent.h"
 
 UAssaultRifle::UAssaultRifle()
 {
-    //ItemName = FName(TEXT("AssaultRifle"));
+    ItemName = FName(TEXT("AssaultRifle"));
     //ItemDescription = FText::FromString(TEXT("AssaultRifleDescription"));
 
-    Damage = 5.0f;
+    Damage = 25.0f;
     FireRate = 0.1f;
     MaxAmmo = 30;
     CurAmmo = MaxAmmo;
     ReloadTime = 1.5f;
     CurRecoil = 0.3f;
-    MaxRecoil = 0.3f;
+    RecoilGap = 0.05f;
+    MaxRecoil = 1.0f;
     bOnInfiniteBullet = false;
+
 }
 
 void UAssaultRifle::Fire()
 {
-    if (bCanFire && CurAmmo > 0)
+    Super::Fire();
+    if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
     {
-        CurAmmo--;
-        bCanFire = false;
-        // for CheatManager::InfiniteBullet
-        if (bOnInfiniteBullet)
-        {
-            CurAmmo++;
-        }
-
-        UE_LOG(LogTemp, Warning, TEXT("AssaultRifle fired! Ammo: %d/%d"), CurAmmo, MaxAmmo);
-
-        PerformHitScan();
-
-        GetWorld()->GetTimerManager().SetTimer(
-            FireCooldownTimer, 
-            this, 
-            &UGunBase::ResetFireCooldown,
-            FireRate,
-            false);
+        MyGameInstance->AssaultBulletCount++;
     }
-    else if (CurAmmo <= 0)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Out of ammo! AssaultRifle Reload needed."));
-    }
+    Damage = FMath::RandRange(25.0f, 40.0f);
+    PerformHitScan();
 }
 
 void UAssaultRifle::ResetFireCooldown()
 {
-    bCanFire = true;
-    UE_LOG(LogTemp, Warning, TEXT("AssaultRifle Fire cooldown reset. Ready to shoot again!"));
+    Super::ResetFireCooldown();
 }
 
 void UAssaultRifle::Reload()
 {
-    CurAmmo = MaxAmmo;
-    UE_LOG(LogTemp, Warning, TEXT("AssaultRifle reloaded! Ammo: %d/%d"), CurAmmo, MaxAmmo);
+    Super::Reload();
+}
+
+void UAssaultRifle::ApplyRecoil()
+{
+    Super::ApplyRecoil();
 }
 
 void UAssaultRifle::PerformHitScan()
 {
-    FVector CameraLocation;
-    FRotator CameraRotation;
-
-    PlayerCharacter->GetController()->GetPlayerViewPoint(CameraLocation, CameraRotation);
-
-    float SpringArmLength = 300.0f; // Default Value
-
-    USpringArmComponent* SpringArm = PlayerCharacter->FindComponentByClass<USpringArmComponent>();
-    if (SpringArm)
-    {
-        // Adjust the starting position of the muzzle by the length of the spring arm
-        SpringArmLength = SpringArm->TargetArmLength;
-    }
-
-    FVector ForwardVector = CameraRotation.Vector();
-    FVector MuzzleOffset = ForwardVector * SpringArmLength;
-    FVector MuzzleLocation = CameraLocation + MuzzleOffset;
-
-    FVector Start = MuzzleLocation;
-
-    FVector End = Start + CameraRotation.Vector() * 10000.0f;
-
+    FVector Start = GetFireStartLocation();
+    FVector End =  GetFireEndLocation();
     FHitResult HitResult;
+    FVector ShotDirection = HitResult.Location - Start;
     FCollisionQueryParams QueryParams;
     QueryParams.AddIgnoredActor(PlayerCharacter); // Player characters ignore conflict
 
@@ -97,9 +65,25 @@ void UAssaultRifle::PerformHitScan()
         AActor* HitActor = HitResult.GetActor();
         if (HitActor && HitActor->ActorHasTag("Enemy"))
         {
-            UGameplayStatics::ApplyDamage(
+            float FinalDamage = Damage; // 기본 데미지
+
+            // 헤드샷 여부 판별
+            if (HitResult.Component == Cast<UPrimitiveComponent>(HitActor->FindComponentByClass<UStaticMeshComponent>()))
+            {
+                bHitHead = true;
+                FinalDamage *= 2.0f;
+                UE_LOG(LogTemp, Warning, TEXT("Headshot! Extra damage applied."));
+            }
+            else
+            {
+                bHitHead = false;
+            }
+            
+            UGameplayStatics::ApplyPointDamage(
                 HitActor,
-                Damage,
+                FinalDamage,
+                ShotDirection,
+                HitResult,
                 PlayerCharacter->GetController(),
                 PlayerCharacter,
                 UDamageType::StaticClass());
@@ -115,7 +99,5 @@ void UAssaultRifle::PerformHitScan()
         DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 0, 1.5f);
     }
 
-    // application of gun recoil
-    FRotator GunRecoil = FRotator(-CurRecoil, 0.f, 0.f);
-    PlayerCharacter->AddControllerPitchInput(GunRecoil.Pitch);
+    ApplyRecoil();
 }

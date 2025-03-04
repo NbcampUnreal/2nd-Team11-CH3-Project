@@ -15,10 +15,10 @@ ADropItem::ADropItem()
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
 	SphereComponent->SetCollisionProfileName("Trigger");
-	SetRootComponent(SphereComponent);
+	RootComponent = SphereComponent;
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	MeshComponent->SetupAttachment(SphereComponent);
+	MeshComponent->SetupAttachment(RootComponent);
 }
 
 void ADropItem::OnOverlapDropItem(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
