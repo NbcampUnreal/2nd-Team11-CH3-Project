@@ -28,13 +28,11 @@ public:
     UFUNCTION(BlueprintImplementableEvent)
     void OnInteracted_BP();
 
-
 protected:
     virtual void BeginPlay() override;
 
 private:
     bool bIsActive;
-
     FTimerHandle MissionStartTimerHandle;
 
     UPROPERTY(EditAnywhere)
@@ -45,6 +43,8 @@ private:
 
     UPROPERTY(VisibleAnywhere)
     class UUserWidget* InteractionWidget;
+
+    bool bOverlapTrigger;
 
     UFUNCTION()
     void OnOverlapBegin(
@@ -61,4 +61,6 @@ private:
         AActor* OtherActor,
         UPrimitiveComponent* OtherComp, 
         int32 OtherBodyIndex);
+
+    void ShowInteractText();
 };
