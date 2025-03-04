@@ -16,6 +16,8 @@ public:
     UFUNCTION(Exec)
     void GodMode();
 
+    // Kill Player
+    UFUNCTION(Exec)
     void SDKillMe();
 
     // Kill All Enemies

@@ -5,10 +5,15 @@
 #include "PlayerCharacter.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Item/AttachmentBase.h"
 
 UGunBase::UGunBase()
 {
-    PlayerCharacter = Cast<APlayerCharacter>(GetOuter());
+    ACharacter* Character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+    if (Character)
+    {
+        PlayerCharacter = Cast<APlayerCharacter>(Character);
+    }
 
     Damage = 0.0f;
     FireRate = 0.0f;
@@ -20,6 +25,7 @@ UGunBase::UGunBase()
     RecoilGap = 0.0f;
     MaxRecoil = 0.0f;
 
+    bHitHead = false;
     bCanFire = true;
     bOnInfiniteBullet = false;
 }
@@ -48,6 +54,7 @@ void UGunBase::ResetFireCooldown()
 void UGunBase::Reload()
 {
     CurAmmo = MaxAmmo;
+    bCanFire = true;
 }
 
 void UGunBase::ApplyRecoil()
@@ -76,6 +83,69 @@ float UGunBase::GetSpringArmLength() const
 {
     USpringArmComponent* SpringArm = PlayerCharacter->FindComponentByClass<USpringArmComponent>();
     return SpringArm ? SpringArm->TargetArmLength : 300.0f; // Default Length
+}
+
+void UGunBase::SetAttachment(int32 InAttachmentIndex, UAttachmentBase* InNewAttachment)
+{
+    switch (InAttachmentIndex)
+    {
+    case 0:
+        if (InNewAttachment == nullptr)
+        {
+            if (FirstAttachment != nullptr)
+            {
+                FirstAttachment->RemoveAttachmentEffect(this);
+                FirstAttachment = nullptr;
+            }
+        }
+        else
+        {
+            if (FirstAttachment == nullptr)
+            {
+                InNewAttachment->ApplyAttachmentEffect(this);
+                FirstAttachment = InNewAttachment;
+            }
+        }
+        break;
+    case 1:
+        if (InNewAttachment == nullptr)
+        {
+            if (SecondAttachment != nullptr)
+            {
+                SecondAttachment->RemoveAttachmentEffect(this);
+                SecondAttachment = nullptr;
+            }
+        }
+        else
+        {
+            if (SecondAttachment == nullptr)
+            {
+                InNewAttachment->ApplyAttachmentEffect(this);
+                SecondAttachment = InNewAttachment;
+            }
+        }
+        break;
+    case 2:
+        if (InNewAttachment == nullptr)
+        {
+            if (ThirdAttachment != nullptr)
+            {
+                ThirdAttachment->RemoveAttachmentEffect(this);
+                ThirdAttachment = nullptr;
+            }
+        }
+        else
+        {
+            if (ThirdAttachment == nullptr)
+            {
+                InNewAttachment->ApplyAttachmentEffect(this);
+                ThirdAttachment = InNewAttachment;
+            }
+        }
+        break;
+    default:
+        break;
+    }
 }
 
 FVector UGunBase::GetFireStartLocation() const

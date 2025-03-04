@@ -10,7 +10,7 @@ AEnemyProjectile::AEnemyProjectile()
 {
 	ExplosionRadius = 200.0f;
 	ExplosionDelay = 2.0f;
-	ExplosionDamage = 10.0f;
+	ExplosionDamage = 0.0f;
 
 	Collision->OnComponentBeginOverlap.AddDynamic(this, &AEnemyProjectile::OnProjectileOverlap);
 }
@@ -23,8 +23,10 @@ void AEnemyProjectile::OnProjectileOverlap(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	if (OtherActor)
+	if (Cast<APlayerCharacter>(OtherActor))
 	{
+
+
 		GetWorld()->GetTimerManager().ClearTimer(EnemyProjectileTimerHandle);
 		Explode();
 	}

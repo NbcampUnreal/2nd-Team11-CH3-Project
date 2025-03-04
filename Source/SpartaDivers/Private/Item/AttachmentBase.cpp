@@ -11,3 +11,7 @@ UAttachmentBase::UAttachmentBase()
 void UAttachmentBase::ApplyAttachmentEffect(UGunBase* InGun)
 {
 }
+
+void UAttachmentBase::RemoveAttachmentEffect(UGunBase* InGun)
+{
+}

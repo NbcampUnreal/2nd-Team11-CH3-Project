@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Item/Weapons/RocketLauncher.h"
+#include "MyGameInstance.h"
 #include "PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
@@ -8,7 +9,7 @@
 
 URocketLauncher::URocketLauncher()
 {
-    //ItemName = FName(TEXT("AssaultRifle"));
+    ItemName = FName(TEXT("RocketLauncher"));
     //ItemDescription = FText::FromString(TEXT("AssaultRifleDescription"));
 
     static ConstructorHelpers::FClassFinder<APlayerProjectile> ProjectileBP(TEXT("/Game/_Blueprint/Player/BP_PlayerProjectile.BP_PlayerProjectile"));
@@ -22,7 +23,7 @@ URocketLauncher::URocketLauncher()
     MaxAmmo = 8;
     CurAmmo = MaxAmmo;
     ReloadTime = 3;
-    CurRecoil = 0.0f;
+    CurRecoil = 10.0f;
     RecoilGap = 2.0f;
     MaxRecoil = 10.0f;
     bOnInfiniteBullet = false;
@@ -32,6 +33,11 @@ void URocketLauncher::Fire()
 {
     if (bCanFire && CurAmmo > 0)
     {
+        if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
+        {
+            MyGameInstance->RocketBulletCount;
+        }
+        Damage = FMath::RandRange(200.0f, 500.0f);
         LaunchProjectile();
         Super::Fire();
 
@@ -57,6 +63,7 @@ void URocketLauncher::LaunchProjectile()
     if (ProjectileInstance)
     {
         FVector Direction = LaunchRotation.Vector();
+        ProjectileInstance->SetExplosionDamage(Damage);
         ProjectileInstance->SetVelocity(Direction , VelocityOfProjectile);
     }
 }

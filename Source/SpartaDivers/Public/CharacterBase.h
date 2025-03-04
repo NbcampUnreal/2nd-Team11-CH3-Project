@@ -21,6 +21,8 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
+	int32 KillScore;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
 	float MoveSpeed;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
 	float SprintSpeed;
@@ -40,6 +42,7 @@ public:
 	virtual UStatusContainerComponent* GetStatusContainerComponent() const override;
 
 	//TakeDamge
+	UFUNCTION()
 	virtual float TakeDamage(
 		float DamageAmount, 
 		FDamageEvent const& DamgeEvent,

@@ -46,11 +46,10 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere)
 	EItemType ItemType;
+	FName ItemName;
 
 private:
 	UTexture2D* IconImage;
-
-	FName ItemName;
 
 	FText ItemDescription;
 };

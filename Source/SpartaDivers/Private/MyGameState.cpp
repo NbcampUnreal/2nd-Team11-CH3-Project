@@ -15,7 +15,7 @@
 
 AMyGameState::AMyGameState()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	Score = 0;
 }
@@ -39,6 +39,12 @@ void AMyGameState::AddScore(int32 Amount)
 
 void AMyGameState::StartGame()
 {
+	AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
+	if (MissionManager)
+	{
+		MissionManager->StartMission();
+	}
+
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 	{
 		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
@@ -46,17 +52,18 @@ void AMyGameState::StartGame()
 			MyPlayerController->ShowGameHUD();
 		}
 	}
-
-	AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
-	if (MissionManager)
-	{
-		MissionManager->StartMission();
-	}
 }
 
 void AMyGameState::OnGameOver()
 {
-
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
+		{
+			MyPlayerController->SetPause(true);
+			MyPlayerController->ShowMainMenu(true);
+		}
+	}
 }
 
 void AMyGameState::UpdateHUD()
@@ -79,6 +86,16 @@ void AMyGameState::UpdateHUD()
 								PlayerCharacter->GetStatusContainerComponent()->GetCurHealth()
 								/ PlayerCharacter->GetStatusContainerComponent()->GetMaxHealth();
 							HealthBar->SetPercent(HealthPercent);
+						}
+					}
+					if (UProgressBar* ArmorBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("ArmorBar"))))
+					{
+						if (PlayerCharacter->GetStatusContainerComponent()->GetMaxArmor() > 0)
+						{
+							float ArmorPercent=
+								PlayerCharacter->GetStatusContainerComponent()->GetCurArmor()
+								/ PlayerCharacter->GetStatusContainerComponent()->GetMaxArmor();
+							ArmorBar->SetPercent(ArmorPercent);
 						}
 					}
 					if (UTextBlock* AmmoText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("AmmoText"))))
@@ -181,29 +198,54 @@ void AMyGameState::UpdateHUD()
 					}
 					}
 				}
-				// CrosshairWidget
-				if (UUserWidget* CrosshairWidget = MyPlayerController->GetCrosshairWidget())
+			}
+
+		}
+	}
+}
+
+void AMyGameState::UpdateCrossHair()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
+		{
+			// CrosshairWidget
+			if (UUserWidget* CrosshairWidget = MyPlayerController->GetCrosshairWidget())
+			{
+				UFunction* PlayAnimCrosshair = CrosshairWidget->FindFunction(FName("PlayCrosshairAnim"));
+				if (PlayAnimCrosshair)
 				{
-					UFunction* PlayAnimCrosshair = CrosshairWidget->FindFunction(FName("CrossHairsAnimation"));
-					if (PlayAnimCrosshair)
-					{
-						UE_LOG(LogTemp, Warning, TEXT("Anim Played"));
-						CrosshairWidget->ProcessEvent(PlayAnimCrosshair, nullptr);
-					}
+					CrosshairWidget->ProcessEvent(PlayAnimCrosshair, nullptr);
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("FailedToo......"));
 				}
 			}
 		}
 	}
 }
 
-void AMyGameState::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	UpdateHUD();
-}
-
 void AMyGameState::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(GameInstance);
+		if (MyGameInstance && MyGameInstance->bGameStarted)
+		{
+			StartGame();
+		}
+	}
+
+	GetWorldTimerManager().SetTimer(
+		HUDUpdateTimerHandle,
+		this,
+		&AMyGameState::UpdateHUD,
+		0.1f,
+		true
+	);
 }
