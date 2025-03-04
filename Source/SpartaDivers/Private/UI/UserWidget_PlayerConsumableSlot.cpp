@@ -12,6 +12,7 @@
 void UUserWidget_PlayerConsumableSlot::ApplyUIToModel(UConsumableBase* InConsumable)
 {
 	if (InConsumable == nullptr) return;
+	if (GetOwningItem() != nullptr) return;
 
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
