@@ -16,6 +16,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MissionStartTrigger.h"
 #include "UI/MyHUD.h"
+#include "Kismet/GameplayStatics.h"
 #include "Item/ConsumableBase.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -349,6 +350,8 @@ void APlayerCharacter::Reload(const FInputActionValue& value)
 {
 	if (EquippedGun && bIsReloading == false)
 	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), EquippedGun->GetReloadSound(), GetActorLocation());		
+
 		bIsReloading = true;
 		GetWorld()->GetTimerManager().SetTimer(
 			ReloadTimerHandle,
