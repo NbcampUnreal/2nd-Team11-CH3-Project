@@ -10,12 +10,12 @@ void UArmor::ApplyConsumableEffect(APlayerCharacter* InPlayerCharacter)
 {
 	Super::ApplyConsumableEffect(InPlayerCharacter);
 
-	/*UStatusContainerComponent* StatusContainerComponent = InPlayerCharacter->GetStatusContainerComponent();
+	UStatusContainerComponent* StatusContainerComponent = InPlayerCharacter->GetStatusContainerComponent();
 	float curArmor = StatusContainerComponent->GetCurArmor();
 
 	StatusContainerComponent->SetCurHealth(curArmor + ArmorAmount);
 
 	InPlayerCharacter->InventoryComponent->RemoveItem(this);
 
-	UE_LOG(LogTemp, Warning, TEXT("Armor : +%f"), ArmorAmount);*/
+	UE_LOG(LogTemp, Warning, TEXT("Armor : +%f"), ArmorAmount);
 }
