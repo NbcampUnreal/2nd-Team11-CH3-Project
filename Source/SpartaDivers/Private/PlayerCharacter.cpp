@@ -102,7 +102,6 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-<<<<<<< Updated upstream
 	//EquippedGun = NewObject<UGunBase>(this, UGunBase::StaticClass());
 	//if (EquippedGun)
 	//{
@@ -120,17 +119,9 @@ void APlayerCharacter::BeginPlay()
 	//SubGun = NewObject<USniperRifle>(this, USniperRifle::StaticClass());
 	//BP에서 직접 할당
 
-	if (InitGun)
-	{
-		UGunBase* NewGun = NewObject<UGunBase>(this, InitGun);
-		NewGun->InitializeItem(InitGun->GetDefaultObject<UGunBase>());
-		EquippedGun = NewGun;
-	}
-=======
 	UGunBase* NewGun = NewObject<UGunBase>(this, AssaultRifle);
 	NewGun->InitializeItem(AssaultRifle->GetDefaultObject<UGunBase>());
 	EquippedGun = NewGun;
->>>>>>> Stashed changes
 
 	// 로켓런처 테스트
 	/*UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
