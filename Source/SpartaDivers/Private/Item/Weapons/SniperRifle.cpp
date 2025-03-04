@@ -29,7 +29,7 @@ void USniperRifle::Fire()
 	Super::Fire();
 	if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
 	{
-		MyGameInstance->SniperBulletCount;
+		MyGameInstance->SniperBulletCount++;
 	}
 	Damage = FMath::RandRange(150.0f, 300.0f);
 	PerformHitScanWithPenetration();
