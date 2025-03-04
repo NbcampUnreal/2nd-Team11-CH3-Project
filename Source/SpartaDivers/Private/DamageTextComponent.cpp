@@ -57,15 +57,15 @@ void UDamageTextComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 }
 
 
-void UDamageTextComponent::ShowDamageText(float Damage, FVector HitLocation)
+void UDamageTextComponent::ShowDamageText(float Damage, FVector HitLocation, FLinearColor TextColor)
 {
-	if (!DamageTextWidgetComponent) return;
+	if (!DamageTextWidgetComponent || !DamageTextWidgetComponent->GetWidget())
+	{
+		return;
+	}
 
 	// 위치 설정 (HitLocation을 기준으로 약간의 높이를 추가)
 	DamageTextWidgetComponent->SetWorldLocation(HitLocation + FVector(-100, 0, 80));  // Z 값으로 텍스트 높이 조정
-
-	// 위젯을 표시
-	DamageTextWidgetComponent->SetVisibility(true);
 
 	// DamageText 찾기
 	if (UTextBlock* DamageText = Cast<UTextBlock>(DamageTextWidgetComponent->GetWidget()->GetWidgetFromName("DamageText")))
@@ -73,8 +73,17 @@ void UDamageTextComponent::ShowDamageText(float Damage, FVector HitLocation)
 		if (Damage <= 0.0f)
 		{
 			HideDamageText();
+			return;
 		}
 		DamageText->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Damage)));
+
+		// RGBA 색상 변경 (TextColor를 사용)
+		DamageText->SetColorAndOpacity(FSlateColor(TextColor));
+	}
+
+	if (DamageTextWidgetComponent)
+	{
+		DamageTextWidgetComponent->SetVisibility(true);
 	}
 
 	// 일정 시간 후 위젯을 숨기기
@@ -84,6 +93,8 @@ void UDamageTextComponent::ShowDamageText(float Damage, FVector HitLocation)
 		1.0f,  // 1초 후 위젯 숨기기
 		false);
 }
+
+
 
 void UDamageTextComponent::HideDamageText()
 {

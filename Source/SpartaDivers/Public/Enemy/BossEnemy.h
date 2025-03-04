@@ -14,6 +14,8 @@ class SPARTADIVERS_API ABossEnemy : public ASDEnemyBase
 public:
 	ABossEnemy();
 
+	virtual void BeginPlay() override;
+
 	virtual void Attack(int32 SkillIndex) override;
 
 	int32 CurCombo = 0;
