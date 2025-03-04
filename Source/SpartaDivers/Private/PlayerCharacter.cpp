@@ -35,8 +35,12 @@ APlayerCharacter::APlayerCharacter()
 	SprintSpeedMultiplier = 1.5f;
 	SprintSpeed = MoveSpeed * SprintSpeedMultiplier;
 
-	StatusContainerComponent->SetMaxHealth(100);
+	StatusContainerComponent->SetMaxHealth(200);
 	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
+
+	StatusContainerComponent->SetMaxArmor(100);
+	StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetMaxArmor());
+	RestoreArmorAmount = 5.0f;
 
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 
@@ -101,6 +105,13 @@ void APlayerCharacter::BeginPlay()
 	}*/
 
 	this->Tags.Add(TEXT("Player"));
+	GetWorld()->GetTimerManager().SetTimer(
+		ArmorRestoreTimer,
+		this,
+		&APlayerCharacter::RestoreArmor,
+		5.0f,
+		true
+		);
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -308,7 +319,7 @@ void APlayerCharacter::Look(const FInputActionValue& value)
 
 void APlayerCharacter::StartSprint(const FInputActionValue& value)
 {
-	if (GetCharacterMovement() && !bIsReloading) 
+	if (GetCharacterMovement() && !bIsReloading)
 	{
 		bIsSprinting = true; // 스프린트 상태 시작
 	}
@@ -339,7 +350,12 @@ void APlayerCharacter::Reload(const FInputActionValue& value)
 	if (EquippedGun && bIsReloading == false)
 	{
 		bIsReloading = true;
-		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &APlayerCharacter::FinishReload, EquippedGun->ReloadTime, false);
+		GetWorld()->GetTimerManager().SetTimer(
+			ReloadTimerHandle,
+			this,
+			&APlayerCharacter::FinishReload,
+			EquippedGun->ReloadTime,
+			false);
 
 		GetMesh()->GetAnimInstance()->Montage_Play(ReloadMontage);
 	}
@@ -423,7 +439,7 @@ float APlayerCharacter::TakeDamage(
 	float DamageAmount,
 	FDamageEvent const& DamageEvent,
 	AController* EventInstigator,
-	AActor* DamageCauser) 
+	AActor* DamageCauser)
 {
 	const float ActualDamage = Super::TakeDamage(
 		DamageAmount,
@@ -468,10 +484,18 @@ void APlayerCharacter::SetSubGun(UGunBase* InGun)
 {
 	SubGun = InGun;
 }
-  
+
 UStatusContainerComponent* APlayerCharacter::GetStatusContainerComponent() const
 {
 	return StatusContainerComponent;
+}
+
+void APlayerCharacter::RestoreArmor()
+{
+	if (StatusContainerComponent->GetCurArmor() > 0)
+	{
+		StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetCurArmor() + RestoreArmorAmount);
+	}
 }
 
 void APlayerCharacter::OnDeath()
@@ -483,7 +507,7 @@ void APlayerCharacter::OnDeath()
 	if (MyGameState)
 	{
 		GetWorld()->GetTimerManager().SetTimer(
-			GameOverTimerHandle, 
+			GameOverTimerHandle,
 			MyGameState,
 			&AMyGameState::OnGameOver,
 			2.0f,

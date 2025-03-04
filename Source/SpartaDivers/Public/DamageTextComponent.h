@@ -15,6 +15,10 @@ public:
 	UDamageTextComponent();
 
 	virtual void BeginPlay() override;
+	virtual void TickComponent(
+		float DeltaTime,
+		ELevelTick TickType,
+		FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|DamageText")
 	TSubclassOf<UUserWidget> DamageTextWidgetClass;

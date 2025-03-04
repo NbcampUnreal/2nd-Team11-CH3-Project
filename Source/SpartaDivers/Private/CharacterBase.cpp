@@ -35,8 +35,16 @@ float ACharacterBase::TakeDamage(
 		bIsDeadByHeadshot = Gun->bHitHead;
 	}
 
-	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
-	GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+	if (StatusContainerComponent->GetCurArmor() <= 0)
+	{
+		StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
+		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+	}
+	else
+	{
+		StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetCurArmor() - ActualDamage);
+
+	}
 	if (StatusContainerComponent->GetCurHealth() <= 0)
 	{
 		if (bIsDeadByHeadshot)
@@ -45,7 +53,7 @@ float ACharacterBase::TakeDamage(
 		}
 		OnDeath();
 	}
-	
+
 	return ActualDamage;
 }
 
