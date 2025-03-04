@@ -10,8 +10,9 @@ UCLASS()
 class SPARTADIVERS_API AMyGameState : public AGameStateBase
 {
 	GENERATED_BODY()
-	
+
 public:
+	
 	AMyGameState();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Score")
@@ -22,18 +23,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Score")
 	void AddScore(int32 Amount);
 
+	FTimerHandle HUDUpdateTimerHandle;
+
 	TArray<AActor*> FoundMissionManagers;
 	
 	UFUNCTION(BlueprintCallable, Category = "Level")
 	void StartGame();
-	
 	UFUNCTION(BlueprintCallable, Category = "Level")
 	void OnGameOver();
-
 	UFUNCTION(BlueprintCallable)
 	void UpdateHUD();
+	UFUNCTION(BlueprintCallable)
+	void UpdateCrossHair();
 
 protected:
-	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 };

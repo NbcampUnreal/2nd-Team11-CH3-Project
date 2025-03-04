@@ -30,6 +30,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateInventorySlot();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateMainMenu();
+
 private:
 	TWeakObjectPtr<APlayerCharacter> OwnerCharacter;
 };

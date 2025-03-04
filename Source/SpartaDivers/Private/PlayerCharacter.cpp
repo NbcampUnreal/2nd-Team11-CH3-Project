@@ -11,6 +11,7 @@
 #include "Components/InventoryComponent.h"
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
+#include "Item/Weapons/SniperRifle.h"
 #include "Item/Weapons/RocketLauncher.h"
 #include "Blueprint/UserWidget.h"
 #include "MissionStartTrigger.h"
@@ -19,7 +20,7 @@
 
 APlayerCharacter::APlayerCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComp->SetupAttachment(RootComponent);
@@ -34,13 +35,34 @@ APlayerCharacter::APlayerCharacter()
 	SprintSpeedMultiplier = 1.5f;
 	SprintSpeed = MoveSpeed * SprintSpeedMultiplier;
 
-	PlayerStatus = CreateDefaultSubobject<UStatusContainerComponent>(TEXT("PlayerStatus"));
-	PlayerStatus->SetMaxHealth(100.0f);
-	PlayerStatus->SetCurHealth(PlayerStatus->GetMaxHealth());
+	StatusContainerComponent->SetMaxHealth(200);
+	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
+
+	StatusContainerComponent->SetMaxArmor(100);
+	StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetMaxArmor());
+	RestoreArmorAmount = 5.0f;
 
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+}
+
+void APlayerCharacter::SetConsumable(UConsumableBase* InItem, int32 InSlotNum)
+{
+	switch (InSlotNum)
+	{
+	case 0:
+		FirstConsumable = InItem;
+		break;
+	case 1:
+		SecondConsumable = InItem;
+		break;
+	case 2:
+		ThirdConsumable = InItem;
+		break;
+	default:
+		break;
+	}
 }
 
 void APlayerCharacter::BeginPlay()
@@ -59,8 +81,20 @@ void APlayerCharacter::BeginPlay()
 	//	EquippedGun->Ammo = 30;
 	//}
 
+	// AssaultRifle 테스트 (기본 착용)
 	//EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
-	UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
+	//SubGun = NewObject<USniperRifle>(this, USniperRifle::StaticClass());
+	//BP에서 직접 할당
+
+	if (InitGun)
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, InitGun);
+		NewGun->InitializeItem(InitGun->GetDefaultObject<UGunBase>());
+		EquippedGun = NewGun;
+	}
+
+	// 로켓런처 테스트
+	/*UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
 	if (RocketLauncherBPClass)
 	{
 		EquippedGun = NewObject<URocketLauncher>(this, RocketLauncherBPClass);
@@ -68,15 +102,36 @@ void APlayerCharacter::BeginPlay()
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to load BP_RocketLauncher!"));
-	}
+	}*/
 
 	this->Tags.Add(TEXT("Player"));
+	GetWorld()->GetTimerManager().SetTimer(
+		ArmorRestoreTimer,
+		this,
+		&APlayerCharacter::RestoreArmor,
+		5.0f,
+		true
+		);
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bIsSprinting)
+	{
+		// SprintSpeed로 서서히 증가
+		float TargetSpeed = SprintSpeed;
+		float InterpSpeed = FMath::FInterpTo(GetCharacterMovement()->MaxWalkSpeed, TargetSpeed, DeltaTime, 8.0f); // 8.0f는 보간 속도
+		GetCharacterMovement()->MaxWalkSpeed = InterpSpeed;
+	}
+	else
+	{
+		// MoveSpeed로 서서히 감소
+		float TargetSpeed = MoveSpeed;
+		float InterpSpeed = FMath::FInterpTo(GetCharacterMovement()->MaxWalkSpeed, TargetSpeed, DeltaTime, 8.0f); // 8.0f는 보간 속도
+		GetCharacterMovement()->MaxWalkSpeed = InterpSpeed;
+	}
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -239,6 +294,11 @@ void APlayerCharacter::StartJump(const FInputActionValue& value)
 	if (value.Get<bool>())
 	{
 		Jump();
+		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+		if (MyGameState)
+		{
+			MyGameState->UpdateCrossHair();
+		}
 	}
 }
 
@@ -259,23 +319,25 @@ void APlayerCharacter::Look(const FInputActionValue& value)
 
 void APlayerCharacter::StartSprint(const FInputActionValue& value)
 {
-	if (GetCharacterMovement() && bIsReloading == false)
+	if (GetCharacterMovement() && !bIsReloading)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+		bIsSprinting = true; // 스프린트 상태 시작
 	}
 }
 
-void APlayerCharacter::StopSprint(const FInputActionValue& value)
+void APlayerCharacter::StopSprint()
 {
 	if (GetCharacterMovement())
 	{
-		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+		bIsSprinting = false; // 스프린트 상태 종료
 	}
 }
 
 void APlayerCharacter::Fire(const FInputActionValue& value)
 {
-	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0)
+	if (bIsSprinting) StopSprint();
+
+	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0 && EquippedGun->bCanFire)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 		EquippedGun->Fire();
@@ -288,7 +350,12 @@ void APlayerCharacter::Reload(const FInputActionValue& value)
 	if (EquippedGun && bIsReloading == false)
 	{
 		bIsReloading = true;
-		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &APlayerCharacter::FinishReload, EquippedGun->ReloadTime, false);
+		GetWorld()->GetTimerManager().SetTimer(
+			ReloadTimerHandle,
+			this,
+			&APlayerCharacter::FinishReload,
+			EquippedGun->ReloadTime,
+			false);
 
 		GetMesh()->GetAnimInstance()->Montage_Play(ReloadMontage);
 	}
@@ -297,6 +364,12 @@ void APlayerCharacter::Reload(const FInputActionValue& value)
 void APlayerCharacter::FinishReload()
 {
 	EquippedGun->Reload();
+
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		MyGameState->UpdateCrossHair();
+	}
 
 	bIsReloading = false;
 }
@@ -310,24 +383,52 @@ void APlayerCharacter::OpenIventory(const FInputActionValue& value)
 
 void APlayerCharacter::SwapGun(const FInputActionValue& value)
 {
-	UGunBase* temp = EquippedGun;
-	EquippedGun = SubGun;
-	SubGun = EquippedGun;
+	if (bIsReloading == false)
+	{
+		UGunBase* TempGun = EquippedGun;
+		EquippedGun = SubGun;
+		SubGun = TempGun;
+
+		if (EquippedGun)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Equipped Gun: %s"), *EquippedGun->GetName());
+		}
+		if (SubGun)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Sub Gun: %s"), *SubGun->GetName());
+		}
+
+		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+		if (MyGameState)
+		{
+			MyGameState->UpdateCrossHair();
+		}
+	}
 }
+
 void APlayerCharacter::UseOne(const FInputActionValue& value)
 {
-	if (InventoryComponent->GetConsumableInventory().Num() > 0)
+	if (FirstConsumable)
 	{
-		InventoryComponent->GetConsumableInventory()[0]->ApplyConsumableEffect(this);
+		FirstConsumable->ApplyConsumableEffect(this);
+		FirstConsumable = nullptr;
 	}
 }
 void APlayerCharacter::UseTwo(const FInputActionValue& value)
 {
-
+	if (SecondConsumable)
+	{
+		SecondConsumable->ApplyConsumableEffect(this);
+		SecondConsumable = nullptr;
+	}
 }
 void APlayerCharacter::UseThree(const FInputActionValue& value)
 {
-
+	if (ThirdConsumable)
+	{
+		ThirdConsumable->ApplyConsumableEffect(this);
+		ThirdConsumable = nullptr;
+	}
 }
 void APlayerCharacter::UseFour(const FInputActionValue& value)
 {
@@ -340,13 +441,13 @@ float APlayerCharacter::TakeDamage(
 	AController* EventInstigator,
 	AActor* DamageCauser)
 {
-	float ActualDamage = Super::TakeDamage(
+	const float ActualDamage = Super::TakeDamage(
 		DamageAmount,
 		DamageEvent,
 		EventInstigator,
 		DamageCauser);
-	UE_LOG(LogTemp, Warning, TEXT("Player Damaged : %f"), ActualDamage);
-	return DamageAmount;
+
+	return ActualDamage;
 }
 
 void APlayerCharacter::Interact(const FInputActionValue& value)
@@ -365,8 +466,53 @@ UGunBase* APlayerCharacter::GetEquippedGun()
 	}
 	return nullptr;
 }
+UGunBase* APlayerCharacter::GetSubGun()
+{
+	if (SubGun)
+	{
+		return SubGun;
+	}
+	return nullptr;
+}
+
+void APlayerCharacter::SetEquippedGun(UGunBase* InGun)
+{
+	EquippedGun = InGun;
+}
+
+void APlayerCharacter::SetSubGun(UGunBase* InGun)
+{
+	SubGun = InGun;
+}
 
 UStatusContainerComponent* APlayerCharacter::GetStatusContainerComponent() const
 {
-	return PlayerStatus;
+	return StatusContainerComponent;
 }
+
+void APlayerCharacter::RestoreArmor()
+{
+	if (StatusContainerComponent->GetCurArmor() > 0)
+	{
+		StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetCurArmor() + RestoreArmorAmount);
+	}
+}
+
+void APlayerCharacter::OnDeath()
+{
+	Super::OnDeath();
+
+	// Handling GameOver After a Delay
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			GameOverTimerHandle,
+			MyGameState,
+			&AMyGameState::OnGameOver,
+			2.0f,
+			false);
+	}
+}
+
+

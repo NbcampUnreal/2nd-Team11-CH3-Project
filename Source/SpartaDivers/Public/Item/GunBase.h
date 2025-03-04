@@ -7,6 +7,7 @@
 #include "GunBase.generated.h"
 
 class APlayerCharacter;
+class UAttachmentBase;
 
 UCLASS()
 class SPARTADIVERS_API UGunBase : public UItemBase
@@ -20,6 +21,7 @@ public:
 
 	APlayerCharacter* PlayerCharacter;
 	FTimerHandle FireCooldownTimer;
+	bool bHitHead;
 	bool bCanFire;
 	bool bOnInfiniteBullet;
 
@@ -42,6 +44,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun|Stats")
 	float ReloadTime;
 
+	UPROPERTY()
+	UAttachmentBase* FirstAttachment;
+	UPROPERTY()
+	UAttachmentBase* SecondAttachment;
+	UPROPERTY()
+	UAttachmentBase* ThirdAttachment;
 
 	UFUNCTION(BlueprintCallable,Category = "Gun|Actions")
 	virtual void Fire();
@@ -55,6 +63,8 @@ public:
 	FVector GetCameraLocation() const;
 	FRotator GetCameraRotation() const;
 	float GetSpringArmLength() const;
+
+	void SetAttachment(int32 InAttachmentIndex, UAttachmentBase* InNewAttachment);
 
 protected:
 	virtual FVector GetFireStartLocation() const;

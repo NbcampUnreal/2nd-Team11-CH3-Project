@@ -1,8 +1,18 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Enemy/MeleeMinion.h"
 #include "PlayerCharacter.h"
+#include "Components/StatusContainerComponent.h"
+#include "Kismet/GameplayStatics.h"
+
+AMeleeMinion::AMeleeMinion()
+{
+	EnemyType = "Melee Minion";
+	Damage = FMath::RandRange(10.0f, 30.0f);
+	KillScore = Damage * 3 + StatusContainerComponent->GetMaxHealth();
+	StatusContainerComponent->SetMaxHealth(FMath::RandRange(150.0f, 300.0f));
+	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
+}
 
 void AMeleeMinion::Attack(int32 SkillIndex)
 {
@@ -21,26 +31,40 @@ void AMeleeMinion::Attack(int32 SkillIndex)
 
 void AMeleeMinion::ApplyAttackEffect(int32 EffectIndex)
 {
-    TArray<FHitResult> OutHits;
-    FVector Start = GetActorLocation();
-    FCollisionQueryParams CollisionParams(NAME_Name, false, this);
-    FCollisionObjectQueryParams ColisionObjectParams(ECollisionChannel::ECC_Visibility);
+	TArray<FHitResult> OutHits;
+	FVector Start = GetActorLocation();
+	FVector End = Start;
 
-    bool OnHit = GetWorld()->SweepMultiByChannel(OutHits, Start, Start, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(AttackRange), CollisionParams);
-    if (OnHit == false) return;
+	FCollisionQueryParams CollisionParams(NAME_None, false, this);
+	FCollisionObjectQueryParams CollisionObjectParams(ECollisionChannel::ECC_Pawn);
+
+	bool OnHit = GetWorld()->SweepMultiByChannel(
+		OutHits,
+		Start,
+		End,
+		FQuat::Identity,
+		ECC_Pawn,
+		FCollisionShape::MakeSphere(AttackRange),
+		CollisionParams
+	);
+
+	if (!OnHit) return;
 
 	for (const FHitResult& OutHit : OutHits)
 	{
-		APlayerCharacter* Player = Cast<APlayerCharacter>(OutHit.GetActor());
-		if (Player == nullptr) continue;
+		AActor* HitActor = OutHit.GetActor();
 
-        UGameplayStatics::ApplyDamage(
-            Player,
-            Damage,
-            GetController(),
-            this,
-            UDamageType::StaticClass());
+		if (HitActor && HitActor->ActorHasTag("Player"))
+		{
+			UGameplayStatics::ApplyDamage(
+				HitActor,
+				Damage,
+				GetController(),
+				this,
+				UDamageType::StaticClass()
+			);
+		}
 	}
 
-	//DrawDebugSphere(GetWorld(), GetActorLocation(), AttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
+	//DrawDebugSphere(GetWorld(), Start, AttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
 }

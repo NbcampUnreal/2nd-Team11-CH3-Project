@@ -4,6 +4,8 @@
 #include "MyGameState.h"
 #include "PlayerCharacter.h"
 #include "MyPlayerController.h"
+#include "KillLogWidget.h"
+#include "SDLogManager.h"
 
 AMyGameMode::AMyGameMode()
 {
