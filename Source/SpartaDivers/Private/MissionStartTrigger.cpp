@@ -3,6 +3,7 @@
 #include "MissionStartTrigger.h"
 #include "MissionManager.h"
 #include "PlayerCharacter.h"
+#include "MyPlayerController.h"
 #include "Components/BoxComponent.h"
 #include "Blueprint/UserWidget.h"
 
@@ -52,6 +53,7 @@ void AMissionStartTrigger::DeactivateTrigger()
 
 void AMissionStartTrigger::OnInteracted()
 {
+	UE_LOG(LogTemp, Error, TEXT("OnInteracted is called!"));
 	if (bIsActive && MissionManager)
 	{
 		GetWorld()->GetTimerManager().SetTimer(
@@ -61,7 +63,24 @@ void AMissionStartTrigger::OnInteracted()
 			0.5f,
 			false);
 
+
+		if (MissionManager->CurrentMissionData.MissionType == EMissionType::Eliminate)
+		{
+			if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+			{
+				if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn()))
+				{
+					FVector CaptureLocation = FVector(54110, -52200, -0);
+					bool bSuccess = PlayerCharacter->SetActorLocation(CaptureLocation, false); 
+				}
+			}
+		}
+
 		OnInteracted_BP();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("OnInteracted Not callef!"));
 	}
 }
 

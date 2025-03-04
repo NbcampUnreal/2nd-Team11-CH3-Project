@@ -27,7 +27,7 @@ public:
 
 	FTimerHandle DamageFadeTimerHandle;
 
-	void ShowDamageText(float Damage, FVector HitLocation);
+	void ShowDamageText(float Damage, FVector HitLocation, FLinearColor TextColor);
 
 private:
 	void HideDamageText();

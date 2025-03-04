@@ -35,7 +35,7 @@ void URocketLauncher::Fire()
     {
         if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
         {
-            MyGameInstance->RocketBulletCount;
+            MyGameInstance->RocketBulletCount++;
         }
         Damage = FMath::RandRange(200.0f, 500.0f);
         LaunchProjectile();

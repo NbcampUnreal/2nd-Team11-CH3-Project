@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "SD_SpawnVolume.h"
+#include "Enemy/BossEnemy.h"
 #include "Components/BoxComponent.h"
 #include "MissionManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -80,6 +81,18 @@ void ASD_SpawnVolume::SetCurrentSpawnDataTable(UDataTable* SetSpawnDataTable)
 
 AActor* ASD_SpawnVolume::SpawnRandomEnemy(int32 MissionIndex)
 {
+	static bool bBossSpawned = false;
+
+	if (!bBossSpawned && MissionIndex == 3)
+	{
+		AActor* Boss = SpawnBoss();
+		if (Boss)
+		{
+			bBossSpawned = true;
+			return Boss; // 보스만 스폰하고 종료
+		}
+	}
+
 	if (FEnemySpawnRow* SelectedRow = GetRandomEnemy())
 	{
 		if (UClass* ActualClass = SelectedRow->EnemyClass.Get())
@@ -89,6 +102,33 @@ AActor* ASD_SpawnVolume::SpawnRandomEnemy(int32 MissionIndex)
 	}
 
 	return nullptr;
+}
+
+
+AActor* ASD_SpawnVolume::SpawnBoss()
+{
+	BossEnemyClass = LoadClass<AActor>(nullptr, TEXT("/Game/_Blueprint/Enemy/Boss/BP_Boss.BP_Boss_C"));
+	if (!BossEnemyClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to load BossEnemyClass!"));
+		return nullptr;
+	}
+
+	FVector BossSpawnLocation = GetActorLocation(); // 스폰 볼륨의 위치에 스폰
+	FRotator BossSpawnRotation = FRotator::ZeroRotator;
+
+	AActor* SpawnedBoss = GetWorld()->SpawnActor<AActor>(BossEnemyClass, BossSpawnLocation, BossSpawnRotation);
+	if (SpawnedBoss)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spawned Boss at %s"), *BossSpawnLocation.ToString());
+		SpawnedBoss->Tags.Add("Boss");
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to spawn Boss!"));
+	}
+
+	return SpawnedBoss;
 }
 
 AActor* ASD_SpawnVolume::SpawnEnemy(TSubclassOf<AActor> EnemyClass, int32 MissionIndex)

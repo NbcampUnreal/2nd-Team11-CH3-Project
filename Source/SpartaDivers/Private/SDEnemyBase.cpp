@@ -75,7 +75,6 @@ float ASDEnemyBase::TakeDamage(
 	AActor* DamageCauser)
 {
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	UE_LOG(LogTemp, Warning, TEXT("DamageEvent TypeID: %d"), DamageEvent.GetTypeID());
 	FVector HitLocation = GetActorLocation();
 
 	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
@@ -87,12 +86,25 @@ float ASDEnemyBase::TakeDamage(
 		}
 	}
 
+	// DamageTextComp가 유효하다면 텍스트 표시
 	if (DamageTextComp)
 	{
-		DamageTextComp->ShowDamageText(ActualDamage, HitLocation);
+		// 헤드샷이면 빨간색으로 설정
+		if (bHeadshot)
+		{
+			FLinearColor HeadshotColor = FLinearColor(1.0f, 0.0f, 0.0f, 1.0f);  // 빨간색
+			DamageTextComp->ShowDamageText(ActualDamage, HitLocation, HeadshotColor);
+		}
+		else
+		{
+			FLinearColor BodyshotColor = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);  // 하얀색
+			DamageTextComp->ShowDamageText(ActualDamage, HitLocation, BodyshotColor);
+		}
 	}
+
 	return ActualDamage;
 }
+
 
 void ASDEnemyBase::Attack(int32 SkillIndex)
 {
@@ -120,8 +132,14 @@ void ASDEnemyBase::OnDeath()
 	if (MissionManager && MissionManager->CurrentMissionData.MissionType == EMissionType::Eliminate)
 	{
 		MissionManager->KilledEnemyCount++;
-		UE_LOG(LogTemp, Warning, TEXT("KilledEnemyCount : %d"), MissionManager->KilledEnemyCount);
 		MissionManager->CheckMissionCompletion();
+	}
+	else if (MissionManager && MissionManager->CurrentMissionData.MissionType == EMissionType::BossCombat)
+	{
+		if (this->ActorHasTag("Boss"))
+		{
+			MissionManager->CheckMissionCompletion();
+		}
 	}
 
 	AAIController* AIController = Cast<AAIController>(GetController());
@@ -142,19 +160,19 @@ void ASDEnemyBase::UpdateGameData()
 			{
 				if (PlayerCharacter->GetEquippedGun()->GetItemName() == FName(TEXT("AssaultRifle")))
 				{
-					MyGameInstance->AssaultKillCount;
+					MyGameInstance->AssaultKillCount++;
 				}
 				else if (PlayerCharacter->GetEquippedGun()->GetItemName() == FName(TEXT("Shotgun")))
 				{
-					MyGameInstance->ShotgunKillCount;
+					MyGameInstance->ShotgunKillCount++;
 				}
 				else if (PlayerCharacter->GetEquippedGun()->GetItemName() == FName(TEXT("SniperRifle")))
 				{
-					MyGameInstance->SniperKillCount;
+					MyGameInstance->SniperKillCount++;
 				}
 				else if (PlayerCharacter->GetEquippedGun()->GetItemName() == FName(TEXT("RocketLauncher")))
 				{
-					MyGameInstance->RocketKillCount;
+					MyGameInstance->RocketKillCount++;
 				}
 			}
 		}
@@ -173,7 +191,7 @@ void ASDEnemyBase::AddToLogManager()
 			{
 				WeaponName = PlayerCharacter->GetEquippedGun()->GetItemName().ToString();
 			}
-			bool bHeadshot = PlayerCharacter->GetEquippedGun() && PlayerCharacter->GetEquippedGun()->bHitHead;
+			bHeadshot = PlayerCharacter->GetEquippedGun() && PlayerCharacter->GetEquippedGun()->bHitHead;
 
 			if (USDLogManager* LogManager = USDLogManager::Get())
 			{

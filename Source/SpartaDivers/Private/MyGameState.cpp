@@ -18,6 +18,7 @@ AMyGameState::AMyGameState()
 	PrimaryActorTick.bCanEverTick = false;
 
 	Score = 0;
+	PlayTime = 0.0f;
 }
 
 int32 AMyGameState::GetScore() const
@@ -39,6 +40,15 @@ void AMyGameState::AddScore(int32 Amount)
 
 void AMyGameState::StartGame()
 {
+	// 타이머 시작
+	GetWorldTimerManager().SetTimer(
+		PlayTimeTimerHandle,
+		this,
+		&AMyGameState::UpdatePlayTime,
+		1.0f,
+		true
+	);
+
 	AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));
 	if (MissionManager)
 	{
@@ -54,8 +64,19 @@ void AMyGameState::StartGame()
 	}
 }
 
+void AMyGameState::UpdatePlayTime()
+{
+	PlayTime += 1.0f;
+}
+
 void AMyGameState::OnGameOver()
 {
+	//GetWorldTimerManager().ClearTimer(PlayTimeTimerHandle);
+	int32 Minutes = FMath::FloorToInt(PlayTime / 60);
+	int32 Seconds = FMath::FloorToInt(PlayTime) % 60;
+
+	PlayTimeStr = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 	{
 		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
