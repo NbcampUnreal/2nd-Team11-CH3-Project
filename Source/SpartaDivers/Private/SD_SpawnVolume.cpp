@@ -81,18 +81,6 @@ void ASD_SpawnVolume::SetCurrentSpawnDataTable(UDataTable* SetSpawnDataTable)
 
 AActor* ASD_SpawnVolume::SpawnRandomEnemy(int32 MissionIndex)
 {
-	static bool bBossSpawned = false;
-
-	if (!bBossSpawned && MissionIndex == 3)
-	{
-		AActor* Boss = SpawnBoss();
-		if (Boss)
-		{
-			bBossSpawned = true;
-			return Boss; // 보스만 스폰하고 종료
-		}
-	}
-
 	if (FEnemySpawnRow* SelectedRow = GetRandomEnemy())
 	{
 		if (UClass* ActualClass = SelectedRow->EnemyClass.Get())

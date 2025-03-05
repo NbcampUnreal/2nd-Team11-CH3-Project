@@ -76,29 +76,28 @@ void APlayerCharacter::GetGunItem(FName GunName)
 		NewGun->InitializeItem(AssaultRifle->GetDefaultObject<UGunBase>());
 		InventoryComponent->AddItem(NewGun);
 	}
-
-	if (GunName == FName("SniperRifle"))
+	else if (GunName == FName("SniperRifle"))
 	{
 		UGunBase* NewGun = NewObject<UGunBase>(this, SniperRifle);
 		NewGun->InitializeItem(SniperRifle->GetDefaultObject<UGunBase>());
 		InventoryComponent->AddItem(NewGun);
 	}
-
-	if (GunName == FName("Shotgun"))
+	else if (GunName == FName("Shotgun"))
 	{
 		UGunBase* NewGun = NewObject<UGunBase>(this, Shotgun);
 		NewGun->InitializeItem(Shotgun->GetDefaultObject<UGunBase>());
 		InventoryComponent->AddItem(NewGun);
 	}
-
-	if (GunName == FName("RocketLauncher"))
+	else if (GunName == FName("RocketLauncher"))
 	{
 		UGunBase* NewGun = NewObject<UGunBase>(this, RocketLauncher);
 		NewGun->InitializeItem(RocketLauncher->GetDefaultObject<UGunBase>());
 		InventoryComponent->AddItem(NewGun);
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("WRONG GUN NAME"));
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WRONG GUN NAME"));
+	}
 }
 
 void APlayerCharacter::BeginPlay()
@@ -431,21 +430,13 @@ void APlayerCharacter::SwapGun(const FInputActionValue& value)
 			UGunBase* TempGun = EquippedGun;
 			EquippedGun = SubGun;
 			SubGun = TempGun;
-		}
 
-		if (EquippedGun)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Equipped Gun: %s"), *EquippedGun->GetName());
-		}
-		if (SubGun)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Sub Gun: %s"), *SubGun->GetName());
-		}
-
-		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-		if (MyGameState)
-		{
-			MyGameState->UpdateCrossHair();
+			AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+			if (MyGameState)
+			{
+				MyGameState->UpdateCrossHair();
+				MyGameState->SwapUIAnim();
+			}
 		}
 	}
 }
