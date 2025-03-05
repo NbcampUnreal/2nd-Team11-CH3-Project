@@ -198,7 +198,7 @@ void AMissionManager::OnObjectEndOverlap(
 
 	for (AActor* Actor : OverlappingActors)
 	{
-		if (OtherActor && OtherActor->ActorHasTag("Player") && !bIsPlayerInCaptureZone)
+		if (OtherActor && OtherActor->ActorHasTag("Player") && bIsPlayerInCaptureZone)
 		{
 			if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor))
 			{
