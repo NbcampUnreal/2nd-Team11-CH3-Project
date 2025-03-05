@@ -77,6 +77,9 @@ protected:
 	bool bIsSprinting = false;
 	FTimerHandle FireTimerHandle;
 
+	UPROPERTY(EditDefaultsOnly)
+	UParticleSystem* MuzzleFlash;
+
 
 
 public:	
