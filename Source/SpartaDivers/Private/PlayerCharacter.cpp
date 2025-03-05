@@ -67,14 +67,47 @@ void APlayerCharacter::SetConsumable(UConsumableBase* InItem, int32 InSlotNum)
 	}
 }
 
+void APlayerCharacter::GetGunItem(FName GunName)
+{
+	if (GunName == FName("AssaultRifle"))
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, AssaultRifle);
+		NewGun->InitializeItem(AssaultRifle->GetDefaultObject<UGunBase>());
+		InventoryComponent->AddItem(NewGun);
+	}
+
+	if (GunName == FName("SniperRifle"))
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, SniperRifle);
+		NewGun->InitializeItem(SniperRifle->GetDefaultObject<UGunBase>());
+		InventoryComponent->AddItem(NewGun);
+	}
+
+	if (GunName == FName("Shotgun"))
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, Shotgun);
+		NewGun->InitializeItem(Shotgun->GetDefaultObject<UGunBase>());
+		InventoryComponent->AddItem(NewGun);
+	}
+
+	if (GunName == FName("RocketLauncher"))
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, RocketLauncher);
+		NewGun->InitializeItem(RocketLauncher->GetDefaultObject<UGunBase>());
+		InventoryComponent->AddItem(NewGun);
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("WRONG GUN NAME"));
+}
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (InitGun)
+	if (AssaultRifle)
 	{
-		UGunBase* NewGun = NewObject<UGunBase>(this, InitGun);
-		NewGun->InitializeItem(InitGun->GetDefaultObject<UGunBase>());
+		UGunBase* NewGun = NewObject<UGunBase>(this, AssaultRifle);
+		NewGun->InitializeItem(AssaultRifle->GetDefaultObject<UGunBase>());
 		EquippedGun = NewGun;
 	}
 
