@@ -16,7 +16,7 @@ void UBTService_FindPlayerInSight::TickNode(UBehaviorTreeComponent& OwnerComp, u
 
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
-	if (PlayerPawn && OwnerComp.GetAIOwner())
+	/*if (PlayerPawn && OwnerComp.GetAIOwner())
 	{
 		if (OwnerComp.GetAIOwner()->LineOfSightTo(PlayerPawn))
 		{
@@ -26,5 +26,9 @@ void UBTService_FindPlayerInSight::TickNode(UBehaviorTreeComponent& OwnerComp, u
 		}
 	}
 
-	OwnerComp.GetBlackboardComponent()->SetValueAsFloat(GetSelectedBlackboardKey(), 0.f);
+	OwnerComp.GetBlackboardComponent()->SetValueAsFloat(GetSelectedBlackboardKey(), 0.f);*/
+
+	float Distance = FVector::Dist2D(PlayerPawn->GetActorLocation(), OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation());
+	OwnerComp.GetBlackboardComponent()->SetValueAsFloat(GetSelectedBlackboardKey(), Distance);
+	return;
 }

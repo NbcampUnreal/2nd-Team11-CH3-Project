@@ -146,6 +146,10 @@ void AMyGameState::UpdateHUD()
 								SubWeaponImage->SetBrushFromTexture(PlayerCharacter->GetSubGun()->GetIconImage());
 							}
 						}
+						else
+						{
+							SubWeaponImage->SetVisibility(ESlateVisibility::Hidden);
+						}
 					}
 				}
 				// Mission Informations
