@@ -24,7 +24,7 @@ float ACharacterBase::TakeDamage(
 	float DamageAmount,
 	FDamageEvent const& DamageEvent,
 	AController* EventInstigator,
-	AActor* DamageCauser)
+	AActor* DamageCauser)		
 {
 	if (bIsDead) return 0.f;
 
