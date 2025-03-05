@@ -3,7 +3,7 @@
 #include "Enemy/BossEnemy.h"
 #include "PlayerCharacter.h"
 #include "Components/StatusContainerComponent.h"
-
+#include "EnemyProjectile.h"
 
 ABossEnemy::ABossEnemy()
 {
@@ -72,6 +72,10 @@ void ABossEnemy::ApplyAttackEffect(int32 EffectIndex)
 	case 2:
 		ApplySpawnMinionEffect();
 		break;
+	case 3:
+		ApplySpawnBombEffect();
+	case 4:
+		ApplyFireEffect();
 	default:
 		break;
 	}
@@ -149,5 +153,34 @@ void ABossEnemy::ApplySpawnMinionEffect()
 		FVector SpawnLocation = FVector(X, Y, GetActorLocation().Z + 200.f);
 
 		GetWorld()->SpawnActor<AActor>(SpawnEnemies[RandomInt], SpawnLocation, GetActorRotation());
+	}
+}
+
+void ABossEnemy::ApplySpawnBombEffect()
+{
+	float RandOffset = FMath::FRandRange(0.f, 45.f);
+
+	for (int i = 0; i < 8; i++)
+	{
+		float Radian = FMath::DegreesToRadians(45.f * i);
+		Radian += FMath::DegreesToRadians(RandOffset);
+		FVector Direction = FVector(FMath::Cos(Radian), FMath::Sin(Radian), 0.0f);
+		AEnemyProjectile* ProjectileInstance = GetWorld()->SpawnActor<AEnemyProjectile>(ProjectileClass, GetActorLocation() + GetActorUpVector() * 500.f + Direction * 200.f, Direction.Rotation());
+		if (ProjectileInstance)
+		{
+			ProjectileInstance->InitProjectile(FMath::FRandRange(750.f, 2000.f));
+		}
+	}
+}
+
+void ABossEnemy::ApplyFireEffect()
+{
+	FVector SocketLocation = GetMesh()->GetSocketLocation(FireSocketName);
+	FRotator SocketRotation = GetMesh()->GetSocketRotation(FireSocketName);
+	AEnemyProjectile* ProjectileInstance = GetWorld()->SpawnActor<AEnemyProjectile>(ProjectileClass, SocketLocation, SocketRotation);
+
+	if (ProjectileInstance)
+	{
+		ProjectileInstance->InitProjectile(FMath::FRandRange(2000.f, 3000.f));
 	}
 }
