@@ -193,7 +193,19 @@ void AMissionManager::OnObjectEndOverlap(
 	UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex)
 {
-	bIsPlayerInCaptureZone = false;
+	TArray<AActor*> OverlappingActors;
+	CaptureZone->GetOverlappingActors(OverlappingActors);
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (OtherActor && OtherActor->ActorHasTag("Player") && !bIsPlayerInCaptureZone)
+		{
+			if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor))
+			{
+				bIsPlayerInCaptureZone = false;
+			}
+		}
+	}
 }
 
 void AMissionManager::CheckMissionCompletion()
