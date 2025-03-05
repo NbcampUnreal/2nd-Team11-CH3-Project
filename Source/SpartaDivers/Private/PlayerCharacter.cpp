@@ -384,7 +384,7 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 
 void APlayerCharacter::Reload(const FInputActionValue& value)
 {
-	if (EquippedGun && bIsReloading && bIsRolling == false)
+	if (EquippedGun && bIsReloading == false && bIsRolling == false)
 	{
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), EquippedGun->GetReloadSound(), GetActorLocation());		
 
