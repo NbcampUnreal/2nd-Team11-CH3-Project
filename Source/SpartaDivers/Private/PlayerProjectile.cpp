@@ -9,7 +9,6 @@ APlayerProjectile::APlayerProjectile()
 {
 	ExplosionRadius = 300.0f;
 	ExplosionDelay = 2.0f;
-	ExplosionDamage = FMath::RandRange(30.0f,50.0f);
 
 	Collision->OnComponentBeginOverlap.AddDynamic(this, &APlayerProjectile::OnProjectileOverlap);
 }
@@ -60,7 +59,7 @@ void APlayerProjectile::Explode()
 
 	UGameplayStatics::ApplyRadialDamage(
 		this,
-		ExplosionDamage,
+		ExplosionDamage * FMath::FRandRange(0.9f, 1.1f),
 		GetActorLocation(),
 		ExplosionRadius,
 		UDamageType::StaticClass(),
