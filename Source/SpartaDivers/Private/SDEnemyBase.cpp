@@ -195,14 +195,7 @@ void ASDEnemyBase::AddToLogManager()
 
 			if (USDLogManager* LogManager = USDLogManager::Get())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("AddToLogManager Called"));
-
 				LogManager->AddKillLog(VictimName, WeaponName, bHeadshot);
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Failed to Get LogManagers!"));
-
 			}
 		}
 	}
@@ -228,7 +221,6 @@ void ASDEnemyBase::OnDropItem()
 		{
 			if (dropItemInfo.dropItemClass && DropItem)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Spawn"));
 				if (ADropItem* DropItemInstance = GetWorld()->SpawnActor<ADropItem>(DropItem))
 				{
 					DropItemInstance->OwningItemClass = dropItemInfo.dropItemClass;

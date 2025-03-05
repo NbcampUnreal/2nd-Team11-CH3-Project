@@ -38,6 +38,8 @@ public:
 	void UpdateHUD();
 	UFUNCTION(BlueprintCallable)
 	void UpdateCrossHair();
+	UFUNCTION(BlueprintCallable)
+	void SwapUIAnim();
 
 protected:
 	virtual void BeginPlay() override;

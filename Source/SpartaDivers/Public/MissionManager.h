@@ -68,6 +68,8 @@ public:
 	// Spawn enemies based on chance in SpawnDataTables
 	UFUNCTION(BlueprintCallable, Category = "Spawning")
 	void SpawnEnemy();
+	UFUNCTION(BlueprintCallable, Category = "Spawning")
+	void SpawnBoss();
 	// Destoy all enemies when Complete Mission
 	UFUNCTION(BlueprintCallable, Category = "Spawning")
 	void DestroyEnemiesInCurrentMission(int MissionIndex);

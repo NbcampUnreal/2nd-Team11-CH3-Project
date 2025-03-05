@@ -122,12 +122,9 @@ void AMissionStartTrigger::ShowInteractText()
 					if (bOverlapTrigger)
 					{
 						InteractText->SetVisibility(ESlateVisibility::Visible);
-					UE_LOG(LogTemp, Warning, TEXT("InteractionWidget->SetVisibility(ESlateVisibility::Visible)"));
-
 					}
 					else
 					{
-						UE_LOG(LogTemp, Warning, TEXT("InteractionWidget->SetVisibility(ESlateVisibility::Hidden)"));
 						InteractText->SetVisibility(ESlateVisibility::Hidden);
 					}
 				}
