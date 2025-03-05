@@ -6,6 +6,7 @@
 #include "Item/GunBase.h"
 #include "AssaultRifle.generated.h"
 
+
 UCLASS()
 class SPARTADIVERS_API UAssaultRifle : public UGunBase
 {

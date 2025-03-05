@@ -12,12 +12,14 @@ class SPARTADIVERS_API AMyGameState : public AGameStateBase
 	GENERATED_BODY()
 
 public:
-	
 	AMyGameState();
+
+	FTimerHandle PlayTimeTimerHandle;
+	float PlayTime;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Score")
 	int32 Score;
-
+	FString PlayTimeStr;
 	UFUNCTION(BlueprintPure, Category = "Score")
 	int32 GetScore() const;
 	UFUNCTION(BlueprintCallable, Category = "Score")
@@ -29,6 +31,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Level")
 	void StartGame();
+	void UpdatePlayTime();
 	UFUNCTION(BlueprintCallable, Category = "Level")
 	void OnGameOver();
 	UFUNCTION(BlueprintCallable)

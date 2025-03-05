@@ -11,11 +11,13 @@
 #include "Components/InventoryComponent.h"
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
+#include "Animation/AnimMontage.h"
 #include "Item/Weapons/SniperRifle.h"
 #include "Item/Weapons/RocketLauncher.h"
 #include "Blueprint/UserWidget.h"
 #include "MissionStartTrigger.h"
 #include "UI/MyHUD.h"
+#include "Kismet/GameplayStatics.h"
 #include "Item/ConsumableBase.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -65,44 +67,49 @@ void APlayerCharacter::SetConsumable(UConsumableBase* InItem, int32 InSlotNum)
 	}
 }
 
+void APlayerCharacter::GetGunItem(FName GunName)
+{
+	if (GunName == FName("AssaultRifle"))
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, AssaultRifle);
+		NewGun->InitializeItem(AssaultRifle->GetDefaultObject<UGunBase>());
+		InventoryComponent->AddItem(NewGun);
+	}
+
+	if (GunName == FName("SniperRifle"))
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, SniperRifle);
+		NewGun->InitializeItem(SniperRifle->GetDefaultObject<UGunBase>());
+		InventoryComponent->AddItem(NewGun);
+	}
+
+	if (GunName == FName("Shotgun"))
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, Shotgun);
+		NewGun->InitializeItem(Shotgun->GetDefaultObject<UGunBase>());
+		InventoryComponent->AddItem(NewGun);
+	}
+
+	if (GunName == FName("RocketLauncher"))
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, RocketLauncher);
+		NewGun->InitializeItem(RocketLauncher->GetDefaultObject<UGunBase>());
+		InventoryComponent->AddItem(NewGun);
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("WRONG GUN NAME"));
+}
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//EquippedGun = NewObject<UGunBase>(this, UGunBase::StaticClass());
-	//if (EquippedGun)
-	//{
-	//	// ÃÑ±â ÃÊ±âÈ­
-	//	EquippedGun->ItemName = FName(TEXT("PlayerGun"));
-	//	EquippedGun->ItemDescription = FText::FromString(TEXT("A powerful gun"));
-	//	EquippedGun->Damage = 50.0f;
-	//	EquippedGun->FireRate = 1.5f;
-	//	EquippedGun->MaxAmmo = 30;
-	//	EquippedGun->Ammo = 30;
-	//}
-
-	// AssaultRifle 테스트 (기본 착용)
-	//EquippedGun = NewObject<UAssaultRifle>(this, UAssaultRifle::StaticClass());
-	//SubGun = NewObject<USniperRifle>(this, USniperRifle::StaticClass());
-	//BP에서 직접 할당
-
-	if (InitGun)
+	if (AssaultRifle)
 	{
-		UGunBase* NewGun = NewObject<UGunBase>(this, InitGun);
-		NewGun->InitializeItem(InitGun->GetDefaultObject<UGunBase>());
+		UGunBase* NewGun = NewObject<UGunBase>(this, AssaultRifle);
+		NewGun->InitializeItem(AssaultRifle->GetDefaultObject<UGunBase>());
 		EquippedGun = NewGun;
 	}
-
-	// 로켓런처 테스트
-	/*UClass* RocketLauncherBPClass = LoadClass<URocketLauncher>(this, TEXT("/Game/_Blueprint/Player/BP_RocketLauncher.BP_RocketLauncher_C"));
-	if (RocketLauncherBPClass)
-	{
-		EquippedGun = NewObject<URocketLauncher>(this, RocketLauncherBPClass);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to load BP_RocketLauncher!"));
-	}*/
 
 	this->Tags.Add(TEXT("Player"));
 	GetWorld()->GetTimerManager().SetTimer(
@@ -270,13 +277,43 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					&APlayerCharacter::Interact
 				);
 			}
+			if (PlayerController->CrouchAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->CrouchAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::StartCrouch
+				);
+			}
+			if (PlayerController->CrouchAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->CrouchAction,
+					ETriggerEvent::Completed,
+					this,
+					&APlayerCharacter::StopCrouch
+				);
+			}
+			if (PlayerController->RollingAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->RollingAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::Rolling
+				);
+			}
 		}
 	}
 }
 
 void APlayerCharacter::Move(const FInputActionValue& value)
 {
-	if (!Controller) return;
+	if (bIsRolling)
+		return;
+	if (!Controller) 
+		return;
 
 	const FVector2D MoveInput = value.Get<FVector2D>();
 
@@ -291,7 +328,7 @@ void APlayerCharacter::Move(const FInputActionValue& value)
 }
 void APlayerCharacter::StartJump(const FInputActionValue& value)
 {
-	if (value.Get<bool>())
+	if (value.Get<bool>() && !bIsRolling)
 	{
 		Jump();
 		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
@@ -319,7 +356,7 @@ void APlayerCharacter::Look(const FInputActionValue& value)
 
 void APlayerCharacter::StartSprint(const FInputActionValue& value)
 {
-	if (GetCharacterMovement() && !bIsReloading)
+	if (GetCharacterMovement() && bIsReloading == false && bIsCrouch == false && !bIsRolling)
 	{
 		bIsSprinting = true; // 스프린트 상태 시작
 	}
@@ -337,7 +374,7 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 {
 	if (bIsSprinting) StopSprint();
 
-	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0 && EquippedGun->bCanFire)
+	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0 && EquippedGun->bCanFire && !bIsCrouch && !bIsRolling)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 		EquippedGun->Fire();
@@ -347,8 +384,10 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 
 void APlayerCharacter::Reload(const FInputActionValue& value)
 {
-	if (EquippedGun && bIsReloading == false)
+	if (EquippedGun && bIsReloading && bIsRolling == false)
 	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), EquippedGun->GetReloadSound(), GetActorLocation());		
+
 		bIsReloading = true;
 		GetWorld()->GetTimerManager().SetTimer(
 			ReloadTimerHandle,
@@ -385,9 +424,12 @@ void APlayerCharacter::SwapGun(const FInputActionValue& value)
 {
 	if (bIsReloading == false)
 	{
-		UGunBase* TempGun = EquippedGun;
-		EquippedGun = SubGun;
-		SubGun = TempGun;
+		if (SubGun)
+		{
+			UGunBase* TempGun = EquippedGun;
+			EquippedGun = SubGun;
+			SubGun = TempGun;
+		}
 
 		if (EquippedGun)
 		{
@@ -434,6 +476,20 @@ void APlayerCharacter::UseFour(const FInputActionValue& value)
 {
 
 }
+void APlayerCharacter::StartCrouch(const FInputActionValue& value)
+{
+	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	bIsCrouch = true;
+
+	Crouch();
+}
+void APlayerCharacter::StopCrouch(const FInputActionValue& value)
+{
+	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+	bIsCrouch = false;
+
+	UnCrouch();
+}
 
 float APlayerCharacter::TakeDamage(
 	float DamageAmount,
@@ -458,6 +514,21 @@ void APlayerCharacter::Interact(const FInputActionValue& value)
 	}
 }
 
+void APlayerCharacter::Rolling (const FInputActionValue& value)
+{
+	if (!(GetMesh()->GetAnimInstance()->Montage_IsPlaying(RollingMontage)))
+	{
+		GetMesh()->GetAnimInstance()->Montage_Play(RollingMontage);
+		Crouch();
+		bIsRolling = true;
+	}
+
+	FOnMontageEnded EndDelegate;
+	EndDelegate.BindUObject(this,&APlayerCharacter::StopRolling);
+
+	GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate, RollingMontage);
+}
+
 UGunBase* APlayerCharacter::GetEquippedGun()
 {
 	if (EquippedGun)
@@ -465,6 +536,11 @@ UGunBase* APlayerCharacter::GetEquippedGun()
 		return EquippedGun;
 	}
 	return nullptr;
+}
+void APlayerCharacter::StopRolling(UAnimMontage* Montage, bool isEnded)
+{
+	UnCrouch();
+	bIsRolling = false;
 }
 UGunBase* APlayerCharacter::GetSubGun()
 {
@@ -514,5 +590,3 @@ void APlayerCharacter::OnDeath()
 			false);
 	}
 }
-
-

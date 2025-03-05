@@ -36,13 +36,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetConsumable(UConsumableBase* InItem, int32 InSlotNum);
 
+	void GetGunItem(FName GunName);
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* EquippedGun;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* SubGun;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	TSubclassOf<UGunBase> InitGun;
+	TSubclassOf<UGunBase> AssaultRifle;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<UGunBase> RocketLauncher;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<UGunBase> Shotgun;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<UGunBase> SniperRifle;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -55,10 +63,16 @@ protected:
 	UAnimMontage* FireMontage;
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* ReloadMontage;
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* RollingMontage;
 
 	bool bIsReloading = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sate")
 	bool bIsOpenInventory = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sate")
+	bool bIsCrouch = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sate")
+	bool bIsRolling = false;
 	FTimerHandle ReloadTimerHandle;
 	bool bIsSprinting = false;
 	FTimerHandle FireTimerHandle;
@@ -101,6 +115,17 @@ public:
 	void UseThree(const FInputActionValue& value);
 	UFUNCTION()
 	void UseFour(const FInputActionValue& value);
+	UFUNCTION()
+	void StartCrouch(const FInputActionValue& value);
+	UFUNCTION()
+	void StopCrouch(const FInputActionValue& value);
+	UFUNCTION()
+	void Rolling(const FInputActionValue& value);
+	UFUNCTION()
+	void StopRolling(UAnimMontage* Montage, bool isEnded);
+
+
+
 	UFUNCTION()
 	void FinishReload();
 

@@ -13,6 +13,13 @@ ABossEnemy::ABossEnemy()
 	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
 }
 
+void ABossEnemy::BeginPlay()
+{
+	Super::BeginPlay();
+
+	this->Tags.Add(TEXT("Boss"));
+}
+
 void ABossEnemy::Attack(int32 SkillIndex)
 {
 	switch (SkillIndex)

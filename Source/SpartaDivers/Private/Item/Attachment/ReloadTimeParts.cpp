@@ -6,10 +6,10 @@
 
 void UReloadTimeParts::ApplyAttachmentEffect(UGunBase* InGun)
 {
-	InGun->ReloadTime += EffectAmount;
+	InGun->ReloadTime *= EffectAmount;
 }
 
 void UReloadTimeParts::RemoveAttachmentEffect(UGunBase* InGun)
 {
-	InGun->ReloadTime -= EffectAmount;
+	InGun->ReloadTime /= EffectAmount;
 }

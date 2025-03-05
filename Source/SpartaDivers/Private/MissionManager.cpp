@@ -82,7 +82,6 @@ void AMissionManager::StartMission()
 					SpawnedEnemyCount++;
 				}
 			}
-			UE_LOG(LogTemp, Warning, TEXT("Already SpawnedEnemyCount : %d"), SpawnedEnemyCount);
 
 			SpawnEnemy();
 			TArray<AActor*> FoundNewlySpawnedEnemies;
@@ -92,7 +91,6 @@ void AMissionManager::StartMission()
 				if (Enemy->ActorHasTag(CurrentMissionData.MissionName))
 				{
 					SpawnedEnemyCount++;
-					UE_LOG(LogTemp, Warning, TEXT("Newly SpawnedEnemyCount : %d"), SpawnedEnemyCount);
 				}
 			}
 			break;
@@ -141,14 +139,6 @@ void AMissionManager::CompleteMission()
 
 	bIsPlayerOnMission = false;
 
-	if (AMyGameState* MyGameState = GetWorld()->GetGameState<AMyGameState>())
-	{
-		if (MyGameState)
-		{
-			MyGameState->AddScore(CurrentMissionData.ScoreReward);
-		}
-	}
-
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMissionStartTrigger::StaticClass(), FoundMissionStartTriggers);
 	for (AActor* FoundMissionStartTrigger : FoundMissionStartTriggers)
 	{
@@ -163,6 +153,15 @@ void AMissionManager::CompleteMission()
 	DestroyEnemiesInCurrentMission(CurrentMissionIndex);
 
 	CurrentMissionIndex++;
+
+	if (CurrentMissionIndex == MaxMissionCount)
+	{
+		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+		if (MyGameState)
+		{
+			MyGameState->OnGameOver();
+		}
+	}
 }
 
 void AMissionManager::OnObjectOverlap(

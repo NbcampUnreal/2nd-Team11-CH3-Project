@@ -25,8 +25,6 @@ void AEnemyProjectile::OnProjectileOverlap(
 {
 	if (Cast<APlayerCharacter>(OtherActor))
 	{
-
-
 		GetWorld()->GetTimerManager().ClearTimer(EnemyProjectileTimerHandle);
 		Explode();
 	}

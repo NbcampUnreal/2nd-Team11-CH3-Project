@@ -6,10 +6,10 @@
 
 void URecoilParts::ApplyAttachmentEffect(UGunBase* InGun)
 {
-	InGun->MaxRecoil += EffectAmount;
+	InGun->MaxRecoil *= EffectAmount;
 }
 
 void URecoilParts::RemoveAttachmentEffect(UGunBase* InGun)
 {
-	InGun->MaxRecoil -= EffectAmount;
+	InGun->MaxRecoil /= EffectAmount;
 }
