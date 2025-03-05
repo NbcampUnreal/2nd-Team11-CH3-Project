@@ -8,6 +8,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/StatusContainerComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/InventoryComponent.h"
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
@@ -378,6 +379,7 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 		EquippedGun->Fire();
 		GetMesh()->GetAnimInstance()->Montage_Play(FireMontage);
+		UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GetMesh(), TEXT("GunFireSocket"));
 	}
 }
 
@@ -472,6 +474,7 @@ void APlayerCharacter::StartCrouch(const FInputActionValue& value)
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 	bIsCrouch = true;
 
+	GetCapsuleComponent()->InitCapsuleSize(34,44);
 	Crouch();
 }
 void APlayerCharacter::StopCrouch(const FInputActionValue& value)
@@ -479,6 +482,7 @@ void APlayerCharacter::StopCrouch(const FInputActionValue& value)
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 	bIsCrouch = false;
 
+	GetCapsuleComponent()->InitCapsuleSize(34,88);
 	UnCrouch();
 }
 
@@ -511,7 +515,9 @@ void APlayerCharacter::Rolling (const FInputActionValue& value)
 	{
 		GetMesh()->GetAnimInstance()->Montage_Play(RollingMontage);
 		Crouch();
+		GetCapsuleComponent()->InitCapsuleSize(34, 44);
 		bIsRolling = true;
+
 	}
 
 	FOnMontageEnded EndDelegate;
@@ -531,6 +537,7 @@ UGunBase* APlayerCharacter::GetEquippedGun()
 void APlayerCharacter::StopRolling(UAnimMontage* Montage, bool isEnded)
 {
 	UnCrouch();
+	GetCapsuleComponent()->InitCapsuleSize(34, 88);
 	bIsRolling = false;
 }
 UGunBase* APlayerCharacter::GetSubGun()
