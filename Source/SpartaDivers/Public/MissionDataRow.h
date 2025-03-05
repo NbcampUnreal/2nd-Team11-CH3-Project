@@ -27,9 +27,9 @@ public:
     // FName of MissionType
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FName MissionName;
-    // Score
+    // Reword Weapon
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 ScoreReward;
+    FName RewardWeapon;
     // Enemy Count
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 EnemyCount;

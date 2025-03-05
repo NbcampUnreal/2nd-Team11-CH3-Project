@@ -139,14 +139,6 @@ void AMissionManager::CompleteMission()
 
 	bIsPlayerOnMission = false;
 
-	if (AMyGameState* MyGameState = GetWorld()->GetGameState<AMyGameState>())
-	{
-		if (MyGameState)
-		{
-			MyGameState->AddScore(CurrentMissionData.ScoreReward);
-		}
-	}
-
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMissionStartTrigger::StaticClass(), FoundMissionStartTriggers);
 	for (AActor* FoundMissionStartTrigger : FoundMissionStartTriggers)
 	{
