@@ -37,7 +37,6 @@ void URocketLauncher::Fire()
         {
             MyGameInstance->RocketBulletCount++;
         }
-        Damage = FMath::RandRange(200.0f, 500.0f);
         LaunchProjectile();
         Super::Fire();
 
