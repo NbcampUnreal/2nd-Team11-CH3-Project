@@ -36,13 +36,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetConsumable(UConsumableBase* InItem, int32 InSlotNum);
 
+	void GetGunItem(FName GunName);
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* EquippedGun;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* SubGun;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	TSubclassOf<UGunBase> InitGun;
+	TSubclassOf<UGunBase> AssaultRifle;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<UGunBase> RocketLauncher;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<UGunBase> Shotgun;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<UGunBase> SniperRifle;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
