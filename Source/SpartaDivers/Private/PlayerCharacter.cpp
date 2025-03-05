@@ -104,9 +104,12 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UGunBase* NewGun = NewObject<UGunBase>(this, AssaultRifle);
-	NewGun->InitializeItem(AssaultRifle->GetDefaultObject<UGunBase>());
-	EquippedGun = NewGun;
+	if (AssaultRifle)
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, AssaultRifle);
+		NewGun->InitializeItem(AssaultRifle->GetDefaultObject<UGunBase>());
+		EquippedGun = NewGun;
+	}
 
 	this->Tags.Add(TEXT("Player"));
 	GetWorld()->GetTimerManager().SetTimer(

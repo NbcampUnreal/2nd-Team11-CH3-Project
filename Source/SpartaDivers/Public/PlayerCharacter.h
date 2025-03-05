@@ -16,14 +16,6 @@ class URocketLauncher;
 class UInventoryComponent;
 class AMissionStartTrigger;
 class UConsumableBase;
-//
-//UENUM(BlueprintType)
-//enum class EGunType : uint8
-//{
-//	Gun             UMETA(DisplayName = "Gun"),
-//	Attachment      UMETA(DisplayName = "Attachment"),
-//	Consumable      UMETA(DisplayName = "Consumable"),
-//};
 
 UCLASS()
 class SPARTADIVERS_API APlayerCharacter : public ACharacterBase
@@ -45,7 +37,6 @@ public:
 	void SetConsumable(UConsumableBase* InItem, int32 InSlotNum);
 
 	void GetGunItem(FName GunName);
-
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* EquippedGun;
