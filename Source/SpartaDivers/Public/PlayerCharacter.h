@@ -16,14 +16,6 @@ class URocketLauncher;
 class UInventoryComponent;
 class AMissionStartTrigger;
 class UConsumableBase;
-//
-//UENUM(BlueprintType)
-//enum class EGunType : uint8
-//{
-//	Gun             UMETA(DisplayName = "Gun"),
-//	Attachment      UMETA(DisplayName = "Attachment"),
-//	Consumable      UMETA(DisplayName = "Consumable"),
-//};
 
 UCLASS()
 class SPARTADIVERS_API APlayerCharacter : public ACharacterBase
@@ -44,22 +36,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetConsumable(UConsumableBase* InItem, int32 InSlotNum);
 
-	void GetGunItem(FName GunName);
-
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* EquippedGun;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UGunBase* SubGun;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	TSubclassOf<UGunBase> AssaultRifle;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	TSubclassOf<UGunBase> RocketLauncher;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	TSubclassOf<UGunBase> Shotgun;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	TSubclassOf<UGunBase> SniperRifle;
+	TSubclassOf<UGunBase> InitGun;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
