@@ -26,7 +26,6 @@ UShotgun::UShotgun()
 void UShotgun::Fire()
 {
 	Super::Fire();
-	Damage = FMath::RandRange(10.0f, 20.0f);
 	FireShotgun();
 }
 
@@ -90,7 +89,7 @@ void UShotgun::FireShotgun()
 
                 UGameplayStatics::ApplyDamage(
                     HitActor,
-                    FinalDamage,
+                    FinalDamage * FMath::FRandRange(0.9f, 1.1f),
                     PlayerCharacter->GetController(),
                     PlayerCharacter,
                     UDamageType::StaticClass());
