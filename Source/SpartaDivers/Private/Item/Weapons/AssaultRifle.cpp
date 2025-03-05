@@ -30,7 +30,6 @@ void UAssaultRifle::Fire()
     {
         MyGameInstance->AssaultBulletCount++;
     }
-    Damage = FMath::RandRange(25.0f, 40.0f);
     PerformHitScan();
 }
 
@@ -81,7 +80,7 @@ void UAssaultRifle::PerformHitScan()
             
             UGameplayStatics::ApplyPointDamage(
                 HitActor,
-                FinalDamage,
+                FinalDamage * FMath::FRandRange(0.9f, 1.1f),
                 ShotDirection,
                 HitResult,
                 PlayerCharacter->GetController(),
