@@ -38,13 +38,13 @@ float ACharacterBase::TakeDamage(
 	if (StatusContainerComponent->GetCurArmor() <= 0)
 	{
 		StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
-		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
 	}
 	else
 	{
 		StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetCurArmor() - ActualDamage);
 
 	}
+	GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
 	if (StatusContainerComponent->GetCurHealth() <= 0)
 	{
 		if (bHeadshot)
