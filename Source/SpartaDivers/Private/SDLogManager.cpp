@@ -42,7 +42,6 @@ void USDLogManager::AddKillLog(FString VictimName, FString WeaponName, bool bIsH
 
     if (KillLogWidget)
     {
-        UE_LOG(LogTemp, Warning, TEXT("KillLogWidget Called"));
         KillLogWidget->UpdateLogDisplay(KillLogs);
     }
     

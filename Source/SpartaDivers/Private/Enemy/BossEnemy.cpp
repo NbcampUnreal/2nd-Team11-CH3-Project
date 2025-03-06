@@ -9,7 +9,7 @@ ABossEnemy::ABossEnemy()
 {
 	Damage = FMath::RandRange(50.0f, 150.0f);
 	KillScore = Damage * 3 + StatusContainerComponent->GetMaxHealth();
-	StatusContainerComponent->SetMaxHealth(FMath::RandRange(2000.0f, 5000.0f));
+	StatusContainerComponent->SetMaxHealth(FMath::RandRange(8000.0f, 12000.0f));
 	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
 }
 

@@ -8,6 +8,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/StatusContainerComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/InventoryComponent.h"
 #include "Item/GunBase.h"
 #include "Item/Weapons/AssaultRifle.h"
@@ -32,6 +33,11 @@ APlayerCharacter::APlayerCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 	CameraComp->bUsePawnControlRotation = false;
+
+	DefaultFOV = 90.0f;
+	ZoomedFOV = 60.0f;
+	ZoomInterpSpeed = 20.0f;
+	bIsZoom = false;
 
 	MoveSpeed = 600.0f;
 	SprintSpeedMultiplier = 1.5f;
@@ -75,34 +81,35 @@ void APlayerCharacter::GetGunItem(FName GunName)
 		NewGun->InitializeItem(AssaultRifle->GetDefaultObject<UGunBase>());
 		InventoryComponent->AddItem(NewGun);
 	}
-
-	if (GunName == FName("SniperRifle"))
+	else if (GunName == FName("SniperRifle"))
 	{
 		UGunBase* NewGun = NewObject<UGunBase>(this, SniperRifle);
 		NewGun->InitializeItem(SniperRifle->GetDefaultObject<UGunBase>());
 		InventoryComponent->AddItem(NewGun);
 	}
-
-	if (GunName == FName("Shotgun"))
+	else if (GunName == FName("Shotgun"))
 	{
 		UGunBase* NewGun = NewObject<UGunBase>(this, Shotgun);
 		NewGun->InitializeItem(Shotgun->GetDefaultObject<UGunBase>());
 		InventoryComponent->AddItem(NewGun);
 	}
-
-	if (GunName == FName("RocketLauncher"))
+	else if (GunName == FName("RocketLauncher"))
 	{
 		UGunBase* NewGun = NewObject<UGunBase>(this, RocketLauncher);
 		NewGun->InitializeItem(RocketLauncher->GetDefaultObject<UGunBase>());
 		InventoryComponent->AddItem(NewGun);
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("WRONG GUN NAME"));
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WRONG GUN NAME"));
+	}
 }
 
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	DefaultFOV = CameraComp->FieldOfView;
 
 	if (AssaultRifle)
 	{
@@ -124,6 +131,14 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	float TargetFOV = bIsZoom ? ZoomedFOV : DefaultFOV;
+	float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, ZoomInterpSpeed);
+	CameraComp->SetFieldOfView(NewFOV);
+
+	// 숄더뷰 위치 조정
+	FVector TargetSocketOffset = bIsZoom ? FVector(0, 50, 0) : FVector(0, 0, 0);
+	SpringArmComp->SocketOffset = FMath::VInterpTo(SpringArmComp->SocketOffset, TargetSocketOffset, DeltaTime, ZoomInterpSpeed);
 
 	if (bIsSprinting)
 	{
@@ -304,6 +319,24 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					&APlayerCharacter::Rolling
 				);
 			}
+			if (PlayerController->ZoomAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ZoomAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::StartZoom
+				);
+			}
+			if (PlayerController->CrouchAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ZoomAction,
+					ETriggerEvent::Completed,
+					this,
+					&APlayerCharacter::StopZoom
+				);
+			}
 		}
 	}
 }
@@ -379,6 +412,7 @@ void APlayerCharacter::Fire(const FInputActionValue& value)
 		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 		EquippedGun->Fire();
 		GetMesh()->GetAnimInstance()->Montage_Play(FireMontage);
+		UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GetMesh(), TEXT("GunFireSocket"));
 	}
 }
 
@@ -429,21 +463,13 @@ void APlayerCharacter::SwapGun(const FInputActionValue& value)
 			UGunBase* TempGun = EquippedGun;
 			EquippedGun = SubGun;
 			SubGun = TempGun;
-		}
 
-		if (EquippedGun)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Equipped Gun: %s"), *EquippedGun->GetName());
-		}
-		if (SubGun)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Sub Gun: %s"), *SubGun->GetName());
-		}
-
-		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-		if (MyGameState)
-		{
-			MyGameState->UpdateCrossHair();
+			AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+			if (MyGameState)
+			{
+				MyGameState->UpdateCrossHair();
+				MyGameState->SwapUIAnim();
+			}
 		}
 	}
 }
@@ -481,6 +507,7 @@ void APlayerCharacter::StartCrouch(const FInputActionValue& value)
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 	bIsCrouch = true;
 
+	GetCapsuleComponent()->InitCapsuleSize(34,44);
 	Crouch();
 }
 void APlayerCharacter::StopCrouch(const FInputActionValue& value)
@@ -488,7 +515,18 @@ void APlayerCharacter::StopCrouch(const FInputActionValue& value)
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 	bIsCrouch = false;
 
+	GetCapsuleComponent()->InitCapsuleSize(34,88);
 	UnCrouch();
+}
+
+void APlayerCharacter::StartZoom(const FInputActionValue& value)
+{
+	bIsZoom = true;
+}
+
+void APlayerCharacter::StopZoom(const FInputActionValue& value)
+{
+	bIsZoom = false;
 }
 
 float APlayerCharacter::TakeDamage(
@@ -520,7 +558,9 @@ void APlayerCharacter::Rolling (const FInputActionValue& value)
 	{
 		GetMesh()->GetAnimInstance()->Montage_Play(RollingMontage);
 		Crouch();
+		GetCapsuleComponent()->InitCapsuleSize(34, 44);
 		bIsRolling = true;
+
 	}
 
 	FOnMontageEnded EndDelegate;
@@ -540,6 +580,7 @@ UGunBase* APlayerCharacter::GetEquippedGun()
 void APlayerCharacter::StopRolling(UAnimMontage* Montage, bool isEnded)
 {
 	UnCrouch();
+	GetCapsuleComponent()->InitCapsuleSize(34, 88);
 	bIsRolling = false;
 }
 UGunBase* APlayerCharacter::GetSubGun()

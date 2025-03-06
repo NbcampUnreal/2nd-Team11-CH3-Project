@@ -58,6 +58,13 @@ protected:
 	USpringArmComponent* SpringArmComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* CameraComp;
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	float ZoomedFOV;
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	float DefaultFOV;
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	float ZoomInterpSpeed;
+	bool bIsZoom;
 
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* FireMontage;
@@ -76,6 +83,9 @@ protected:
 	FTimerHandle ReloadTimerHandle;
 	bool bIsSprinting = false;
 	FTimerHandle FireTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly)
+	UParticleSystem* MuzzleFlash;
 
 
 
@@ -119,6 +129,10 @@ public:
 	void StartCrouch(const FInputActionValue& value);
 	UFUNCTION()
 	void StopCrouch(const FInputActionValue& value);
+	UFUNCTION()
+	void StartZoom(const FInputActionValue& value);
+	UFUNCTION()
+	void StopZoom(const FInputActionValue& value);
 	UFUNCTION()
 	void Rolling(const FInputActionValue& value);
 	UFUNCTION()
