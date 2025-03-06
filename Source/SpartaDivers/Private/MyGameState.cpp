@@ -127,36 +127,21 @@ void AMyGameState::UpdateHUD()
 						int32 MaxAmmo = PlayerCharacter->GetEquippedGun()->MaxAmmo;
 						AmmoText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"), CurAmmo, MaxAmmo)));
 					}
-					if (UImage* WeaponImage = Cast<UImage>(HUDWidget->GetWidgetFromName(TEXT("WeaponImage"))))
+					if (!HUDWidget || !PlayerCharacter) return;  
+					
+					UImage* WeaponImage = Cast<UImage>(HUDWidget->GetWidgetFromName(TEXT("WeaponImage")));
+					UpdateWeaponImage(WeaponImage, PlayerCharacter->GetEquippedGun());
+					if (PlayerCharacter->GetEquippedGun())
 					{
-						if (WeaponImage)
-						{
-							if (PlayerCharacter->GetEquippedGun())
-							{
-								WeaponImage->SetVisibility(ESlateVisibility::Visible);
-								WeaponImage->SetBrushFromTexture(PlayerCharacter->GetEquippedGun()->GetIconImage());
-							}
-							else
-							{
-								WeaponImage->SetVisibility(ESlateVisibility::Hidden);
-							}
-						}
+					UE_LOG(LogTemp, Warning, TEXT("GetEquippedGun : %s!!"),*PlayerCharacter->GetEquippedGun()->GetName());
 					}
-					if (UImage* SubWeaponImage = Cast<UImage>(HUDWidget->GetWidgetFromName(TEXT("SubWeaponImage"))))
+					if (PlayerCharacter->GetSubGun())
 					{
-						if (SubWeaponImage)
-						{
-							if (PlayerCharacter->GetSubGun())
-							{
-								SubWeaponImage->SetVisibility(ESlateVisibility::Visible);
-								SubWeaponImage->SetBrushFromTexture(PlayerCharacter->GetSubGun()->GetIconImage());
-							}
-							else
-							{
-								SubWeaponImage->SetVisibility(ESlateVisibility::Hidden);
-							}
-						}
+						UE_LOG(LogTemp, Warning, TEXT("GetSubGun : %s!!"), *PlayerCharacter->GetSubGun()->GetName());
 					}
+
+					UImage* SubWeaponImage = Cast<UImage>(HUDWidget->GetWidgetFromName(TEXT("SubWeaponImage")));
+					UpdateWeaponImage(SubWeaponImage, PlayerCharacter->GetSubGun());
 				}
 				// Mission Informations
 				if (AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass())))
@@ -295,6 +280,21 @@ void AMyGameState::UpdateHUD()
 	}
 }
 
+void AMyGameState::UpdateWeaponImage(UImage* ImageWidget, UGunBase* Gun)
+{
+	if (!ImageWidget) return; 
+
+	if (Gun && Gun->GetIconImage())
+	{
+		ImageWidget->SetVisibility(ESlateVisibility::Visible);
+		ImageWidget->SetBrushFromTexture(Gun->GetIconImage());
+	}
+	else
+	{
+		ImageWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
 void AMyGameState::UpdateCrossHair()
 {
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
@@ -326,12 +326,25 @@ void AMyGameState::UpdateHitUI()
 				if (PlayAnimHitEffect)
 				{
 					HitEffectWidget->ProcessEvent(PlayAnimHitEffect, nullptr);
-					UE_LOG(LogTemp, Warning, TEXT("PlayAnimHitEffect"));
 				}
 			}
-			else
+		}
+	}
+}
+
+void AMyGameState::PlayWeaponUnlockedAnim()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
+		{
+			if (UUserWidget* HUDWidget = MyPlayerController->GetHUDWidget())
 			{
-					UE_LOG(LogTemp, Warning, TEXT("HitEffectWidget NOTFOUND"));
+				UFunction* PlayClearAnim = HUDWidget->FindFunction(FName("PlayClearAnim"));
+				if (PlayClearAnim)
+				{
+					HUDWidget->ProcessEvent(PlayClearAnim, nullptr);
+				}
 			}
 		}
 	}
@@ -343,7 +356,6 @@ void AMyGameState::SwapUIAnim()
 	{
 		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
 		{
-			// CrosshairWidget
 			if (UUserWidget* HUDWidget = MyPlayerController->GetHUDWidget())
 			{
 				UFunction* PlaySwapAnim = HUDWidget->FindFunction(FName("PlaySwapAnim"));
