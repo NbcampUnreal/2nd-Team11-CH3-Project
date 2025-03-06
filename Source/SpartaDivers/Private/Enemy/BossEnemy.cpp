@@ -86,9 +86,9 @@ void ABossEnemy::ApplyBasicAttackEffect()
 	TArray<FHitResult> OutHits;
 	FVector Start = GetActorLocation();
 	FCollisionQueryParams CollisionParams(NAME_Name, false, this);
-	FCollisionObjectQueryParams ColisionObjectParams(ECollisionChannel::ECC_Visibility);
+	FCollisionObjectQueryParams ColisionObjectParams(ECollisionChannel::ECC_Pawn);
 
-	bool OnHit = GetWorld()->SweepMultiByChannel(OutHits, Start, Start, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(BasicAttackRange), CollisionParams);
+	bool OnHit = GetWorld()->SweepMultiByChannel(OutHits, Start, Start, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(BasicAttackRange), CollisionParams);
 	if (OnHit == false) return;
 
 	for (const FHitResult& OutHit : OutHits)
@@ -98,7 +98,7 @@ void ABossEnemy::ApplyBasicAttackEffect()
 
 		UGameplayStatics::ApplyDamage(
 			Player,
-			Damage,
+			Damage * BasicAttackRate,
 			GetController(),
 			this,
 			UDamageType::StaticClass());
@@ -112,9 +112,9 @@ void ABossEnemy::ApplyJumpAttackEffect()
 	TArray<FHitResult> OutHits;
 	FVector Start = GetActorLocation();
 	FCollisionQueryParams CollisionParams(NAME_Name, false, this);
-	FCollisionObjectQueryParams ColisionObjectParams(ECollisionChannel::ECC_Visibility);
+	FCollisionObjectQueryParams ColisionObjectParams(ECollisionChannel::ECC_Pawn);
 
-	bool OnHit = GetWorld()->SweepMultiByChannel(OutHits, Start, Start, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(JumpAttackRange), CollisionParams);
+	bool OnHit = GetWorld()->SweepMultiByChannel(OutHits, Start, Start, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(JumpAttackRange), CollisionParams);
 	if (OnHit == false) return;
 
 	for (const FHitResult& OutHit : OutHits)
@@ -124,7 +124,7 @@ void ABossEnemy::ApplyJumpAttackEffect()
 
 		UGameplayStatics::ApplyDamage(
 			Player,
-			Damage,
+			Damage * JumpAttackRate,
 			GetController(),
 			this,
 			UDamageType::StaticClass());
@@ -168,6 +168,7 @@ void ABossEnemy::ApplySpawnBombEffect()
 		AEnemyProjectile* ProjectileInstance = GetWorld()->SpawnActor<AEnemyProjectile>(ProjectileClass, GetActorLocation() + GetActorUpVector() * 500.f + Direction * 200.f, Direction.Rotation());
 		if (ProjectileInstance)
 		{
+			ProjectileInstance->SetExplosionDamage(Damage * BombDamageRate);
 			ProjectileInstance->InitProjectile(FMath::FRandRange(750.f, 2000.f));
 		}
 	}
@@ -181,6 +182,7 @@ void ABossEnemy::ApplyFireEffect()
 
 	if (ProjectileInstance)
 	{
+		ProjectileInstance->SetExplosionDamage(Damage * BombDamageRate);
 		ProjectileInstance->InitProjectile(FMath::FRandRange(2000.f, 3000.f));
 	}
 }
