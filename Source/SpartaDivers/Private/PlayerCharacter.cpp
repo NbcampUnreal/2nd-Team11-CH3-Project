@@ -541,6 +541,15 @@ float APlayerCharacter::TakeDamage(
 		EventInstigator,
 		DamageCauser);
 
+	if (StatusContainerComponent->GetCurArmor() <= 0)
+	{
+		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+		if (MyGameState)
+		{
+			MyGameState->UpdateHitUI();
+		}
+	}
+
 	return ActualDamage;
 }
 

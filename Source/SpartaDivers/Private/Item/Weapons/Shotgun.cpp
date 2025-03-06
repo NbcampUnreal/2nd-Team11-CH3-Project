@@ -3,6 +3,7 @@
 
 #include "Item/Weapons/Shotgun.h"
 #include "Kismet/GameplayStatics.h"
+#include "MyGameInstance.h"
 #include "PlayerCharacter.h"
 #include "DrawDebugHelpers.h"
 
@@ -26,6 +27,10 @@ UShotgun::UShotgun()
 void UShotgun::Fire()
 {
 	Super::Fire();
+    if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
+    {
+        MyGameInstance->ShotgunBulletCount++;
+    }
 	FireShotgun();
 }
 
