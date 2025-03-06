@@ -7,10 +7,9 @@
 
 ABossEnemy::ABossEnemy()
 {
-	Damage = FMath::RandRange(50.0f, 150.0f);
+	StatusContainerComponent->SetMaxHealth(5000.f);
 	KillScore = Damage * 3 + StatusContainerComponent->GetMaxHealth();
-	StatusContainerComponent->SetMaxHealth(FMath::RandRange(8000.0f, 12000.0f));
-	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
+	StatusContainerComponent->SetCurHealth(5000.f);
 }
 
 void ABossEnemy::BeginPlay()
@@ -18,6 +17,8 @@ void ABossEnemy::BeginPlay()
 	Super::BeginPlay();
 
 	this->Tags.Add(TEXT("Boss"));
+	/*float InitCurHealth = StatusContainerComponent->GetMaxHealth();
+	StatusContainerComponent->SetCurHealth(InitCurHealth);*/
 }
 
 void ABossEnemy::Attack(int32 SkillIndex)

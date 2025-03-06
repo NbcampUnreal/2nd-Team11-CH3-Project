@@ -32,6 +32,7 @@ void ADropItem::OnOverlapDropItem(UPrimitiveComponent* OverlappedComp, AActor* O
 			UItemBase* NewItem = NewObject<UItemBase>(this, OwningItemClass);
 			NewItem->InitializeItem(OwningItemClass->GetDefaultObject<UItemBase>());
 			playerCharacter->InventoryComponent->AddItem(NewItem);
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), GetSound, GetActorLocation());
 		}
 
 		Destroy();

@@ -12,13 +12,13 @@ struct FStatusStruct
 {
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	float CurHealth;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	float MaxHealth;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	float CurArmor;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	float MaxArmor;
 };
 
@@ -35,7 +35,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	FStatusStruct StatusStruct;
 
 public:	

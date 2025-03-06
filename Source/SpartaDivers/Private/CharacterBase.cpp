@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CharacterBase.h"
+#include "MyGameState.h"
 #include "Components/StatusContainerComponent.h"
 #include "Item/GunBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -40,18 +41,22 @@ float ACharacterBase::TakeDamage(
 	{
 		StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
 		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+		if (MyGameState)
+		{
+			MyGameState->UpdateHitUI();
+		}
 	}
 	else
 	{
 		StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetCurArmor() - ActualDamage);
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ShieldFlash, GetActorLocation());
-
 	}
 	if (StatusContainerComponent->GetCurHealth() <= 0)
 	{
 		if (bHeadshot)
 		{
-			KillScore *= 2;  // Çìµå¼¦ÀÌ¸é KillScore µÎ ¹è Áõ°¡
+			KillScore *= 2;  // Ã‡Ã¬ÂµÃ¥Â¼Â¦Ã€ÃŒÂ¸Ã© KillScore ÂµÃŽ Â¹Ã¨ ÃÃµÂ°Â¡
 		}
 		OnDeath();
 	}

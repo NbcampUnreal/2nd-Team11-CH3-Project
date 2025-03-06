@@ -35,7 +35,9 @@ KillLogWidgetInstance(nullptr),
 MainMenuWidgetClass(nullptr),
 MainMenuWidgetInstance(nullptr),
 CrosshairWidgetClass(nullptr),
-CrosshairWidgetInstance(nullptr)
+CrosshairWidgetInstance(nullptr),
+HitEffectWidgetClass(nullptr),
+HitEffectWidgetInstance(nullptr)
 {
 	CheatClass = USDCheatManager::StaticClass();
 }
@@ -58,6 +60,11 @@ UUserWidget* AMyPlayerController::GetMainMenuWidget() const
 UUserWidget* AMyPlayerController::GetCrosshairWidget() const
 {
 	return CrosshairWidgetInstance;
+}
+
+UUserWidget* AMyPlayerController::GetHitEffectWidget() const
+{
+	return HitEffectWidgetInstance;
 }
 
 void AMyPlayerController::ShowGameHUD()
@@ -93,6 +100,7 @@ void AMyPlayerController::ShowGameHUD()
 	}
 	ShowKillLog();
 	ShowCrosshair();
+	ShowHitEffect();
 }
 
 void AMyPlayerController::ShowMainMenu(bool bIsRestart)
@@ -111,6 +119,11 @@ void AMyPlayerController::ShowMainMenu(bool bIsRestart)
 	{
 		CrosshairWidgetInstance->RemoveFromParent();
 		CrosshairWidgetInstance = nullptr;
+	}
+	if (HitEffectWidgetInstance)
+	{
+		HitEffectWidgetInstance->RemoveFromParent();
+		HitEffectWidgetInstance = nullptr;
 	}
 
 	if (MainMenuWidgetClass)
@@ -190,11 +203,11 @@ void AMyPlayerController::ShowMainMenu(bool bIsRestart)
 		{
 			if (bIsRestart)
 			{
-				StartButtonText->SetText(FText::FromString(TEXT("Restart!!")));
+				StartButtonText->SetText(FText::FromString(TEXT("Restart")));
 			}
 			else
 			{
-				StartButtonText->SetText(FText::FromString(TEXT("Game Start!!")));
+				StartButtonText->SetText(FText::FromString(TEXT("6ame Start")));
 			}
 		}
 		// PlayTimeText
@@ -338,6 +351,24 @@ void AMyPlayerController::ShowCrosshair()
 		if (CrosshairWidgetInstance)
 		{
 			CrosshairWidgetInstance->AddToViewport();
+		}
+	}
+}
+
+void AMyPlayerController::ShowHitEffect()
+{
+	if (HitEffectWidgetInstance)
+	{
+		HitEffectWidgetInstance->RemoveFromParent();
+		HitEffectWidgetInstance = nullptr;
+	}
+
+	if (HitEffectWidgetClass)
+	{
+		HitEffectWidgetInstance = CreateWidget<UUserWidget>(this, HitEffectWidgetClass);
+		if (HitEffectWidgetInstance)
+		{
+			HitEffectWidgetInstance->AddToViewport();
 		}
 	}
 }

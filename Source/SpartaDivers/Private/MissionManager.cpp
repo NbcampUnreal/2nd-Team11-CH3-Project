@@ -343,6 +343,7 @@ void AMissionManager::SpawnBoss()
 			for (int32 i = 0; i < EnemiesToSpawn; i++)
 			{
 				SelectedVolume = MatchingVolumes[FMath::RandRange(0, MatchingVolumes.Num() - 1)];
+				SelectedVolume->SetCurrentSpawnDataTable(SpawnDataTables[CurrentMissionIndex]);
 				if (SelectedVolume)
 				{
 					SelectedVolume->SpawnBoss();
