@@ -75,8 +75,10 @@ void ABossEnemy::ApplyAttackEffect(int32 EffectIndex)
 		break;
 	case 3:
 		ApplySpawnBombEffect();
+		break;
 	case 4:
 		ApplyFireEffect();
+		break;
 	default:
 		break;
 	}
@@ -112,23 +114,37 @@ void ABossEnemy::ApplyJumpAttackEffect()
 {
 	TArray<FHitResult> OutHits;
 	FVector Start = GetActorLocation();
-	FCollisionQueryParams CollisionParams(NAME_Name, false, this);
-	FCollisionObjectQueryParams ColisionObjectParams(ECollisionChannel::ECC_Pawn);
+	FVector End = Start;
 
-	bool OnHit = GetWorld()->SweepMultiByChannel(OutHits, Start, Start, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(JumpAttackRange), CollisionParams);
-	if (OnHit == false) return;
+	FCollisionQueryParams CollisionParams(NAME_None, false, this);
+	FCollisionObjectQueryParams CollisionObjectParams(ECollisionChannel::ECC_Pawn);
+
+	bool OnHit = GetWorld()->SweepMultiByChannel(
+		OutHits,
+		Start,
+		End,
+		FQuat::Identity,
+		ECC_Pawn,
+		FCollisionShape::MakeSphere(JumpAttackRange),
+		CollisionParams
+	);
+
+	if (!OnHit) return;
 
 	for (const FHitResult& OutHit : OutHits)
 	{
-		APlayerCharacter* Player = Cast<APlayerCharacter>(OutHit.GetActor());
-		if (Player == nullptr) continue;
+		AActor* HitActor = OutHit.GetActor();
 
-		UGameplayStatics::ApplyDamage(
-			Player,
-			Damage * JumpAttackRate,
-			GetController(),
-			this,
-			UDamageType::StaticClass());
+		if (HitActor && HitActor->ActorHasTag("Player"))
+		{
+			UGameplayStatics::ApplyDamage(
+				HitActor,
+				Damage,
+				GetController(),
+				this,
+				UDamageType::StaticClass()
+			);
+		}
 	}
 
 	//DrawDebugSphere(GetWorld(), GetActorLocation(), JumpAttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
@@ -170,7 +186,7 @@ void ABossEnemy::ApplySpawnBombEffect()
 		if (ProjectileInstance)
 		{
 			ProjectileInstance->SetExplosionDamage(Damage * BombDamageRate);
-			ProjectileInstance->InitProjectile(FMath::FRandRange(750.f, 2000.f));
+			ProjectileInstance->InitProjectile(FMath::FRandRange(500.f, 3000.f));
 		}
 	}
 }
@@ -184,6 +200,6 @@ void ABossEnemy::ApplyFireEffect()
 	if (ProjectileInstance)
 	{
 		ProjectileInstance->SetExplosionDamage(Damage * BombDamageRate);
-		ProjectileInstance->InitProjectile(FMath::FRandRange(2000.f, 3000.f));
+		ProjectileInstance->InitProjectile(FMath::FRandRange(3000.f, 5000.f));
 	}
 }
