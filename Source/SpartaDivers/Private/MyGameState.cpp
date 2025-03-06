@@ -314,6 +314,29 @@ void AMyGameState::UpdateCrossHair()
 	}
 }
 
+void AMyGameState::UpdateHitUI()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
+		{
+			if (UUserWidget* HitEffectWidget = MyPlayerController->GetHitEffectWidget())
+			{
+				UFunction* PlayAnimHitEffect = HitEffectWidget->FindFunction(FName("PlayAnimHitEffect"));
+				if (PlayAnimHitEffect)
+				{
+					HitEffectWidget->ProcessEvent(PlayAnimHitEffect, nullptr);
+					UE_LOG(LogTemp, Warning, TEXT("PlayAnimHitEffect"));
+				}
+			}
+			else
+			{
+					UE_LOG(LogTemp, Warning, TEXT("HitEffectWidget NOTFOUND"));
+			}
+		}
+	}
+}
+
 void AMyGameState::SwapUIAnim()
 {
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
