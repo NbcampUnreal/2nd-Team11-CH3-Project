@@ -104,7 +104,7 @@ void ABossEnemy::ApplyBasicAttackEffect()
 			UDamageType::StaticClass());
 	}
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), BasicAttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
+	//DrawDebugSphere(GetWorld(), GetActorLocation(), BasicAttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
 }
 
 void ABossEnemy::ApplyJumpAttackEffect()
@@ -130,7 +130,7 @@ void ABossEnemy::ApplyJumpAttackEffect()
 			UDamageType::StaticClass());
 	}
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), JumpAttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
+	//DrawDebugSphere(GetWorld(), GetActorLocation(), JumpAttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
 }
 
 void ABossEnemy::ApplySpawnMinionEffect()
