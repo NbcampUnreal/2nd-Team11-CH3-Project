@@ -62,7 +62,7 @@ void USniperRifle::PerformHitScanWithPenetration()
 	FRotator BoxRotation = (End - Start).Rotation();
 
 	// 박스 그리기 (디버깅용)
-	DrawDebugBox(GetWorld(), BoxCenter, BoxExtent, FQuat(BoxRotation), FColor::Red, false, 5.0f, 0, 5.5f);
+	//DrawDebugBox(GetWorld(), BoxCenter, BoxExtent, FQuat(BoxRotation), FColor::Red, false, 5.0f, 0, 5.5f);
 
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(PlayerCharacter);
