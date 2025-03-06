@@ -4,6 +4,7 @@
 #include "Components/StatusContainerComponent.h"
 #include "Item/GunBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 
 ACharacterBase::ACharacterBase()
 {
@@ -38,13 +39,14 @@ float ACharacterBase::TakeDamage(
 	if (StatusContainerComponent->GetCurArmor() <= 0)
 	{
 		StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
+		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
 	}
 	else
 	{
 		StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetCurArmor() - ActualDamage);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ShieldFlash, GetActorLocation());
 
 	}
-	GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
 	if (StatusContainerComponent->GetCurHealth() <= 0)
 	{
 		if (bHeadshot)
