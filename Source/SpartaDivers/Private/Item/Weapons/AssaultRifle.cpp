@@ -71,7 +71,6 @@ void UAssaultRifle::PerformHitScan()
             {
                 bHitHead = true;
                 FinalDamage *= 2.0f;
-                UE_LOG(LogTemp, Warning, TEXT("Headshot! Extra damage applied."));
             }
             else
             {

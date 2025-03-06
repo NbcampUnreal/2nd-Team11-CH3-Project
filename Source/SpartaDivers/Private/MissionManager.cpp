@@ -113,13 +113,17 @@ void AMissionManager::StartMission()
 		}
 		case EMissionType::Capture:
 		{
-			SpawnEnemy();
+			GetWorld()->GetTimerManager().SetTimer(
+				SpawnTimerHandle,
+				this,
+				&AMissionManager::SpawnEnemy,
+				3.0f,
+				true);
 			break;
 		}
 		case EMissionType::BossCombat:
 		{
-
-
+			SpawnBoss();
 			break;
 		}
 		default:

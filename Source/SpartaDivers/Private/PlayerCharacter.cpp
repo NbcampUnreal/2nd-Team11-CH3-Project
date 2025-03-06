@@ -34,6 +34,11 @@ APlayerCharacter::APlayerCharacter()
 	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 	CameraComp->bUsePawnControlRotation = false;
 
+	DefaultFOV = 90.0f;
+	ZoomedFOV = 60.0f;
+	ZoomInterpSpeed = 20.0f;
+	bIsZoom = false;
+
 	MoveSpeed = 600.0f;
 	SprintSpeedMultiplier = 1.5f;
 	SprintSpeed = MoveSpeed * SprintSpeedMultiplier;
@@ -104,6 +109,8 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	DefaultFOV = CameraComp->FieldOfView;
+
 	if (AssaultRifle)
 	{
 		UGunBase* NewGun = NewObject<UGunBase>(this, AssaultRifle);
@@ -124,6 +131,14 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	float TargetFOV = bIsZoom ? ZoomedFOV : DefaultFOV;
+	float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, ZoomInterpSpeed);
+	CameraComp->SetFieldOfView(NewFOV);
+
+	// 숄더뷰 위치 조정
+	FVector TargetSocketOffset = bIsZoom ? FVector(0, 50, 0) : FVector(0, 0, 0);
+	SpringArmComp->SocketOffset = FMath::VInterpTo(SpringArmComp->SocketOffset, TargetSocketOffset, DeltaTime, ZoomInterpSpeed);
 
 	if (bIsSprinting)
 	{
@@ -302,6 +317,24 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					ETriggerEvent::Started,
 					this,
 					&APlayerCharacter::Rolling
+				);
+			}
+			if (PlayerController->ZoomAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ZoomAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::StartZoom
+				);
+			}
+			if (PlayerController->CrouchAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ZoomAction,
+					ETriggerEvent::Completed,
+					this,
+					&APlayerCharacter::StopZoom
 				);
 			}
 		}
@@ -484,6 +517,16 @@ void APlayerCharacter::StopCrouch(const FInputActionValue& value)
 
 	GetCapsuleComponent()->InitCapsuleSize(34,88);
 	UnCrouch();
+}
+
+void APlayerCharacter::StartZoom(const FInputActionValue& value)
+{
+	bIsZoom = true;
+}
+
+void APlayerCharacter::StopZoom(const FInputActionValue& value)
+{
+	bIsZoom = false;
 }
 
 float APlayerCharacter::TakeDamage(
