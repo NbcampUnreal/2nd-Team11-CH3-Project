@@ -64,6 +64,9 @@ public:
 	float SpawnMinionRange;
 
 	UPROPERTY(EditDefaultsOnly)
+	float BombDamageRate;
+
+	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<ASDEnemyBase>> SpawnEnemies;
 
 	UPROPERTY(EditDefaultsOnly)
