@@ -41,11 +41,7 @@ float ACharacterBase::TakeDamage(
 	{
 		StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
 		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
-		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-		if (MyGameState)
-		{
-			MyGameState->UpdateHitUI();
-		}
+		
 	}
 	else
 	{

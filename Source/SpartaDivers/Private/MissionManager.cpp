@@ -73,16 +73,6 @@ void AMissionManager::StartMission()
 			SpawnedEnemyCount = 0;
 			KilledEnemyCount = 0;
 
-			TArray<AActor*> FoundAlreadySpawnedEnemies;
-			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASDEnemyBase::StaticClass(), FoundAlreadySpawnedEnemies);
-			for (AActor* Enemy : FoundAlreadySpawnedEnemies)
-			{
-				if (Enemy->ActorHasTag(CurrentMissionData.MissionName))
-				{
-					SpawnedEnemyCount++;
-				}
-			}
-
 			SpawnEnemy();
 			TArray<AActor*> FoundNewlySpawnedEnemies;
 			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASDEnemyBase::StaticClass(), FoundNewlySpawnedEnemies);
@@ -250,6 +240,7 @@ void AMissionManager::CheckMissionCompletion()
 		{
 			CompleteMission();
 			bIsPlayerInCaptureZone = false;
+			CaptureProgress = 0;
 		}
 		break;
 	}
@@ -301,6 +292,7 @@ void AMissionManager::SpawnEnemy()
 			for (int32 i = 0; i < EnemiesToSpawn; i++)
 			{
 				SelectedVolume = MatchingVolumes[FMath::RandRange(0, MatchingVolumes.Num() - 1)];
+				SelectedVolume->SetCurrentSpawnDataTable(SpawnDataTables[CurrentMissionIndex]);
 				if (SelectedVolume)
 				{
 					SelectedVolume->SpawnRandomEnemy(CurrentMissionIndex);
