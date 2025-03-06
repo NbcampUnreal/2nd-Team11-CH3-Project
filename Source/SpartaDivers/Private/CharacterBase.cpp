@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CharacterBase.h"
+#include "MyGameState.h"
 #include "Components/StatusContainerComponent.h"
 #include "Item/GunBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -38,11 +39,15 @@ float ACharacterBase::TakeDamage(
 	if (StatusContainerComponent->GetCurArmor() <= 0)
 	{
 		StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
+		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+		if (MyGameState)
+		{
+			MyGameState->UpdateHitUI();
+		}
 	}
 	else
 	{
 		StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetCurArmor() - ActualDamage);
-
 	}
 	GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
 	if (StatusContainerComponent->GetCurHealth() <= 0)
