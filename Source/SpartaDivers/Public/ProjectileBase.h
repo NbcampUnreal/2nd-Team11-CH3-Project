@@ -28,6 +28,9 @@ protected:
 
 	FTimerHandle ExplosionTimerHandle;
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* ExplosionSound;
+
 	UPROPERTY(EditAnywhere, Category = "Explode")
 	float ExplosionDelay;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Explode")

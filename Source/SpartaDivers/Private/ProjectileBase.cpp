@@ -25,6 +25,7 @@ AProjectileBase::AProjectileBase()
 
 void AProjectileBase::Explode()
 {
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());
 	
 	DrawDebugSphere(
 		GetWorld(),
