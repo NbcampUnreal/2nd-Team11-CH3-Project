@@ -158,7 +158,7 @@ void ABossEnemy::ApplySpawnMinionEffect()
 
 void ABossEnemy::ApplySpawnBombEffect()
 {
-	float RandOffset = FMath::FRandRange(0.f, 45.f);
+	float RandOffset = FMath::FRandRange(0.f, 360.f);
 
 	for (int i = 0; i < 8; i++)
 	{
