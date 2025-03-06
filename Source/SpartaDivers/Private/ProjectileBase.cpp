@@ -4,6 +4,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 
 AProjectileBase::AProjectileBase()
 {
@@ -25,17 +27,25 @@ AProjectileBase::AProjectileBase()
 
 void AProjectileBase::Explode()
 {
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());
+	if (ExplosionSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation()); 
+	}
 	
-	DrawDebugSphere(
-		GetWorld(),
-		GetActorLocation(), // 폭발 중심
-		ExplosionRadius,    // 반경
-		12,                 // 세그먼트 수 (둥글게 표현할 정도)
-		FColor::Red,        // 색상
-		false,              // 지속 여부 (true면 계속 표시)
-		2.0f                // 지속 시간 (2초 후 사라짐)
-	);
+	if (ExplosionEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), GetActorRotation());
+	}
+	
+	//DrawDebugSphere(
+	//	GetWorld(),
+	//	GetActorLocation(), // 폭발 중심
+	//	ExplosionRadius,    // 반경
+	//	12,                 // 세그먼트 수 (둥글게 표현할 정도)
+	//	FColor::Red,        // 색상
+	//	false,              // 지속 여부 (true면 계속 표시)
+	//	2.0f                // 지속 시간 (2초 후 사라짐)
+	//);
 	Destroy();
 }
 

@@ -9,6 +9,7 @@
 class USphereComponent;
 class UProjectileMovementComponent;
 class UStaticMeshComponent;
+class UNiagaraSystem;
 
 UCLASS()
 class SPARTADIVERS_API AProjectileBase : public AActor
@@ -30,6 +31,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	USoundBase* ExplosionSound;
+
+	UPROPERTY(EditAnywhere)
+	UNiagaraSystem* ExplosionEffect;
 
 	UPROPERTY(EditAnywhere, Category = "Explode")
 	float ExplosionDelay;

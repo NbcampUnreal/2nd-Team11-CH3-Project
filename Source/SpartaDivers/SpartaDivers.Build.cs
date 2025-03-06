@@ -15,8 +15,9 @@ public class SpartaDivers : ModuleRules
 			"InputCore", 
 			"EnhancedInput", 
 			"NavigationSystem",
-			"UMG"
-		});
+			"UMG",
+            "Niagara"
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
