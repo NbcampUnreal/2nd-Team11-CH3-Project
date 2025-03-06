@@ -402,7 +402,7 @@ void AMyPlayerController::BeginPlay()
 	}
 
 	FString CurrentMapName = GetWorld()->GetMapName();
-	if (CurrentMapName.Contains("MainMenu"))
+	if (CurrentMapName.Contains("Cinematic"))
 	{
 		ShowMainMenu(false);
 	}
