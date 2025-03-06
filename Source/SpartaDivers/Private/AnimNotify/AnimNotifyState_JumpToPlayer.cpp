@@ -9,7 +9,7 @@ void UAnimNotifyState_JumpToPlayer::NotifyBegin(USkeletalMeshComponent* MeshComp
     APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(MeshComp->GetWorld(), 0);
     if (PlayerPawn)
     {
-        TargetLocation = PlayerPawn->GetActorLocation() - MeshComp->GetOwner()->GetActorForwardVector() * Radius;
+        TargetLocation = PlayerPawn->GetActorLocation() - MeshComp->GetOwner()->GetActorForwardVector() * Radius + FVector::UpVector * 90.f;
         float Distance = FVector::Distance(TargetLocation, MeshComp->GetOwner()->GetActorLocation());
         Velocity = Distance / TotalDuration;
     }

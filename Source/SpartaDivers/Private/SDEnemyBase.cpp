@@ -19,7 +19,7 @@
 
 ASDEnemyBase::ASDEnemyBase()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	AIControllerClass = ASDAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -86,13 +86,18 @@ float ASDEnemyBase::TakeDamage(
 		}
 	}
 
+	if (UGunBase* Gun = Cast<UGunBase>(DamageCauser))
+	{
+		bHeadshot = Gun->bHitHead;
+	}
+
 	// DamageTextComp가 유효하다면 텍스트 표시
 	if (DamageTextComp)
 	{
 		// 헤드샷이면 빨간색으로 설정
 		if (bHeadshot)
 		{
-			FLinearColor HeadshotColor = FLinearColor(1.0f, 0.0f, 0.0f, 1.0f);  // 빨간색
+			FLinearColor HeadshotColor = FLinearColor(1.0f, 0.0f, 0.0f, 3.0f);  // 빨간색
 			DamageTextComp->ShowDamageText(ActualDamage, HitLocation, HeadshotColor);
 		}
 		else
@@ -195,14 +200,7 @@ void ASDEnemyBase::AddToLogManager()
 
 			if (USDLogManager* LogManager = USDLogManager::Get())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("AddToLogManager Called"));
-
 				LogManager->AddKillLog(VictimName, WeaponName, bHeadshot);
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Failed to Get LogManagers!"));
-
 			}
 		}
 	}
@@ -228,7 +226,6 @@ void ASDEnemyBase::OnDropItem()
 		{
 			if (dropItemInfo.dropItemClass && DropItem)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Spawn"));
 				if (ADropItem* DropItemInstance = GetWorld()->SpawnActor<ADropItem>(DropItem))
 				{
 					DropItemInstance->OwningItemClass = dropItemInfo.dropItemClass;
@@ -263,9 +260,4 @@ void ASDEnemyBase::BeginPlay()
 	Super::BeginPlay();
 
 	this->Tags.Add(TEXT("Enemy"));
-}
-
-void ASDEnemyBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }

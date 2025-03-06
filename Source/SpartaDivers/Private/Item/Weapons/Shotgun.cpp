@@ -3,6 +3,7 @@
 
 #include "Item/Weapons/Shotgun.h"
 #include "Kismet/GameplayStatics.h"
+#include "MyGameInstance.h"
 #include "PlayerCharacter.h"
 #include "DrawDebugHelpers.h"
 
@@ -26,7 +27,10 @@ UShotgun::UShotgun()
 void UShotgun::Fire()
 {
 	Super::Fire();
-	Damage = FMath::RandRange(10.0f, 20.0f);
+    if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this)))
+    {
+        MyGameInstance->ShotgunBulletCount++;
+    }
 	FireShotgun();
 }
 
@@ -90,20 +94,20 @@ void UShotgun::FireShotgun()
 
                 UGameplayStatics::ApplyDamage(
                     HitActor,
-                    FinalDamage,
+                    FinalDamage * FMath::FRandRange(0.9f, 1.1f),
                     PlayerCharacter->GetController(),
                     PlayerCharacter,
                     UDamageType::StaticClass());
             }
 
             // Show debug at crash point
-            DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 5.0f, FColor::Red, false, 2.0f);
-            DrawDebugLine(GetWorld(), TraceStart, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 1.5f);
+            //DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 5.0f, FColor::Red, false, 2.0f);
+            //DrawDebugLine(GetWorld(), TraceStart, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 1.5f);
         }
         else
         {
             // If there is no collision, draw the debug line blue
-            DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Blue, false, 2.0f, 0, 1.5f);
+            //DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Blue, false, 2.0f, 0, 1.5f);
         }
     }
 

@@ -46,6 +46,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USoundBase* DeathSound;
 
+	UPROPERTY(EditDefaultsOnly)
+	UParticleSystem* ShieldFlash;
+
 public:
 	// IStatusContainerInterface��(��) ���� ��ӵ�
 	virtual UStatusContainerComponent* GetStatusContainerComponent() const override;

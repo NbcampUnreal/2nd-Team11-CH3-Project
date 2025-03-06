@@ -56,7 +56,7 @@ void UStatusContainerComponent::SetMaxHealth(float NewMaxHealth)
 
 	if (StatusStruct.MaxHealth < 0.f)
 	{
-		StatusStruct.CurHealth = 0.f;
+		StatusStruct.MaxHealth = 0.f;
 	}
 
 	if (GetCurHealth() > GetMaxHealth())

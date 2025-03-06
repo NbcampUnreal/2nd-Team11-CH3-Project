@@ -31,7 +31,6 @@ void USniperRifle::Fire()
 	{
 		MyGameInstance->SniperBulletCount++;
 	}
-	Damage = FMath::RandRange(150.0f, 300.0f);
 	PerformHitScanWithPenetration();
 }
 
@@ -63,7 +62,7 @@ void USniperRifle::PerformHitScanWithPenetration()
 	FRotator BoxRotation = (End - Start).Rotation();
 
 	// 박스 그리기 (디버깅용)
-	DrawDebugBox(GetWorld(), BoxCenter, BoxExtent, FQuat(BoxRotation), FColor::Red, false, 5.0f, 0, 5.5f);
+	//DrawDebugBox(GetWorld(), BoxCenter, BoxExtent, FQuat(BoxRotation), FColor::Red, false, 5.0f, 0, 5.5f);
 
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(PlayerCharacter);
@@ -118,7 +117,7 @@ void USniperRifle::PerformHitScanWithPenetration()
 						// 일반 데미지 적용
 						UGameplayStatics::ApplyDamage(
 							OverlappedActor,
-							Damage,
+							Damage * FMath::FRandRange(0.9f, 1.1f),
 							PlayerCharacter->GetController(),
 							PlayerCharacter,
 							UDamageType::StaticClass()

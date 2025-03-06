@@ -73,16 +73,6 @@ void AMissionManager::StartMission()
 			SpawnedEnemyCount = 0;
 			KilledEnemyCount = 0;
 
-			TArray<AActor*> FoundAlreadySpawnedEnemies;
-			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASDEnemyBase::StaticClass(), FoundAlreadySpawnedEnemies);
-			for (AActor* Enemy : FoundAlreadySpawnedEnemies)
-			{
-				if (Enemy->ActorHasTag(CurrentMissionData.MissionName))
-				{
-					SpawnedEnemyCount++;
-				}
-			}
-
 			SpawnEnemy();
 			TArray<AActor*> FoundNewlySpawnedEnemies;
 			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASDEnemyBase::StaticClass(), FoundNewlySpawnedEnemies);
@@ -113,13 +103,17 @@ void AMissionManager::StartMission()
 		}
 		case EMissionType::Capture:
 		{
-			SpawnEnemy();
+			GetWorld()->GetTimerManager().SetTimer(
+				SpawnTimerHandle,
+				this,
+				&AMissionManager::SpawnEnemy,
+				3.0f,
+				true);
 			break;
 		}
 		case EMissionType::BossCombat:
 		{
-			SpawnEnemy();
-			// Check When Boss Dead
+			SpawnBoss();
 			break;
 		}
 		default:
@@ -151,6 +145,13 @@ void AMissionManager::CompleteMission()
 	}
 
 	DestroyEnemiesInCurrentMission(CurrentMissionIndex);
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn()))
+		{
+			PlayerCharacter->GetGunItem(CurrentMissionData.RewardWeapon);
+		}
+	}
 
 	CurrentMissionIndex++;
 
@@ -193,7 +194,19 @@ void AMissionManager::OnObjectEndOverlap(
 	UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex)
 {
-	bIsPlayerInCaptureZone = false;
+	TArray<AActor*> OverlappingActors;
+	CaptureZone->GetOverlappingActors(OverlappingActors);
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (OtherActor && OtherActor->ActorHasTag("Player") && bIsPlayerInCaptureZone)
+		{
+			if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor))
+			{
+				bIsPlayerInCaptureZone = false;
+			}
+		}
+	}
 }
 
 void AMissionManager::CheckMissionCompletion()
@@ -227,6 +240,7 @@ void AMissionManager::CheckMissionCompletion()
 		{
 			CompleteMission();
 			bIsPlayerInCaptureZone = false;
+			CaptureProgress = 0;
 		}
 		break;
 	}
@@ -278,9 +292,53 @@ void AMissionManager::SpawnEnemy()
 			for (int32 i = 0; i < EnemiesToSpawn; i++)
 			{
 				SelectedVolume = MatchingVolumes[FMath::RandRange(0, MatchingVolumes.Num() - 1)];
+				SelectedVolume->SetCurrentSpawnDataTable(SpawnDataTables[CurrentMissionIndex]);
 				if (SelectedVolume)
 				{
 					SelectedVolume->SpawnRandomEnemy(CurrentMissionIndex);
+				}
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No Matching SpawnVolume found for Mission Type"));
+		}
+	}
+}
+
+void AMissionManager::SpawnBoss()
+{
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASD_SpawnVolume::StaticClass(), FoundVolumes);
+
+	if (FoundVolumes.Num() > 0 && SpawnDataTables.IsValidIndex(CurrentMissionIndex))
+	{
+		const int32 EnemiesToSpawn = CurrentMissionData.EnemyCount;
+		TArray<ASD_SpawnVolume*> MatchingVolumes;
+
+		// Filter only SpawnVolumes that match the current mission type
+		for (AActor* VolumeActor : FoundVolumes)
+		{
+			if (ASD_SpawnVolume* SpawnVolume = Cast<ASD_SpawnVolume>(VolumeActor))
+			{
+				if (SpawnVolume->GetMissionType() == CurrentMissionData.MissionType)
+				{
+					MatchingVolumes.Add(SpawnVolume);
+				}
+			}
+		}
+
+		// Spawn enemies if the appropriate SpawnVolume exists
+		if (MatchingVolumes.Num() > 0)
+		{
+			ASD_SpawnVolume* SelectedVolume = MatchingVolumes[FMath::RandRange(0, MatchingVolumes.Num() - 1)];
+			SelectedVolume->SetCurrentSpawnDataTable(SpawnDataTables[CurrentMissionIndex]);
+			for (int32 i = 0; i < EnemiesToSpawn; i++)
+			{
+				SelectedVolume = MatchingVolumes[FMath::RandRange(0, MatchingVolumes.Num() - 1)];
+				SelectedVolume->SetCurrentSpawnDataTable(SpawnDataTables[CurrentMissionIndex]);
+				if (SelectedVolume)
+				{
+					SelectedVolume->SpawnBoss();
 				}
 			}
 		}

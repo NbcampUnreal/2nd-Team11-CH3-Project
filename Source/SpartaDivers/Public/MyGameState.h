@@ -38,6 +38,9 @@ public:
 	void UpdateHUD();
 	UFUNCTION(BlueprintCallable)
 	void UpdateCrossHair();
+	void UpdateHitUI();
+	UFUNCTION(BlueprintCallable)
+	void SwapUIAnim();
 
 protected:
 	virtual void BeginPlay() override;

@@ -30,7 +30,6 @@ void UAssaultRifle::Fire()
     {
         MyGameInstance->AssaultBulletCount++;
     }
-    Damage = FMath::RandRange(25.0f, 40.0f);
     PerformHitScan();
 }
 
@@ -72,7 +71,6 @@ void UAssaultRifle::PerformHitScan()
             {
                 bHitHead = true;
                 FinalDamage *= 2.0f;
-                UE_LOG(LogTemp, Warning, TEXT("Headshot! Extra damage applied."));
             }
             else
             {
@@ -81,7 +79,7 @@ void UAssaultRifle::PerformHitScan()
             
             UGameplayStatics::ApplyPointDamage(
                 HitActor,
-                FinalDamage,
+                FinalDamage * FMath::FRandRange(0.9f, 1.1f),
                 ShotDirection,
                 HitResult,
                 PlayerCharacter->GetController(),
@@ -90,13 +88,13 @@ void UAssaultRifle::PerformHitScan()
         }
 
         // Show debug at crash point
-        DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 5.0f, FColor::Red, false, 2.0f);
-        DrawDebugLine(GetWorld(), Start, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 1.5f);
+        //DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 5.0f, FColor::Red, false, 2.0f);
+        //DrawDebugLine(GetWorld(), Start, HitResult.ImpactPoint, FColor::Green, false, 2.0f, 0, 1.5f);
     }
     else
     {
         // If there is no collision, draw the debug line blue
-        DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 0, 1.5f);
+        //DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 0, 1.5f);
     }
 
     ApplyRecoil();

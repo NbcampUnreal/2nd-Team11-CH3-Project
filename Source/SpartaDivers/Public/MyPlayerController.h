@@ -51,6 +51,8 @@ public:
 	UInputAction* CrouchAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* RollingAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* ZoomAction;
 
 	UFUNCTION(BlueprintPure, Category = "UI|HUD")
 	UUserWidget* GetHUDWidget() const;
@@ -80,12 +82,21 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UI|Crosshair")
 	UUserWidget* CrosshairWidgetInstance;
 
+	UFUNCTION(BlueprintPure, Category = "UI|HitEffect")
+	UUserWidget* GetHitEffectWidget() const;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|HitEffect")
+	TSubclassOf<UUserWidget> HitEffectWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UI|HitEffect")
+	UUserWidget* HitEffectWidgetInstance;
+
 	UFUNCTION(BlueprintCallable, Category = "UI|HUD")
 	void ShowGameHUD();
 	UFUNCTION(BlueprintCallable, Category = "UI|MainMenu")
 	void ShowMainMenu(bool bIsRestart);
 	UFUNCTION(BlueprintCallable, Category = "UI|Crosshair")
 	void ShowCrosshair();
+	UFUNCTION(BlueprintCallable, Category = "UI|HitEffect")
+	void ShowHitEffect();
 	UFUNCTION(BlueprintCallable, Category = "UI|KillLog")
 	void ShowKillLog();
 	UFUNCTION(BlueprintCallable, Category = "Menu")

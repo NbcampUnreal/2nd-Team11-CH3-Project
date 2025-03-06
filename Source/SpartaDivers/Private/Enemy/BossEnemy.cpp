@@ -3,14 +3,13 @@
 #include "Enemy/BossEnemy.h"
 #include "PlayerCharacter.h"
 #include "Components/StatusContainerComponent.h"
-
+#include "EnemyProjectile.h"
 
 ABossEnemy::ABossEnemy()
 {
-	Damage = FMath::RandRange(50.0f, 150.0f);
+	StatusContainerComponent->SetMaxHealth(5000.f);
 	KillScore = Damage * 3 + StatusContainerComponent->GetMaxHealth();
-	StatusContainerComponent->SetMaxHealth(FMath::RandRange(2000.0f, 5000.0f));
-	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
+	StatusContainerComponent->SetCurHealth(5000.f);
 }
 
 void ABossEnemy::BeginPlay()
@@ -18,6 +17,8 @@ void ABossEnemy::BeginPlay()
 	Super::BeginPlay();
 
 	this->Tags.Add(TEXT("Boss"));
+	/*float InitCurHealth = StatusContainerComponent->GetMaxHealth();
+	StatusContainerComponent->SetCurHealth(InitCurHealth);*/
 }
 
 void ABossEnemy::Attack(int32 SkillIndex)
@@ -72,6 +73,10 @@ void ABossEnemy::ApplyAttackEffect(int32 EffectIndex)
 	case 2:
 		ApplySpawnMinionEffect();
 		break;
+	case 3:
+		ApplySpawnBombEffect();
+	case 4:
+		ApplyFireEffect();
 	default:
 		break;
 	}
@@ -82,9 +87,9 @@ void ABossEnemy::ApplyBasicAttackEffect()
 	TArray<FHitResult> OutHits;
 	FVector Start = GetActorLocation();
 	FCollisionQueryParams CollisionParams(NAME_Name, false, this);
-	FCollisionObjectQueryParams ColisionObjectParams(ECollisionChannel::ECC_Visibility);
+	FCollisionObjectQueryParams ColisionObjectParams(ECollisionChannel::ECC_Pawn);
 
-	bool OnHit = GetWorld()->SweepMultiByChannel(OutHits, Start, Start, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(BasicAttackRange), CollisionParams);
+	bool OnHit = GetWorld()->SweepMultiByChannel(OutHits, Start, Start, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(BasicAttackRange), CollisionParams);
 	if (OnHit == false) return;
 
 	for (const FHitResult& OutHit : OutHits)
@@ -94,13 +99,13 @@ void ABossEnemy::ApplyBasicAttackEffect()
 
 		UGameplayStatics::ApplyDamage(
 			Player,
-			Damage,
+			Damage * BasicAttackRate,
 			GetController(),
 			this,
 			UDamageType::StaticClass());
 	}
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), BasicAttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
+	//DrawDebugSphere(GetWorld(), GetActorLocation(), BasicAttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
 }
 
 void ABossEnemy::ApplyJumpAttackEffect()
@@ -108,9 +113,9 @@ void ABossEnemy::ApplyJumpAttackEffect()
 	TArray<FHitResult> OutHits;
 	FVector Start = GetActorLocation();
 	FCollisionQueryParams CollisionParams(NAME_Name, false, this);
-	FCollisionObjectQueryParams ColisionObjectParams(ECollisionChannel::ECC_Visibility);
+	FCollisionObjectQueryParams ColisionObjectParams(ECollisionChannel::ECC_Pawn);
 
-	bool OnHit = GetWorld()->SweepMultiByChannel(OutHits, Start, Start, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(JumpAttackRange), CollisionParams);
+	bool OnHit = GetWorld()->SweepMultiByChannel(OutHits, Start, Start, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(JumpAttackRange), CollisionParams);
 	if (OnHit == false) return;
 
 	for (const FHitResult& OutHit : OutHits)
@@ -120,13 +125,13 @@ void ABossEnemy::ApplyJumpAttackEffect()
 
 		UGameplayStatics::ApplyDamage(
 			Player,
-			Damage,
+			Damage * JumpAttackRate,
 			GetController(),
 			this,
 			UDamageType::StaticClass());
 	}
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), JumpAttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
+	//DrawDebugSphere(GetWorld(), GetActorLocation(), JumpAttackRange, 12, FColor::Red, false, 5.f, 0, 2.f);
 }
 
 void ABossEnemy::ApplySpawnMinionEffect()
@@ -149,5 +154,36 @@ void ABossEnemy::ApplySpawnMinionEffect()
 		FVector SpawnLocation = FVector(X, Y, GetActorLocation().Z + 200.f);
 
 		GetWorld()->SpawnActor<AActor>(SpawnEnemies[RandomInt], SpawnLocation, GetActorRotation());
+	}
+}
+
+void ABossEnemy::ApplySpawnBombEffect()
+{
+	float RandOffset = FMath::FRandRange(0.f, 360.f);
+
+	for (int i = 0; i < 8; i++)
+	{
+		float Radian = FMath::DegreesToRadians(45.f * i);
+		Radian += FMath::DegreesToRadians(RandOffset);
+		FVector Direction = FVector(FMath::Cos(Radian), FMath::Sin(Radian), 0.0f);
+		AEnemyProjectile* ProjectileInstance = GetWorld()->SpawnActor<AEnemyProjectile>(ProjectileClass, GetActorLocation() + GetActorUpVector() * 500.f + Direction * 200.f, Direction.Rotation());
+		if (ProjectileInstance)
+		{
+			ProjectileInstance->SetExplosionDamage(Damage * BombDamageRate);
+			ProjectileInstance->InitProjectile(FMath::FRandRange(750.f, 2000.f));
+		}
+	}
+}
+
+void ABossEnemy::ApplyFireEffect()
+{
+	FVector SocketLocation = GetMesh()->GetSocketLocation(FireSocketName);
+	FRotator SocketRotation = GetMesh()->GetSocketRotation(FireSocketName);
+	AEnemyProjectile* ProjectileInstance = GetWorld()->SpawnActor<AEnemyProjectile>(ProjectileClass, SocketLocation, SocketRotation);
+
+	if (ProjectileInstance)
+	{
+		ProjectileInstance->SetExplosionDamage(Damage * BombDamageRate);
+		ProjectileInstance->InitProjectile(FMath::FRandRange(2000.f, 3000.f));
 	}
 }

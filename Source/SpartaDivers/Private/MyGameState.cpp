@@ -133,7 +133,12 @@ void AMyGameState::UpdateHUD()
 						{
 							if (PlayerCharacter->GetEquippedGun())
 							{
+								WeaponImage->SetVisibility(ESlateVisibility::Visible);
 								WeaponImage->SetBrushFromTexture(PlayerCharacter->GetEquippedGun()->GetIconImage());
+							}
+							else
+							{
+								WeaponImage->SetVisibility(ESlateVisibility::Hidden);
 							}
 						}
 					}
@@ -143,12 +148,13 @@ void AMyGameState::UpdateHUD()
 						{
 							if (PlayerCharacter->GetSubGun())
 							{
+								SubWeaponImage->SetVisibility(ESlateVisibility::Visible);
 								SubWeaponImage->SetBrushFromTexture(PlayerCharacter->GetSubGun()->GetIconImage());
 							}
-						}
-						else
-						{
-							SubWeaponImage->SetVisibility(ESlateVisibility::Hidden);
+							else
+							{
+								SubWeaponImage->SetVisibility(ESlateVisibility::Hidden);
+							}
 						}
 					}
 				}
@@ -157,7 +163,14 @@ void AMyGameState::UpdateHUD()
 				{
 					if (UTextBlock* MissionText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("MissionText"))))
 					{
-						MissionText->SetText(FText::FromName(MissionManager->CurrentMissionData.MissionName));
+						if (MissionManager->bIsPlayerOnMission)
+						{
+							MissionText->SetText(FText::FromName(MissionManager->CurrentMissionData.MissionName));
+						}
+						else
+						{
+							MissionText->SetText(FText::FromString(FString::Printf(TEXT("Mission Success!"))));
+						}
 					}
 					// Hide all Information
 					if (UProgressBar* EliminateProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("EliminateProgressBar"))))
@@ -264,6 +277,18 @@ void AMyGameState::UpdateHUD()
 					}
 					}
 				}
+				// GameData
+				if (UGameInstance* GameInstance = GetGameInstance())
+				{
+					UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(GameInstance);
+					if (MyGameInstance)
+					{
+						if (UTextBlock* CurrentScoreText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("CurrentScoreText"))))
+						{
+							CurrentScoreText->SetText(FText::FromString(FString::Printf(TEXT("Score : %d"), MyGameInstance->TotalScore)));
+						}
+					}
+				}
 			}
 
 		}
@@ -284,9 +309,47 @@ void AMyGameState::UpdateCrossHair()
 				{
 					CrosshairWidget->ProcessEvent(PlayAnimCrosshair, nullptr);
 				}
-				else
+			}
+		}
+	}
+}
+
+void AMyGameState::UpdateHitUI()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
+		{
+			if (UUserWidget* HitEffectWidget = MyPlayerController->GetHitEffectWidget())
+			{
+				UFunction* PlayAnimHitEffect = HitEffectWidget->FindFunction(FName("PlayAnimHitEffect"));
+				if (PlayAnimHitEffect)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("FailedToo......"));
+					HitEffectWidget->ProcessEvent(PlayAnimHitEffect, nullptr);
+					UE_LOG(LogTemp, Warning, TEXT("PlayAnimHitEffect"));
+				}
+			}
+			else
+			{
+					UE_LOG(LogTemp, Warning, TEXT("HitEffectWidget NOTFOUND"));
+			}
+		}
+	}
+}
+
+void AMyGameState::SwapUIAnim()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AMyPlayerController* MyPlayerController = Cast<AMyPlayerController>(PlayerController))
+		{
+			// CrosshairWidget
+			if (UUserWidget* HUDWidget = MyPlayerController->GetHUDWidget())
+			{
+				UFunction* PlaySwapAnim = HUDWidget->FindFunction(FName("PlaySwapAnim"));
+				if (PlaySwapAnim)
+				{
+					HUDWidget->ProcessEvent(PlaySwapAnim, nullptr);
 				}
 			}
 		}

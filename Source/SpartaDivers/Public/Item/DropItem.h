@@ -26,6 +26,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UItemBase> OwningItemClass;
 
+	UPROPERTY(EditDefaultsOnly)
+	USoundBase* GetSound;
+
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	USphereComponent* SphereComponent;

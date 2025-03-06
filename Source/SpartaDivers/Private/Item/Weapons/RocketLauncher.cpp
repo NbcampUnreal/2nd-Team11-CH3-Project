@@ -37,7 +37,6 @@ void URocketLauncher::Fire()
         {
             MyGameInstance->RocketBulletCount++;
         }
-        Damage = FMath::RandRange(200.0f, 500.0f);
         LaunchProjectile();
         Super::Fire();
 
@@ -83,14 +82,14 @@ FRotator URocketLauncher::GetLaunchRotation()
     if (bHit)
     {
         FVector TargetLocation = HitResult.ImpactPoint;
-        DrawDebugPoint(GetWorld(), TargetLocation, 5.0f, FColor::Red, false, 2.0f);
-        DrawDebugLine(GetWorld(), Start, TargetLocation, FColor::Green, false, 2.0f, 0, 1.5f);
+        /*DrawDebugPoint(GetWorld(), TargetLocation, 5.0f, FColor::Red, false, 2.0f);
+        DrawDebugLine(GetWorld(), Start, TargetLocation, FColor::Green, false, 2.0f, 0, 1.5f);*/
 
         return (TargetLocation - PlayerCharacter->GetMesh()->GetSocketLocation(FireSocketName)).Rotation();
     }
     else
     {
-        DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 0, 1.5f);
+        //DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 0, 1.5f);
         return PlayerCharacter->GetControlRotation();
     }
 }

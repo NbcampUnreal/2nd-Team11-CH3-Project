@@ -1,9 +1,11 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CharacterBase.h"
+#include "MyGameState.h"
 #include "Components/StatusContainerComponent.h"
 #include "Item/GunBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 
 ACharacterBase::ACharacterBase()
 {
@@ -24,7 +26,7 @@ float ACharacterBase::TakeDamage(
 	float DamageAmount,
 	FDamageEvent const& DamageEvent,
 	AController* EventInstigator,
-	AActor* DamageCauser)
+	AActor* DamageCauser)		
 {
 	if (bIsDead) return 0.f;
 
@@ -39,17 +41,18 @@ float ACharacterBase::TakeDamage(
 	{
 		StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
 		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+		
 	}
 	else
 	{
 		StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetCurArmor() - ActualDamage);
-
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ShieldFlash, GetActorLocation());
 	}
 	if (StatusContainerComponent->GetCurHealth() <= 0)
 	{
 		if (bHeadshot)
 		{
-			KillScore *= 2;  // Çìµå¼¦ÀÌ¸é KillScore µÎ ¹è Áõ°¡
+			KillScore *= 2;  // Ã‡Ã¬ÂµÃ¥Â¼Â¦Ã€ÃŒÂ¸Ã© KillScore ÂµÃŽ Â¹Ã¨ ÃÃµÂ°Â¡
 		}
 		OnDeath();
 	}

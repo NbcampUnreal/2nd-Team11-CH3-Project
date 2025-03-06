@@ -6,6 +6,8 @@
 #include "SDEnemyBase.h"
 #include "BossEnemy.generated.h"
 
+class AEnemyProjectile;
+
 UCLASS()
 class SPARTADIVERS_API ABossEnemy : public ASDEnemyBase
 {
@@ -40,6 +42,8 @@ public:
 	void ApplyBasicAttackEffect();
 	void ApplyJumpAttackEffect();
 	void ApplySpawnMinionEffect();
+	void ApplySpawnBombEffect();
+	void ApplyFireEffect();
 
 	UPROPERTY(EditDefaultsOnly)
 	float BasicAttackRange;
@@ -60,5 +64,14 @@ public:
 	float SpawnMinionRange;
 
 	UPROPERTY(EditDefaultsOnly)
+	float BombDamageRate;
+
+	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<ASDEnemyBase>> SpawnEnemies;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AEnemyProjectile> ProjectileClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	FName FireSocketName;
 };
