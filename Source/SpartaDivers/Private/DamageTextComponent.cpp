@@ -65,7 +65,7 @@ void UDamageTextComponent::ShowDamageText(float Damage, FVector HitLocation, FLi
 	}
 
 	// 위치 설정 (HitLocation을 기준으로 약간의 높이를 추가)
-	DamageTextWidgetComponent->SetWorldLocation(HitLocation + FVector(-100, 0, 80));  // Z 값으로 텍스트 높이 조정
+	DamageTextWidgetComponent->SetWorldLocation(HitLocation);  // Z 값으로 텍스트 높이 조정
 
 	// DamageText 찾기
 	if (UTextBlock* DamageText = Cast<UTextBlock>(DamageTextWidgetComponent->GetWidget()->GetWidgetFromName("DamageText")))

@@ -82,9 +82,51 @@ float ASDEnemyBase::TakeDamage(
 		const FPointDamageEvent* PointDamageEvent = static_cast<const FPointDamageEvent*>(&DamageEvent);
 		if (PointDamageEvent)
 		{
-			HitLocation = PointDamageEvent->HitInfo.ImpactPoint;
+			FVector Offset = FVector::UpVector;
+			if (this->ActorHasTag("Enemy") && this->ActorHasTag("Boss"))
+			{
+				Offset *= 300;
+				HitLocation = PointDamageEvent->HitInfo.ImpactPoint + Offset;
+				UE_LOG(LogTemp, Warning, TEXT("Boss"));
+			}
+			else if (this->ActorHasTag("Enemy") && !this->ActorHasTag("Boss"))
+			{
+				Offset *= 80;
+				HitLocation = PointDamageEvent->HitInfo.ImpactPoint + Offset;
+				UE_LOG(LogTemp, Warning, TEXT("Enemy"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("NOTPointDamageEvent"));
+
 		}
 	}
+	else if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
+	{
+		const FRadialDamageEvent* RadialDamageEvent = static_cast<const FRadialDamageEvent*>(&DamageEvent);
+		if (RadialDamageEvent)
+		{
+			FVector Offset = FVector::UpVector;
+			if (this->ActorHasTag("Enemy") && this->ActorHasTag("Boss"))
+			{
+				Offset *= 300;
+				HitLocation = RadialDamageEvent->Origin + Offset;
+				UE_LOG(LogTemp, Warning, TEXT("Boss Radial Damage"));
+			}
+			else if (this->ActorHasTag("Enemy") && !this->ActorHasTag("Boss"))
+			{
+				Offset *= 80;
+				HitLocation = RadialDamageEvent->Origin + Offset;
+				UE_LOG(LogTemp, Warning, TEXT("Enemy Radial Damage"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("NOTRadialDamageEvent"));
+		}
+	}
+
 
 	if (UGunBase* Gun = Cast<UGunBase>(DamageCauser))
 	{
@@ -102,7 +144,7 @@ float ASDEnemyBase::TakeDamage(
 		}
 		else
 		{
-			FLinearColor BodyshotColor = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);  // 하얀색
+			FLinearColor BodyshotColor = FLinearColor(0.0f, 1.0f, 0.0f, 1.0f);  // 파란색
 			DamageTextComp->ShowDamageText(ActualDamage, HitLocation, BodyshotColor);
 		}
 	}
@@ -130,7 +172,7 @@ void ASDEnemyBase::OnDeath()
 	}
 
 	UpdateGameData();
-	
+
 	Super::OnDeath();
 
 	AMissionManager* MissionManager = Cast<AMissionManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMissionManager::StaticClass()));

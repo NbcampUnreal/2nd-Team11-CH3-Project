@@ -18,7 +18,7 @@ URocketLauncher::URocketLauncher()
         ProjectileClass = ProjectileBP.Class;
     }
 
-    Damage = 30.0f;
+    Damage = 300.0f;
     FireRate = 2.0f;
     MaxAmmo = 8;
     CurAmmo = MaxAmmo;
