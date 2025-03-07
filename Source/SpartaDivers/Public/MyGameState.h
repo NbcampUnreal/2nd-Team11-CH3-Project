@@ -6,6 +6,8 @@
 #include "GameFramework/GameStateBase.h"
 #include "MyGameState.generated.h"
 
+class UImage;
+class UGunBase;
 UCLASS()
 class SPARTADIVERS_API AMyGameState : public AGameStateBase
 {
@@ -37,8 +39,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateHUD();
 	UFUNCTION(BlueprintCallable)
+	void UpdateWeaponImage(UImage* ImageWidget, UGunBase* Gun);
+	UFUNCTION(BlueprintCallable)
 	void UpdateCrossHair();
+	UFUNCTION(BlueprintCallable)
 	void UpdateHitUI();
+	UFUNCTION(BlueprintCallable)
+	void PlayWeaponUnlockedAnim();
 	UFUNCTION(BlueprintCallable)
 	void SwapUIAnim();
 

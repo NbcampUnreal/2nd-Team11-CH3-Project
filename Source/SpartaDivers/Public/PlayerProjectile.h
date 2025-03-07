@@ -28,4 +28,6 @@ public:
 	void Explode() override;
 
 	void SetVelocity(FVector InDirection, float Speed);
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 };

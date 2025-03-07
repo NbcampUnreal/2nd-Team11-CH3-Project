@@ -118,6 +118,13 @@ void APlayerCharacter::BeginPlay()
 		EquippedGun = NewGun;
 	}
 
+	/*if (RocketLauncher)
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, RocketLauncher);
+		NewGun->InitializeItem(RocketLauncher->GetDefaultObject<UGunBase>());
+		EquippedGun = NewGun;
+	}*/
+
 	this->Tags.Add(TEXT("Player"));
 	GetWorld()->GetTimerManager().SetTimer(
 		ArmorRestoreTimer,

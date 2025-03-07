@@ -3,11 +3,11 @@
 #include "Enemy/BossEnemy.h"
 #include "PlayerCharacter.h"
 #include "Components/StatusContainerComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "EnemyProjectile.h"
 
 ABossEnemy::ABossEnemy()
 {
-	StatusContainerComponent->SetMaxHealth(5000.f);
 	KillScore = Damage * 3 + StatusContainerComponent->GetMaxHealth();
 	StatusContainerComponent->SetCurHealth(5000.f);
 }

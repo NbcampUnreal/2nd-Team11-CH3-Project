@@ -220,10 +220,10 @@ void AMyPlayerController::ShowMainMenu(bool bIsRestart)
 				if (MyGameState)
 				{
 					MyGameState->UpdateHUD();
+					PlayTimeText->SetText(FText::FromString(
+						FString::Printf(TEXT("%s"), *MyGameState->PlayTimeStr)
+					));
 				}
-				PlayTimeText->SetText(FText::FromString(
-					FString::Printf(TEXT("%s"), *MyGameState->PlayTimeStr)
-				));
 			}
 			else
 			{

@@ -2,6 +2,7 @@
 
 #include "PlayerProjectile.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Engine/OverlapResult.h"
 
@@ -21,10 +22,16 @@ void APlayerProjectile::OnProjectileOverlap(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	if (OtherActor)
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
 	{
-		GetWorld()->GetTimerManager().ClearTimer(PlayerProjectileTimerHandle);
-		Explode();
+		if (!PlayerCharacter)
+		{
+			if (OtherActor)
+			{
+				GetWorld()->GetTimerManager().ClearTimer(PlayerProjectileTimerHandle);
+				Explode();
+			}
+		}
 	}
 }
 
@@ -78,4 +85,10 @@ void APlayerProjectile::SetVelocity(FVector InDirection, float Speed)
 		this,
 		&APlayerProjectile::Explode,
 		ExplosionDelay);
+}
+
+void APlayerProjectile::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
 }
