@@ -65,7 +65,8 @@ void AMissionStartTrigger::OnInteracted()
 			{
 				if (APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn()))
 				{
-					FVector CaptureLocation = FVector(54110, -52200, -0);
+					FVector CaptureLocation = FVector(56753, -51952, -1350);
+					PlayerCharacter->SetActorRotation(FRotator(0.f, 0.f, -190.f));
 					bool bSuccess = PlayerCharacter->SetActorLocation(CaptureLocation, false); 
 				}
 			}

@@ -153,15 +153,17 @@ void AMissionManager::CompleteMission()
 		}
 	}
 
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		MyGameState->PlayWeaponUnlockedAnim();
+	}
+
 	CurrentMissionIndex++;
 
 	if (CurrentMissionIndex == MaxMissionCount)
 	{
-		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
-		if (MyGameState)
-		{
-			MyGameState->OnGameOver();
-		}
+		MyGameState->OnGameOver();
 	}
 }
 
