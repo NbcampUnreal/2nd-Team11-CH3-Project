@@ -3,3 +3,15 @@
 
 #include "Item/AttachmentBase.h"
 
+UAttachmentBase::UAttachmentBase()
+{
+	ItemType = EItemType::Attachment;
+}
+
+void UAttachmentBase::ApplyAttachmentEffect(UGunBase* InGun)
+{
+}
+
+void UAttachmentBase::RemoveAttachmentEffect(UGunBase* InGun)
+{
+}

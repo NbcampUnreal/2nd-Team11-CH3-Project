@@ -1,34 +1,74 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CharacterBase.h"
+#include "MyGameState.h"
+#include "Components/StatusContainerComponent.h"
+#include "Item/GunBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 
-// Sets default values
 ACharacterBase::ACharacterBase()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
+	StatusContainerComponent = CreateDefaultSubobject<UStatusContainerComponent>(TEXT("StatusContainerComponent"));
+
+	KillScore = 0;
+	bHeadshot = false;
 }
 
-// Called when the game starts or when spawned
-void ACharacterBase::BeginPlay()
+UStatusContainerComponent* ACharacterBase::GetStatusContainerComponent() const
 {
-	Super::BeginPlay();
-	
+	return StatusContainerComponent;
 }
 
-// Called every frame
-void ACharacterBase::Tick(float DeltaTime)
+float ACharacterBase::TakeDamage(
+	float DamageAmount,
+	FDamageEvent const& DamageEvent,
+	AController* EventInstigator,
+	AActor* DamageCauser)		
 {
-	Super::Tick(DeltaTime);
+	if (bIsDead) return 0.f;
 
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	if (UGunBase* Gun = Cast<UGunBase>(DamageCauser))
+	{
+		bHeadshot = Gun->bHitHead;
+	}
+
+	if (StatusContainerComponent->GetCurArmor() <= 0)
+	{
+		StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetCurHealth() - ActualDamage);
+		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+		
+	}
+	else
+	{
+		StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetCurArmor() - ActualDamage);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ShieldFlash, GetActorLocation());
+	}
+	if (StatusContainerComponent->GetCurHealth() <= 0)
+	{
+		if (bHeadshot)
+		{
+			KillScore *= 2;  // Çìµå¼¦ÀÌ¸é KillScore µÎ ¹è Áõ°¡
+		}
+		OnDeath();
+	}
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, GetActorLocation());
+	return ActualDamage;
 }
 
-// Called to bind functionality to input
-void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ACharacterBase::OnDeath()
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
 
+	if (GetMesh()->GetAnimInstance())
+	{
+		GetMesh()->GetAnimInstance()->StopAllMontages(0.25f);
+	}
+
+	bIsDead = true;
 }
-

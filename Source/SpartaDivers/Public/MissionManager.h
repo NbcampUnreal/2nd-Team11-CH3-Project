@@ -9,69 +9,103 @@
 #include "MissionManager.generated.h"
 
 class UBoxComponent;
+class AMissionStartTrigger;
 UCLASS()
 class SPARTADIVERS_API AMissionManager : public AActor
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    AMissionManager();
+	AMissionManager();
 
-    FTimerHandle SurvivalTimerHandle;
-    FTimerHandle EscapeTimerHandle;
+	// Spawn TimerHandle
+	FTimerHandle SpawnTimerHandle;
+	// Survive TimerHandle
+	FTimerHandle SurvivalTimerHandle;
+	// RestTime before next Mission
+	FTimerHandle NextMissionTimerHandle;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
-    UDataTable* MissionDataTable;
-    UPROPERTY(BlueprintReadOnly, Category = "Mission")
-    FMissionDataRow CurrentMissionData;
-    UPROPERTY(BlueprintReadOnly, Category = "Mission")
-    int32 CurrentMissionIndex;
-    UPROPERTY(BlueprintReadOnly, Category = "Mission")
-    int32 MaxMissionCount;
+	// Enemy SpawnVolumes
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
+	TArray<AActor*> FoundVolumes;
+	// Enemy Spawn DataTable
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	TArray<UDataTable*> SpawnDataTables;
 
-    virtual void BeginPlay() override;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MissionTrigger")
+	TArray<AActor*> FoundMissionStartTriggers;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MissionTrigger")
+	AMissionStartTrigger* MissionStartTrigger;
 
-    virtual void Tick(float DeltaTime) override;
+	// Mission DataTable
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
+	UDataTable* MissionDataTable;
+	// Current Mission DataRow
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mission")
+	FMissionDataRow CurrentMissionData;
+	// Current Mission Index
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mission")
+	int32 CurrentMissionIndex;
+	// Max Mission Count
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mission")
+	int32 MaxMissionCount;
 
-    UFUNCTION(BlueprintCallable, Category = "Mission")
-    void StartMission();
+	// Get All Rows and Set MaxMissionCount
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
-    UFUNCTION(BlueprintCallable, Category = "Mission")
-    void CompleteMission(bool bMissionSuccess);
+	UFUNCTION(BlueprintCallable, Category = "Mission")
+	void StartMission();
+	UFUNCTION(BlueprintCallable, Category = "Mission")
+	void CompleteMission();
+	UFUNCTION(BlueprintCallable, Category = "Mission")
+	void CheckMissionCompletion();
 
-    /* ============== Eliminate ============== */
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Eliminate")
-    int32 SpawnedEnemyCount;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Eliminate")
-    int32 KilledEnemyCount;
-    /* ======================================== */
 
-    /* ============== Capture ============== */
-    UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Capture")
-    float CaptureProgress;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Capture")
-    UBoxComponent* CaptureZone;
-    UFUNCTION()
-    virtual void OnObjectOverlap(
-        UPrimitiveComponent* OverlappedComp,
-        AActor* OtherActor,
-        UPrimitiveComponent* OtherComp,
-        int32 OtherBodyIndex,
-        bool bFromSweep,
-        const FHitResult& SweepResult);
-    UFUNCTION()
-    void OnObjectEndOverlap(
-        UPrimitiveComponent* OverlappedComp,
-        AActor* OtherActor, 
-        UPrimitiveComponent* OtherComp,
-        int32 OtherBodyIndex);
-    /* ======================================== */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mission")
+	bool bIsPlayerOnMission;
+
+	// Spawn enemies based on chance in SpawnDataTables
+	UFUNCTION(BlueprintCallable, Category = "Spawning")
+	void SpawnEnemy();
+	UFUNCTION(BlueprintCallable, Category = "Spawning")
+	void SpawnBoss();
+	// Destoy all enemies when Complete Mission
+	UFUNCTION(BlueprintCallable, Category = "Spawning")
+	void DestroyEnemiesInCurrentMission(int MissionIndex);
+
+	// ============== Eliminate ==============
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Eliminate")
+	int32 SpawnedEnemyCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Eliminate")
+	int32 KilledEnemyCount;
+	// ========================================
+
+	// ============== Capture ============== 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Capture")
+	float CaptureProgress;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Capture")
+	UBoxComponent* CaptureZone;
+	UFUNCTION()
+	virtual void OnObjectOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+	UFUNCTION()
+	void OnObjectEndOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex);
+	// ========================================
 
 private:
-    /* ============== Capture ============== */
-    bool bIsPlayerInCaptureZone;
-    /* ======================================== */
-
-    void CheckMissionCompletion();
+	/* ============== Capture ============== */
+	bool bIsPlayerInCaptureZone;
+	/* ======================================== */
+	
 
 };

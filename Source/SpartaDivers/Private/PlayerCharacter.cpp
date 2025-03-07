@@ -1,18 +1,28 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "PlayerCharacter.h"
+#include "MyGameState.h"
 #include "MyPlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/StatusContainerComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/InventoryComponent.h"
+#include "Item/GunBase.h"
+#include "Item/Weapons/AssaultRifle.h"
+#include "Animation/AnimMontage.h"
+#include "Item/Weapons/SniperRifle.h"
+#include "Item/Weapons/RocketLauncher.h"
+#include "Blueprint/UserWidget.h"
+#include "MissionStartTrigger.h"
+#include "UI/MyHUD.h"
+#include "Kismet/GameplayStatics.h"
+#include "Item/ConsumableBase.h"
 
-
-// Sets default values
 APlayerCharacter::APlayerCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
@@ -24,28 +34,135 @@ APlayerCharacter::APlayerCharacter()
 	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 	CameraComp->bUsePawnControlRotation = false;
 
+	DefaultFOV = 90.0f;
+	ZoomedFOV = 60.0f;
+	ZoomInterpSpeed = 20.0f;
+	bIsZoom = false;
+
 	MoveSpeed = 600.0f;
 	SprintSpeedMultiplier = 1.5f;
 	SprintSpeed = MoveSpeed * SprintSpeedMultiplier;
 
+	StatusContainerComponent->SetMaxHealth(200);
+	StatusContainerComponent->SetCurHealth(StatusContainerComponent->GetMaxHealth());
+
+	StatusContainerComponent->SetMaxArmor(100);
+	StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetMaxArmor());
+	RestoreArmorAmount = 5.0f;
+
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 }
 
-// Called when the game starts or when spawned
+void APlayerCharacter::SetConsumable(UConsumableBase* InItem, int32 InSlotNum)
+{
+	switch (InSlotNum)
+	{
+	case 0:
+		FirstConsumable = InItem;
+		break;
+	case 1:
+		SecondConsumable = InItem;
+		break;
+	case 2:
+		ThirdConsumable = InItem;
+		break;
+	default:
+		break;
+	}
+}
+
+void APlayerCharacter::GetGunItem(FName GunName)
+{
+	if (GunName == FName("AssaultRifle"))
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, AssaultRifle);
+		NewGun->InitializeItem(AssaultRifle->GetDefaultObject<UGunBase>());
+		InventoryComponent->AddItem(NewGun);
+	}
+	else if (GunName == FName("SniperRifle"))
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, SniperRifle);
+		NewGun->InitializeItem(SniperRifle->GetDefaultObject<UGunBase>());
+		InventoryComponent->AddItem(NewGun);
+	}
+	else if (GunName == FName("Shotgun"))
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, Shotgun);
+		NewGun->InitializeItem(Shotgun->GetDefaultObject<UGunBase>());
+		InventoryComponent->AddItem(NewGun);
+	}
+	else if (GunName == FName("RocketLauncher"))
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, RocketLauncher);
+		NewGun->InitializeItem(RocketLauncher->GetDefaultObject<UGunBase>());
+		InventoryComponent->AddItem(NewGun);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WRONG GUN NAME"));
+	}
+}
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	DefaultFOV = CameraComp->FieldOfView;
+
+	if (AssaultRifle)
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, AssaultRifle);
+		NewGun->InitializeItem(AssaultRifle->GetDefaultObject<UGunBase>());
+		EquippedGun = NewGun;
+	}
+
+	/*if (RocketLauncher)
+	{
+		UGunBase* NewGun = NewObject<UGunBase>(this, RocketLauncher);
+		NewGun->InitializeItem(RocketLauncher->GetDefaultObject<UGunBase>());
+		EquippedGun = NewGun;
+	}*/
+
+	this->Tags.Add(TEXT("Player"));
+	GetWorld()->GetTimerManager().SetTimer(
+		ArmorRestoreTimer,
+		this,
+		&APlayerCharacter::RestoreArmor,
+		5.0f,
+		true
+		);
 }
 
-// Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	float TargetFOV = bIsZoom ? ZoomedFOV : DefaultFOV;
+	float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, ZoomInterpSpeed);
+	CameraComp->SetFieldOfView(NewFOV);
+
+	// 숄더뷰 위치 조정
+	FVector TargetSocketOffset = bIsZoom ? FVector(0, 50, 0) : FVector(0, 0, 0);
+	SpringArmComp->SocketOffset = FMath::VInterpTo(SpringArmComp->SocketOffset, TargetSocketOffset, DeltaTime, ZoomInterpSpeed);
+
+	if (bIsSprinting)
+	{
+		// SprintSpeed로 서서히 증가
+		float TargetSpeed = SprintSpeed;
+		float InterpSpeed = FMath::FInterpTo(GetCharacterMovement()->MaxWalkSpeed, TargetSpeed, DeltaTime, 8.0f); // 8.0f는 보간 속도
+		GetCharacterMovement()->MaxWalkSpeed = InterpSpeed;
+	}
+	else
+	{
+		// MoveSpeed로 서서히 감소
+		float TargetSpeed = MoveSpeed;
+		float InterpSpeed = FMath::FInterpTo(GetCharacterMovement()->MaxWalkSpeed, TargetSpeed, DeltaTime, 8.0f); // 8.0f는 보간 속도
+		GetCharacterMovement()->MaxWalkSpeed = InterpSpeed;
+	}
 }
 
-// Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -108,17 +225,135 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 					ETriggerEvent::Triggered,
 					this,
 					&APlayerCharacter::Fire
-					);
+				);
 			}
-
+			if (PlayerController->ReloadAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ReloadAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::Reload
+				);
+			}
+			if (PlayerController->InventoryAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->InventoryAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::OpenIventory
+				);
+			}
+			if (PlayerController->SwapAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->SwapAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::SwapGun
+				);
+			}
+			if (PlayerController->ButtonOneAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ButtonOneAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::UseOne
+				);
+			}
+			if (PlayerController->ButtonTwoAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ButtonTwoAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::UseTwo
+				);
+			}
+			if (PlayerController->ButtonThreeAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ButtonThreeAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::UseThree
+				);
+			}
+			if (PlayerController->ButtonFourAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ButtonFourAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::UseFour
+				);
+			}
+			if (PlayerController->InteractAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->InteractAction,
+					ETriggerEvent::Triggered,
+					this,
+					&APlayerCharacter::Interact
+				);
+			}
+			if (PlayerController->CrouchAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->CrouchAction,
+					ETriggerEvent::Triggered,
+					this,
+					&APlayerCharacter::StartCrouch
+				);
+			}
+			if (PlayerController->CrouchAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->CrouchAction,
+					ETriggerEvent::Completed,
+					this,
+					&APlayerCharacter::StopCrouch
+				);
+			}
+			if (PlayerController->RollingAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->RollingAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::Rolling
+				);
+			}
+			if (PlayerController->ZoomAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ZoomAction,
+					ETriggerEvent::Started,
+					this,
+					&APlayerCharacter::StartZoom
+				);
+			}
+			if (PlayerController->CrouchAction)
+			{
+				EnhancedInput->BindAction(
+					PlayerController->ZoomAction,
+					ETriggerEvent::Completed,
+					this,
+					&APlayerCharacter::StopZoom
+				);
+			}
 		}
-
 	}
-
 }
+
 void APlayerCharacter::Move(const FInputActionValue& value)
 {
-	if (!Controller) return;
+	if (bIsRolling)
+		return;
+	if (!Controller) 
+		return;
 
 	const FVector2D MoveInput = value.Get<FVector2D>();
 
@@ -130,13 +365,17 @@ void APlayerCharacter::Move(const FInputActionValue& value)
 	{
 		AddMovementInput(GetActorRightVector(), MoveInput.Y);
 	}
-
 }
 void APlayerCharacter::StartJump(const FInputActionValue& value)
 {
-	if (value.Get<bool>())
+	if (value.Get<bool>() && !bIsRolling)
 	{
 		Jump();
+		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+		if (MyGameState)
+		{
+			MyGameState->UpdateCrossHair();
+		}
 	}
 }
 
@@ -157,22 +396,254 @@ void APlayerCharacter::Look(const FInputActionValue& value)
 
 void APlayerCharacter::StartSprint(const FInputActionValue& value)
 {
-	if (GetCharacterMovement())
+	if (GetCharacterMovement() && bIsReloading == false && bIsCrouch == false && !bIsRolling)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+		bIsSprinting = true; // 스프린트 상태 시작
 	}
 }
 
-void APlayerCharacter::StopSprint(const FInputActionValue& value)
+void APlayerCharacter::StopSprint()
 {
 	if (GetCharacterMovement())
 	{
-		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+		bIsSprinting = false; // 스프린트 상태 종료
 	}
 }
 
 void APlayerCharacter::Fire(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp,Log,TEXT("Log Messafe"));
+	if (bIsSprinting) StopSprint();
+
+	if (EquippedGun && bIsReloading == false && EquippedGun->CurAmmo > 0 && EquippedGun->bCanFire && !bIsCrouch && !bIsRolling)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+		EquippedGun->Fire();
+		GetMesh()->GetAnimInstance()->Montage_Play(FireMontage);
+		UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GetMesh(), TEXT("GunFireSocket"));
+	}
 }
 
+void APlayerCharacter::Reload(const FInputActionValue& value)
+{
+	if (EquippedGun && bIsReloading == false && bIsRolling == false)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), EquippedGun->GetReloadSound(), GetActorLocation());		
+
+		bIsReloading = true;
+		GetWorld()->GetTimerManager().SetTimer(
+			ReloadTimerHandle,
+			this,
+			&APlayerCharacter::FinishReload,
+			EquippedGun->ReloadTime,
+			false);
+
+		GetMesh()->GetAnimInstance()->Montage_Play(ReloadMontage);
+	}
+}
+
+void APlayerCharacter::FinishReload()
+{
+	EquippedGun->Reload();
+
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		MyGameState->UpdateCrossHair();
+	}
+
+	bIsReloading = false;
+}
+void APlayerCharacter::OpenIventory(const FInputActionValue& value)
+{
+	AMyHUD* MyHUD = Cast<AMyHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+	if (MyHUD == nullptr) return;
+
+	MyHUD->ToggleMainMenu();
+}
+
+void APlayerCharacter::SwapGun(const FInputActionValue& value)
+{
+	if (bIsReloading == false)
+	{
+		if (SubGun)
+		{
+			UGunBase* TempGun = EquippedGun;
+			EquippedGun = SubGun;
+			SubGun = TempGun;
+
+			AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+			if (MyGameState)
+			{
+				MyGameState->UpdateCrossHair();
+				MyGameState->SwapUIAnim();
+			}
+		}
+	}
+}
+
+void APlayerCharacter::UseOne(const FInputActionValue& value)
+{
+	if (FirstConsumable)
+	{
+		FirstConsumable->ApplyConsumableEffect(this);
+		FirstConsumable = nullptr;
+	}
+}
+void APlayerCharacter::UseTwo(const FInputActionValue& value)
+{
+	if (SecondConsumable)
+	{
+		SecondConsumable->ApplyConsumableEffect(this);
+		SecondConsumable = nullptr;
+	}
+}
+void APlayerCharacter::UseThree(const FInputActionValue& value)
+{
+	if (ThirdConsumable)
+	{
+		ThirdConsumable->ApplyConsumableEffect(this);
+		ThirdConsumable = nullptr;
+	}
+}
+void APlayerCharacter::UseFour(const FInputActionValue& value)
+{
+
+}
+void APlayerCharacter::StartCrouch(const FInputActionValue& value)
+{
+	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	bIsCrouch = true;
+
+	GetCapsuleComponent()->InitCapsuleSize(34,44);
+	Crouch();
+}
+void APlayerCharacter::StopCrouch(const FInputActionValue& value)
+{
+	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+	bIsCrouch = false;
+
+	GetCapsuleComponent()->InitCapsuleSize(34,88);
+	UnCrouch();
+}
+
+void APlayerCharacter::StartZoom(const FInputActionValue& value)
+{
+	bIsZoom = true;
+}
+
+void APlayerCharacter::StopZoom(const FInputActionValue& value)
+{
+	bIsZoom = false;
+}
+
+float APlayerCharacter::TakeDamage(
+	float DamageAmount,
+	FDamageEvent const& DamageEvent,
+	AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	const float ActualDamage = Super::TakeDamage(
+		DamageAmount,
+		DamageEvent,
+		EventInstigator,
+		DamageCauser);
+
+	if (StatusContainerComponent->GetCurArmor() <= 0)
+	{
+		AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+		if (MyGameState)
+		{
+			MyGameState->UpdateHitUI();
+		}
+	}
+
+	return ActualDamage;
+}
+
+void APlayerCharacter::Interact(const FInputActionValue& value)
+{
+	if (CurrentMissionTrigger)
+	{
+		CurrentMissionTrigger->OnInteracted();
+	}
+}
+
+void APlayerCharacter::Rolling (const FInputActionValue& value)
+{
+	if (!(GetMesh()->GetAnimInstance()->Montage_IsPlaying(RollingMontage)))
+	{
+		GetMesh()->GetAnimInstance()->Montage_Play(RollingMontage);
+		Crouch();
+		GetCapsuleComponent()->InitCapsuleSize(34, 44);
+		bIsRolling = true;
+
+	}
+
+	FOnMontageEnded EndDelegate;
+	EndDelegate.BindUObject(this,&APlayerCharacter::StopRolling);
+
+	GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate, RollingMontage);
+}
+
+UGunBase* APlayerCharacter::GetEquippedGun()
+{
+	if (EquippedGun)
+	{
+		return EquippedGun;
+	}
+	return nullptr;
+}
+void APlayerCharacter::StopRolling(UAnimMontage* Montage, bool isEnded)
+{
+	UnCrouch();
+	GetCapsuleComponent()->InitCapsuleSize(34, 88);
+	bIsRolling = false;
+}
+UGunBase* APlayerCharacter::GetSubGun()
+{
+	if (SubGun)
+	{
+		return SubGun;
+	}
+	return nullptr;
+}
+
+void APlayerCharacter::SetEquippedGun(UGunBase* InGun)
+{
+	EquippedGun = InGun;
+}
+
+void APlayerCharacter::SetSubGun(UGunBase* InGun)
+{
+	SubGun = InGun;
+}
+
+UStatusContainerComponent* APlayerCharacter::GetStatusContainerComponent() const
+{
+	return StatusContainerComponent;
+}
+
+void APlayerCharacter::RestoreArmor()
+{
+	if (StatusContainerComponent->GetCurArmor() > 0)
+	{
+		StatusContainerComponent->SetCurArmor(StatusContainerComponent->GetCurArmor() + RestoreArmorAmount);
+	}
+}
+
+void APlayerCharacter::OnDeath()
+{
+	Super::OnDeath();
+
+	// Handling GameOver After a Delay
+	AMyGameState* MyGameState = GetWorld() ? GetWorld()->GetGameState<AMyGameState>() : nullptr;
+	if (MyGameState)
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			GameOverTimerHandle,
+			MyGameState,
+			&AMyGameState::OnGameOver,
+			2.0f,
+			false);
+	}
+}

@@ -2,12 +2,14 @@
 
 #include "MyGameMode.h"
 #include "MyGameState.h"
-//#include "TestCharacterimkskku.h"
-//#include "TestPlayerControllerimkskku.h"
+#include "PlayerCharacter.h"
+#include "MyPlayerController.h"
+#include "KillLogWidget.h"
+#include "SDLogManager.h"
 
 AMyGameMode::AMyGameMode()
 {
-	//DefaultPawnClass = ATestCharacterimkskku::StaticClass();
-	//PlayerControllerClass = ATestPlayerControllerimkskku::StaticClass();
+	DefaultPawnClass = APlayerCharacter::StaticClass();
+	PlayerControllerClass = AMyPlayerController::StaticClass();
 	GameStateClass = AMyGameState::StaticClass();
 }

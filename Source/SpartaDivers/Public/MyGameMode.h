@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameMode.h"
+#include "GameFramework/GameModeBase.h"
 #include "MyGameMode.generated.h"
 
 UCLASS()
-class SPARTADIVERS_API AMyGameMode : public AGameMode
+class SPARTADIVERS_API AMyGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 

@@ -6,6 +6,18 @@
 #include "Item/ItemBase.h"
 #include "AttachmentBase.generated.h"
 
+class UGunBase;
+
+UENUM()
+enum class EAttachmentType : uint8
+{
+	Scope,
+	Muzzle,
+	Magazine,
+	Stock,
+	Grip
+};
+
 /**
  * 
  */
@@ -14,4 +26,18 @@ class SPARTADIVERS_API UAttachmentBase : public UItemBase
 {
 	GENERATED_BODY()
 	
+public:
+	UAttachmentBase();
+
+	virtual void ApplyAttachmentEffect(UGunBase* InGun);
+	virtual void RemoveAttachmentEffect(UGunBase* InGun);
+
+	FORCEINLINE const EAttachmentType GetAttachmentType() const { return AttachmentType; }
+
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	EAttachmentType AttachmentType;
+
+	UPROPERTY(EditDefaultsOnly)
+	float EffectAmount;
 };
